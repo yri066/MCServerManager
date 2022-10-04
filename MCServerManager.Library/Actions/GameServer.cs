@@ -126,6 +126,11 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
+			if (State != Status.Reboot)
+			{
+				State = Status.Launch;
+			}
+
 			await Task.Run(() => StartServer());
 		}
 
@@ -134,11 +139,6 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		private void StartServer()
 		{
-			if(State != Status.Reboot)
-			{
-				State = Status.Launch;
-			}
-
 			_process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
 			_process.StartInfo.FileName = Programm;
@@ -167,28 +167,19 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Завершает работу серверого приложения.
 		/// </summary>
-		public async void Stop()
+		public void Stop()
 		{
-			if (State != Status.Run && State != Status.Launch && State != Status.Reboot)
+			if (State != Status.Run && State != Status.Reboot)
 			{
 				return;
 			}
 
-			await Task.Run(() => StopServer());
-		}
-
-		/// <summary>
-		/// Завершает работу серверого приложения.
-		/// </summary>
-		private void StopServer()
-		{
-			if(State != Status.Reboot)
+			if (State != Status.Reboot)
 			{
 				State = Status.Shutdown;
 			}
-			
+
 			_process.StandardInput.WriteLine("stop");
-			_process.WaitForExit();
 		}
 
 		/// <summary>
@@ -249,7 +240,6 @@ namespace MCServerManager.Library.Actions
 			if (State == Status.Reboot)
 			{
 				ServerOff -= RunOffServer;
-				State = Status.Shutdown;
 			}	
 
 			ProcessClosed();
@@ -276,6 +266,11 @@ namespace MCServerManager.Library.Actions
 		public void SendServerCommand(string message)
 		{
 			if(State != Status.Run)
+			{
+				return;
+			}
+
+			if (string.IsNullOrEmpty(message))
 			{
 				return;
 			}
