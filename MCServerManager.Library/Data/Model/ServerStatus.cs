@@ -9,8 +9,9 @@
 		{
 			Launch,
 			Run,
-			Stopping,
+			Shutdown,
 			Off,
+			Reboot,
 			Error
 		}
 	}
