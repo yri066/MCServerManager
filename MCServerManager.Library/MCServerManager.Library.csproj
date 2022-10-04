@@ -6,4 +6,8 @@
     <Nullable>warnings</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+  </ItemGroup>
+
 </Project>
