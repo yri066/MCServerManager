@@ -270,11 +270,6 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
-			if (string.IsNullOrEmpty(message))
-			{
-				return;
-			}
-
 			_process.StandardInput.WriteLine(message);
 		}
 
