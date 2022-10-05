@@ -99,6 +99,8 @@ namespace MCServerManager.Service
 				Port = port
 			});
 
+			SaveServerData();
+
 			return id;
 		}
 
@@ -120,8 +122,6 @@ namespace MCServerManager.Service
 			}
 
 			Servers.Add(new GameServer(serverData));
-
-			SaveServerData();
 		}
 
 		/// <summary>
