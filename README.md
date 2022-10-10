@@ -1,7 +1,7 @@
 <h1 align="center">Minecraft Server Manager</h1>
 <p>
   
-[![forthebadge](https://forthebadge.com/images/badges/made-with-c-sharp.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/made-with-c-sharp.svg)](https://forthebadge.com)  [![codebeat badge](https://codebeat.co/badges/da8e3d96-ffb3-40f5-ad75-202691102e5c)](https://codebeat.co/a/yri066/projects/github-com-yri066-mcservermanager-main)
   
 </p>
 
