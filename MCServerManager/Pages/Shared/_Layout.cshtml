@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MC Server Manager</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MCServerManager.styles.css" asp-append-version="true" />
 </head>
@@ -23,7 +23,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Server/List">Список Серверов</a>
                         </li>
                     </ul>
-                    <partial name="_LoginPartial" />
+                    @if(false) {<partial name="_LoginPartial" />}
                 </div>
             </div>
         </nav>
