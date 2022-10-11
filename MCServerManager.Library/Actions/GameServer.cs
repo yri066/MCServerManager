@@ -240,9 +240,9 @@ namespace MCServerManager.Library.Actions
 			if (State == Status.Reboot)
 			{
 				ServerOff -= RunOffServer;
-			}	
+			}
 
-			ProcessClosed();
+			_process.Kill();
 		}
 
 		/// <summary>
