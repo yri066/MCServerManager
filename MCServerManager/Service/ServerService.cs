@@ -84,7 +84,7 @@ namespace MCServerManager.Service
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
 		public Guid CreateServer(string name, bool autoStart, string workDirectory, string programm,
-			string arguments, string addres, int port)
+			string arguments, string addres, int? port)
 		{
 			var id = Guid.NewGuid();
 			AddServer(new ServerData()
@@ -179,6 +179,15 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Выключает указанный сервер, не дожидаясь сохранения данных.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		public void CloseServer(Guid id)
+		{
+			GetServer(id).Close();
+		}
+
+		/// <summary>
 		/// Перезагружает указанный сервер.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
@@ -201,7 +210,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		private void SaveServerData()
 		{
-			JsonTool.SaveJsonDataToFile(_pathFileSettings, JsonTool.Serialize(Servers));
+			JsonTool.SaveJsonDataToFile(_pathFileSettings, Servers);
 		}
 
 		/// <summary>

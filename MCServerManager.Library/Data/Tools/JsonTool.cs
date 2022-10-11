@@ -36,11 +36,6 @@ namespace MCServerManager.Library.Data.Tools
 		/// <returns>Данные в формате Json.</returns>
 		public static string Serialize<T>(T data)
 		{
-			if (data == null)
-			{
-				//throw new ArgumentNullException(nameof(data));
-			}
-
 			return JsonConvert.SerializeObject(data);
 		}
 

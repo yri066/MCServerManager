@@ -1,0 +1,40 @@
+﻿@using MCServerManager.Library.Data.Model
+@model ServerStatus.Status
+@{
+    var hiddenStyle = "none";
+    var showStyle = "inline";
+    var viewStartServer = hiddenStyle;
+    var viewRebootServer = hiddenStyle;
+    var viewStopServer = hiddenStyle;
+    var viewCloseServer = hiddenStyle;
+
+    switch (Model)
+    {
+        case ServerStatus.Status.Off :
+            viewStartServer = showStyle;
+            break;
+        case ServerStatus.Status.Launch :
+            viewCloseServer = showStyle;
+            break;
+        case ServerStatus.Status.Run :
+            viewRebootServer = showStyle;
+            viewStopServer = showStyle;
+            viewCloseServer = showStyle;
+            break;
+        case ServerStatus.Status.Shutdown :
+            viewCloseServer = showStyle;
+            break;
+        case ServerStatus.Status.Error :
+            viewStartServer = showStyle;
+            break;
+        case ServerStatus.Status.Reboot :
+            viewCloseServer = showStyle;
+            break;
+    }
+
+}
+
+<button type="button" class="btn btn-success" id="StartServer" style="display: @viewStartServer;">Включить</button>
+<button type="button" class="btn btn-warning" id="RebootServer" style="display: @viewRebootServer;">Перезагрузить</button>
+<button type="button" class="btn btn-danger" id="StopServer" style="display: @viewStopServer;">Выключить</button>
+<button type="button" class="btn btn-secondary" title="Отключить не дожидаясь сохранения данных." id="CloseServer" style="display: @viewCloseServer;">Отключить</button>

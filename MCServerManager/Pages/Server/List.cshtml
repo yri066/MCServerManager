@@ -1,0 +1,39 @@
+﻿@page "/List"
+@model MCServerManager.Pages.Server.ListModel
+@{
+}
+
+<div class="col-md-12 text-end">
+    <a asp-page="/Server/Add" class="btn btn-success">Добавить сервер</a>
+</div>
+<br />
+@if (Model._service.Servers.Count != 0)
+{
+    @foreach (var server in Model._service.Servers)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm">
+                        <h5 class="card-title">@server.Name</h5>
+                    </div>
+                    <div class="col-sm">
+                        <p class="card-text">@server.Addres:@server.Port</p>
+                    </div>
+                    <div class="col-auto text-end">
+                        <p class="card-text">Колличество игроков: 0</p>
+                    </div>
+                </div>
+                <div class="col-auto text-end">
+                    <a asp-page="/Server/Index" asp-route-id="@server.Id" class="btn btn-primary">Информация о сервере</a>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center">
+        <h4 class="display-4">Серверы еще не добавлены</h4>
+    </div>
+}
