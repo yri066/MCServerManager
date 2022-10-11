@@ -1,0 +1,59 @@
+﻿@page "{id:guid}"
+@using MCServerManager.Library.Data.Model
+@model MCServerManager.Pages.Server.IndexModel
+@{
+    ViewData["Title"] = Model.Exemplar.Name;
+}
+<script defer type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+<script defer type="text/javascript" src="~/js/ControlGameServer.js" asp-append-version="true"></script>
+
+<h4 class="card-title">
+    @Model.Exemplar.Name
+</h4>
+<div class="row">
+    <div class="col-sm-6">
+        <div id="ChangeServerStatus">
+            <partial name="_actionServerButtons" model="Model.Exemplar.State" />
+		</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" id="StatusServer">Состояние сервера: @Model.Exemplar.State</li>
+            <li class="list-group-item">Автозапуск: @Model.Exemplar.AutoStart</li>
+            <li class="list-group-item">Расположение сервера: @Model.Exemplar.WorkDirectory</li>
+            <li class="list-group-item">Программа для запуска: @Model.Exemplar.Programm</li>
+            <li class="list-group-item">Аргументы запуска: @Model.Exemplar.Arguments</li>
+            <li class="list-group-item">Адрес сервера: @Model.Exemplar.Addres</li>
+                @if (@Model.Exemplar.Port != null)
+                {
+                <li class="list-group-item">
+                    Порт: <span>@Model.Exemplar.Port</span>
+                </li>
+                }
+        </ul>
+        <br />
+        <a asp-page="/Server/Edit" asp-route-id="@Model.Exemplar.Id" class="btn btn-primary" role="button">Редактировать</a>
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Удалить
+        </button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Удалить сервер</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы действительно хотите удалить данный сервер? Это действие нельзя отменить.
+            </div>
+            <div class="modal-footer">
+                <a asp-page-handler="Delete" class="btn btn-secondary" role="button">Удалить</a>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
