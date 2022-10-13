@@ -7,9 +7,9 @@
     <a asp-page="/Server/Add" class="btn btn-success">Добавить сервер</a>
 </div>
 <br />
-@if (Model._service.Servers.Count != 0)
+@if (Model.Servers.Count != 0)
 {
-    @foreach (var server in Model._service.Servers)
+    @foreach (var server in Model.Servers)
     {
         <div class="card mb-3">
             <div class="card-body">
