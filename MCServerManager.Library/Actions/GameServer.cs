@@ -115,6 +115,7 @@ namespace MCServerManager.Library.Actions
 
 			ServerData = data;
 			State = Status.Off;
+			ServerOff += UserList.Clear;
 		}
 
 		/// <summary>
