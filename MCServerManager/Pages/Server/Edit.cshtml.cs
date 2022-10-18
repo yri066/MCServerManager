@@ -16,9 +16,15 @@ namespace MCServerManager.Pages.Server
 		{
 			_service = serverService;
 		}
+
+		/// <summary>
+		/// Обрабатывает Get запрос.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnGet(Guid id)
 		{
-			try 
+			try
 			{
 				var server = _service.GetServerData(id);
 				Input = new ServerDetail
@@ -40,6 +46,11 @@ namespace MCServerManager.Pages.Server
 			return Page();
 		}
 
+		/// <summary>
+		/// Обрабатывает Post запрос на изменение информации о сервера.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnPost(Guid id)
 		{
 			try
@@ -52,12 +63,10 @@ namespace MCServerManager.Pages.Server
 			}
 			catch (Exception ex)
 			{
-				// TODO: Log error
-				// Add a model-level error by using an empty string key
 				ModelState.AddModelError(
 					string.Empty,
 					ex.Message
-					);
+				);
 			}
 
 			return Page();
