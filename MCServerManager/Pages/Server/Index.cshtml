@@ -4,6 +4,10 @@
 @{
     ViewData["Title"] = Model.Exemplar.Name;
 }
+
+<script>
+    let pathPage = "@Model.Request.Path";
+</script>
 <script defer type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
 <script defer type="text/javascript" src="~/js/ControlGameServer.js" asp-append-version="true"></script>
 
@@ -36,6 +40,22 @@
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
             Удалить
         </button>
+    </div>
+    <div class="col-sm-6">
+        <div class="card mb-3">
+            <div class="card-body bg-light">
+                <div class="row">
+                    <div class="col-sm">
+                        <p class="card-text">Игроки</p>
+                    </div>
+                    <div class="col-auto text-end">
+                        <p class="card-text" id="user-count">Количество игроков: 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="user-list">
+        </div>
     </div>
 </div>
 
