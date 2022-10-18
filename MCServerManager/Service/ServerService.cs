@@ -246,7 +246,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="text">Сообщение.</param>
-		public void SetServerCommant(Guid id, string message)
+		public void SendServerCommand(Guid id, string message)
 		{
 			GetServer(id).SendServerCommand(message);
 		}
