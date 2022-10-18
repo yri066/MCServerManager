@@ -5,23 +5,31 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Server
 {
-    public class AddModel : PageModel
-    {
+	public class AddModel : PageModel
+	{
 		[BindProperty]
 		public ServerDetail Input { get; set; }
 		private readonly ServerService _service;
-		
+
 		public AddModel(ServerService service)
 		{
 			_service = service;
 		}
-		public void OnGet()
-        {
-            Input = new();
-        }
 
-        public IActionResult OnPost()
-        {
+		/// <summary>
+		/// Обрабатывает Get запрос.
+		/// </summary>
+		public void OnGet()
+		{
+			Input = new();
+		}
+
+		/// <summary>
+		/// Обрабатывает Post запрос на добавление нового сервера.
+		/// </summary>
+		/// <returns>Перенаправление на страницу.</returns>
+		public IActionResult OnPost()
+		{
 			try
 			{
 				if (ModelState.IsValid)
@@ -33,8 +41,6 @@ namespace MCServerManager.Pages.Server
 			}
 			catch (Exception ex)
 			{
-				// TODO: Log error
-				// Add a model-level error by using an empty string key
 				ModelState.AddModelError(
 					string.Empty,
 					ex.Message
@@ -43,5 +49,5 @@ namespace MCServerManager.Pages.Server
 
 			return Page();
 		}
-    }
+	}
 }
