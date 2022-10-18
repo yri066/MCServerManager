@@ -63,6 +63,12 @@ namespace MCServerManager.Library.Actions
 		public Status State { get; private set; }
 
 		/// <summary>
+		/// Список игроков на сервере.
+		/// </summary>
+		[JsonIgnore]
+		public UsersListServer UserList { get; private set; } = new();
+
+		/// <summary>
 		/// Процесс, управляющий серверным приложением.
 		/// </summary>
 		private Process _process;
@@ -78,6 +84,16 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public event StoppedServerEventHandler ClocedServer;
 
+		/// <summary>
+		/// Делегат события начала работы серверного приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		public delegate void ServerStartedEventHandler(Guid id);
+
+		/// <summary>
+		/// Cобытие начала работы серверного приложения.
+		/// </summary>
+		public event ServerStartedEventHandler ServerStarted;
 
 		/// <summary>
 		/// Делегат события завершения работы серверного приложения при перезагрузке.
@@ -161,7 +177,6 @@ namespace MCServerManager.Library.Actions
 
 			_process.Start();
 			_process.BeginOutputReadLine();
-			State = Status.Run;
 		}
 
 		/// <summary>
@@ -251,11 +266,8 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения.</param>
 		private void GetServerMessage(string message)
 		{
-			if (string.IsNullOrEmpty(message))
-			{
-				return;
-			}
-
+			DetectionStartedServer(message);
+			DetectionUser(message);
 			Console.WriteLine(message);
 		}
 
@@ -299,6 +311,74 @@ namespace MCServerManager.Library.Actions
 				if (data.Port <= 1023 || data.Port >= 65535)
 				{
 					throw new ArgumentOutOfRangeException(nameof(data.Port), "Значения порта задано вне допустимого диапазона 1024 - 65535");
+				}
+			}
+		}
+
+		private void DetectionStartedServer(string message)
+		{
+			if (State != Status.Launch && State != Status.Reboot)
+			{
+				return;
+			}
+
+			if (string.IsNullOrEmpty(message))
+			{
+				return;
+			}
+
+			var MessageServerStarted = "Done";
+
+			if (message.Contains(MessageServerStarted))
+			{
+				State = Status.Run;
+				ServerStarted?.Invoke(Id);
+			}
+		}
+		private void DetectionUser(string message)
+		{
+			if (State != Status.Run)
+			{
+				return;
+			}
+
+			if (string.IsNullOrEmpty(message))
+			{
+				return;
+			}
+
+			// Текст сообщения подключения/отключения пользователя.
+			string messageUserConnected = "joined the game";
+			string messageUserDisconnected = "left the game";
+			string[] messageUserConnectedArr = { "joined", "the", "game" };
+			string[] messageUserDisconnectedArr = { "left", "the", "game" };
+
+
+			int lengthArray = 7; // Длина массива подключения/отключения пользователя.
+			int positionLogin = 3; // Расположение логина в массиве.
+			Range positionRange = 4..7; // Расположение элементов массива для сравнения.
+
+			// Определение подключения пользователя к серверу.
+			if (message.Contains(messageUserConnected) &&
+				!message.Contains('<'))
+			{
+				var array = message.Split(' ');
+
+				if (array.Length == lengthArray && array[positionRange].SequenceEqual(messageUserConnectedArr))
+				{
+					UserList.Add(array[positionLogin]);
+				}
+			}
+
+			// Определение отключения пользователя от сервера.
+			if (message.Contains(messageUserDisconnected) &&
+				!message.Contains('<'))
+			{
+				var array = message.Split(' ');
+
+				if (array.Length == lengthArray && array[positionRange].SequenceEqual(messageUserDisconnectedArr))
+				{
+					UserList.Remove(array[positionLogin]);
 				}
 			}
 		}
