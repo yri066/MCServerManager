@@ -1,59 +1,114 @@
-﻿var state = "";
+﻿let status = "";
+let usersInfo = {
+	version: "",
+	userList: [],
+	count: 0
+};
+
 
 /**Таймер */
-let timer = setInterval(() => getState(`${document.URL}/GetStatus`), 1500);
+let timer = setInterval(() => getState(`${pathPage}/GetStatus`), 1500);
+
+
+/**
+ * Загрузка Json по ссылке.
+ * @param {string} url Ссылка на Json.
+ * @returns Promise с загруженными данными
+ */
+function loadJson(url) {
+	if (typeof url !== "string") {
+		throw `Перменная должена быть типом String (${typeof str})`;
+	}
+
+	if (url == "" || url == null) {
+		throw `Строка не должна быть пустой`;
+	}
+
+	return new Promise(function (resolve, reject) {
+		let xmlhttprequest = new XMLHttpRequest();
+		xmlhttprequest.open('GET', url, true);
+		xmlhttprequest.responseType = 'json';
+
+		xmlhttprequest.onload = function () {
+			let status = xmlhttprequest.status;
+
+			if (status == 200) {
+				resolve(xmlhttprequest.response);
+			} else {
+				reject(xmlhttprequest.response.errorText);
+			}
+		};
+
+		xmlhttprequest.onerror = () => reject(`Не удалось загрузить данные.`);
+		xmlhttprequest.send();
+	});
+};
 
 function getState(url) {
-    getElement(url, function (element) {
-	    changeState(element);
-    });
+	queryHandling(url, data => {
+		changeState(data);
+	});
 }
 
-function getElement(url, c) {
-    request(new XMLHttpRequest());
-
-    function request(xhr) {
-        xhr.open('GET', url, true);
-        
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                c(xhr.responseText);
-            }
-        }
-		
-		xhr.send();
-		
-		xhr.onerror = function (e) {
-			$("#StatusServer").html(`Состояние сервера: Ошибка соединения`);
-		};
-    }
+function queryHandling(url, resolve) {
+	loadJson(url)
+	.then(data => {
+		resolve(data);
+	})
+	.catch(error => $("#StatusServer").html(`Состояние сервера: ${error}`));
 }
 
 $("#StartServer").click(function() {
-	getState(`${document.URL}/Start`);
+	getState(`${pathPage}/Start`);
 });
 
 $("#RebootServer").click(function() {
-	getState(`${document.URL}/Restart`);
+	getState(`${pathPage}/Restart`);
 });
 
 $("#StopServer").click(function() {
-	getState(`${document.URL}/Stop`);
+	getState(`${pathPage}/Stop`);
 });
 
 $("#CloseServer").click(function() {
-	getState(`${document.URL}/Close`);
+	getState(`${pathPage}/Close`);
 });
 
-function changeState(element) {
-	if (state == element) {
+function checkUserList(element) {
+	if (usersInfo.version == element.userListVersion) {
 		return;
 	}
 	
-	state = element;
-	$("#StatusServer").html(`Состояние сервера: ${state}`);
+	queryHandling(`${pathPage}/GetUserList`, function (element) {
+		usersInfo = element;
+
+		$("#user-count").html(`Количество игроков: ${usersInfo.count}`);
+
+		let list = "";
+		for (let x = 0; x < usersInfo.count; x++) {
+			list += `<div class="card">
+            <div class="card-body">
+                ${usersInfo.userList[x]}
+            </div>
+        </div>`;
+		}
+
+		$("#user-list").html(list);
+
+	});
+}
+
+function changeState(element) {
+	checkUserList(element);
+
+	if (status == element.status) {
+		return;
+	}
 	
-	switch (state) {
+	status = element.status;
+	$("#StatusServer").html(`Состояние сервера: ${status}`);
+
+	switch (status) {
 		case "Off":
 			$( "#StartServer" ).show();
 			$( "#RebootServer" ).hide();
