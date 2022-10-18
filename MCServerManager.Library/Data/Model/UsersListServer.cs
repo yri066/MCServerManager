@@ -39,5 +39,14 @@
 			UserList.Remove(text);
 			Version = Guid.NewGuid();
 		}
+
+		/// <summary>
+		/// Очищает список пользователей.
+		/// </summary>
+		public void Clear()
+		{
+			UserList.Clear();
+			Version = Guid.NewGuid();
+		}
 	}
 }
