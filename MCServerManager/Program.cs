@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Configuration.AddJsonFile("Settings.json");
+builder.Configuration.AddJsonFile("StyleSettings.json");
 
 builder.Services.AddSingleton<ServerService>();
 builder.Services.AddHostedService<RunGameServersHostedService>();
