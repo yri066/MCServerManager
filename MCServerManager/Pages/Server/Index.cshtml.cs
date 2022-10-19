@@ -7,12 +7,18 @@ namespace MCServerManager.Pages.Server
 {
 	public class IndexModel : PageModel
 	{
-		public readonly ServerService _serverService;
+		/// <summary>
+		/// Конфигурация.
+		/// </summary>
+		public readonly IConfiguration ButtonStyle;
+
+		private readonly ServerService _serverService;
 		public GameServer Exemplar { get; private set; }
 
-		public IndexModel(ServerService serverService)
+		public IndexModel(ServerService serverService, IConfiguration configuration)
 		{
 			_serverService = serverService;
+			ButtonStyle = configuration.GetSection("Action:GameServer");
 		}
 
 		public IActionResult OnGet(Guid id)
