@@ -1,0 +1,48 @@
+{
+	"Action": {
+		"GameServer": {
+			"StartButton": {
+				"Off": "inline",
+				"Launch": "none",
+				"Run": "none",
+				"Shutdown": "none",
+				"Error": "inline",
+				"Reboot": "none"
+			},
+			"RebootButton": {
+				"Off": "none",
+				"Launch": "none",
+				"Run": "inline",
+				"Shutdown": "none",
+				"Error": "none",
+				"Reboot": "none"
+			},
+			"StopButton": {
+				"Off": "none",
+				"Launch": "none",
+				"Run": "inline",
+				"Shutdown": "none",
+				"Error": "none",
+				"Reboot": "none"
+			},
+			"CloseButton": {
+				"Off": "none",
+				"Launch": "inline",
+				"Run": "inline",
+				"Shutdown": "inline",
+				"Error": "none",
+				"Reboot": "inline"
+			}
+		},
+		"Application": {
+			"StartButton": {
+				"Off": "none",
+				"Run": "inline"
+			},
+			"CloseButton": {
+				"Off": "inline",
+				"Run": "none"
+			}
+		}
+	}
+}
