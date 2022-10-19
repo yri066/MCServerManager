@@ -17,7 +17,10 @@
 <div class="row">
     <div class="col-sm-6">
         <div id="ChangeServerStatus">
-            <partial name="_actionServerButtons" model="Model.Exemplar.State" />
+            <button type="button" class="btn btn-success" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Exemplar.State.ToString()}"];">Включить</button>
+            <button type="button" class="btn btn-warning" id="RebootServer" style="display: @Model.ButtonStyle[$"RebootButton:{@Model.Exemplar.State.ToString()}"];">Перезагрузить</button>
+            <button type="button" class="btn btn-danger" id="StopServer" style="display: @Model.ButtonStyle[$"StopButton:{@Model.Exemplar.State.ToString()}"];">Выключить</button>
+            <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Exemplar.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
 		</div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" id="StatusServer">Состояние сервера: @Model.Exemplar.State</li>
