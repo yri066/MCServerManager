@@ -1,66 +1,40 @@
 ﻿using MCServerManager.Library.Data.Model;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
-using static MCServerManager.Library.Data.Model.ServerStatus;
+using Newtonsoft.Json;
+using static MCServerManager.Library.Data.Model.GameServerStatus;
 
 namespace MCServerManager.Library.Actions
 {
 	/// <summary>
 	/// Работа с сервером.
 	/// </summary>
-	public class GameServer
+	public class GameServer : Application
 	{
 		/// <summary>
 		/// Информация о серверном приложении.
 		/// </summary>
 		[JsonIgnore]
-		public ServerData ServerData { get; private set; }
-
-		/// <summary>
-		/// Идентификатор приложения.
-		/// </summary>
-		public Guid Id { get { return ServerData.Id; } }
-
-		/// <summary>
-		/// Автозапуск.
-		/// </summary>
-		public bool AutoStart { get { return ServerData.AutoStart; } }
-
-		/// <summary>
-		/// Название приложения.
-		/// </summary>
-		public string Name { get { return ServerData.Name; } }
-
-		/// <summary>
-		/// Расположение приложения.
-		/// </summary>
-		public string WorkDirectory { get { return ServerData.WorkDirectory; } }
-
-		/// <summary>
-		/// Программа для запуска.
-		/// </summary>
-		public string Programm { get { return ServerData.Programm; } }
-
-		/// <summary>
-		/// Аргументы запуска.
-		/// </summary>
-		public string Arguments { get { return ServerData.Arguments; } }
+		public new GameServerData Data { get; private set; }
 
 		/// <summary>
 		/// Адрес сервера/ip.
 		/// </summary>
-		public string Addres { get { return ServerData.Addres; } }
+		public string Addres { get { return Data.Addres; } }
 
 		/// <summary>
 		/// Используемый порт.
 		/// </summary>
-		public int? Port { get { return ServerData.Port; } }
+		public int? Port { get { return Data.Port; } }
+
+		/// <summary>
+		/// Список сервисов.
+		/// </summary>
+		public List<BackgroundService> Services { get; private set; } = new();
 
 		/// <summary>
 		/// Состояние сервера.
 		/// </summary>
 		[JsonIgnore]
-		public Status State { get; private set; }
+		public new Status State { get; private set; }
 
 		/// <summary>
 		/// Список игроков на сервере.
@@ -69,20 +43,15 @@ namespace MCServerManager.Library.Actions
 		public UsersListServer UserList { get; private set; } = new();
 
 		/// <summary>
-		/// Процесс, управляющий серверным приложением.
-		/// </summary>
-		private Process _process;
-
-		/// <summary>
 		/// Делегат события завершения работы серверного приложения.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void StoppedServerEventHandler(Guid id);
+		public delegate void ServerStoppedEventHandler(Guid id);
 
 		/// <summary>
 		/// Cобытие завершения работы серверного приложения.
 		/// </summary>
-		public event StoppedServerEventHandler ClocedServer;
+		public event ServerStoppedEventHandler ServerCloced;
 
 		/// <summary>
 		/// Делегат события начала работы серверного приложения.
@@ -109,34 +78,109 @@ namespace MCServerManager.Library.Actions
 		/// Конструктор с параметром
 		/// </summary>
 		/// <param name="data">Информания о серверном приложении.</param>
-		public GameServer(ServerData data)
+		public GameServer(GameServerData data) : base(data)
 		{
 			CheckServerData(data);
 
-			ServerData = data;
+			Data = data;
 			State = Status.Off;
-			ServerOff += UserList.Clear;
+
+			if (Data.Services != null)
+			{
+				foreach (var service in Data.Services)
+				{
+					Services.Add(new BackgroundService(service));
+				}
+			}
+
+			ServerStarted += (id) => AutoStartBackgroundService();
+			ServerOff += () => CloseBackgroundService();
 		}
 
 		/// <summary>
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
 		/// <param name="data">Информания о серверном приложении.</param>
-		public void UpdateData(ServerData data)
+		public void UpdateData(GameServerData data)
 		{
+			base.UpdateData(data);
+
 			if (Id != data.Id)
 			{
 				throw new Exception("Идентификаторы не совпадают");
 			}
 
 			CheckServerData(data);
-			ServerData = data;
+			Data = data;
+		}
+
+		/// <summary>
+		/// Обновляет информацию о сервисе.
+		/// </summary>
+		/// <param name="serviceData">Информания о сервисе.</param>
+		public void UpdateServiceData(BackgroundServiceData serviceData)
+		{
+			var service = GetService(serviceData.Id);
+			service.UpdateData(Data);
+
+			var item = Data.Services.FirstOrDefault(x => x.Id == serviceData.Id);
+
+			if (item != null)
+			{
+				Data.Services.Remove(item);
+			}
+
+			Data.Services.Add(serviceData);
+		}
+
+		public void AddService(BackgroundService service)
+		{
+			if (Id != service.GameServerId)
+			{
+				throw new Exception("Сервис предназначен для использования с другим сервером.");
+			}
+
+			if(Services.FirstOrDefault(x=> x.Id == service.Id) != null)
+			{
+				throw new Exception("Сервис с таким же id уже существует.");
+			}
+
+			Services.Add(service);
+		}
+
+		public BackgroundService GetService(Guid serviceId)
+		{
+			var service = Services.FirstOrDefault(x => x.Id == serviceId);
+
+			if (service == null)
+			{
+				throw new Exception("Сервис не найден.");
+			}
+
+			return service;
+		}
+
+		public void DeleteService(Guid serviceId)
+		{
+			var service = Services.FirstOrDefault(x => x.Id == serviceId);
+
+			if (service == null)
+			{
+				throw new Exception("Сервис с таким id отсутствует.");
+			}
+
+			if(service.State == ApplicationStatus.Status.Run)
+			{
+				service.Close();
+			}
+
+			Services.Remove(service);
 		}
 
 		/// <summary>
 		/// Запускает серверное приложение.
 		/// </summary>
-		public async void Start()
+		public new void Start()
 		{
 			if (State != Status.Off && State != Status.Error && State != Status.Reboot)
 			{
@@ -148,36 +192,12 @@ namespace MCServerManager.Library.Actions
 				State = Status.Launch;
 			}
 
-			await Task.Run(() => StartServer());
-		}
-
-		/// <summary>
-		/// Запускает процесс, управляющий серверным приложением.
-		/// </summary>
-		private void StartServer()
-		{
-			_process = new Process();
-			_process.StartInfo.WorkingDirectory = WorkDirectory;
-			_process.StartInfo.FileName = Programm;
-			_process.StartInfo.Arguments = Arguments;
-			_process.StartInfo.UseShellExecute = false;
-			_process.StartInfo.RedirectStandardInput = true;
-			_process.StartInfo.RedirectStandardOutput = true;
-			_process.EnableRaisingEvents = true;
-
-			_process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
-			{
-				GetServerMessage(e.Data);
-			});
-
-			_process.Exited += new EventHandler((sender, e) =>
+			StartServer(new EventHandler((sender, e) =>
 			{
 				ProcessClosed();
 				ServerOff?.Invoke();
-			});
-
-			_process.Start();
-			_process.BeginOutputReadLine();
+			})
+			);
 		}
 
 		/// <summary>
@@ -195,13 +215,14 @@ namespace MCServerManager.Library.Actions
 				State = Status.Shutdown;
 			}
 
-			_process.StandardInput.WriteLine("stop");
+			var stopCommand = "stop";
+			_process.StandardInput.WriteLine(stopCommand);
 		}
 
 		/// <summary>
 		/// Очищает ресурсы процесса после завершения работы.
 		/// </summary>
-		private void ProcessClosed()
+		private new void ProcessClosed()
 		{
 			_process.Dispose();
 
@@ -215,7 +236,7 @@ namespace MCServerManager.Library.Actions
 			{
 				State = Status.Off;
 				// Вызывается событие отключения серверного приложения
-				ClocedServer?.Invoke(Id);
+				ServerCloced?.Invoke(Id);
 			}
 		}
 
@@ -246,7 +267,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Отключает серверное приложение не дожидаясь завершения работы.
 		/// </summary>
-		public void Close()
+		public new void Close()
 		{
 			if (State == Status.Off || State == Status.Error)
 			{
@@ -265,49 +286,32 @@ namespace MCServerManager.Library.Actions
 		/// Выводит сообщение от серверного приложения.
 		/// </summary>
 		/// <param name="message">Текст сообщения.</param>
-		private void GetServerMessage(string message)
+		protected override void GetServerMessage(string message)
 		{
-			DetectionStartedServer(message);
-			DetectionUser(message);
-			Console.WriteLine(message);
+			base.GetServerMessage(message);
+
+			DetectingCompletionStartupServer(message);
+			DetectingnUser(message);
 		}
 
 		/// <summary>
 		/// Отправляет команду в серверное приложение.
 		/// </summary>
 		/// <param name="message">Команда для серверного приложения.</param>
-		public void SendServerCommand(string message)
+		public override void SendServerCommand(string message)
 		{
-			if(State != Status.Run)
-			{
-				return;
-			}
-
-			_process.StandardInput.WriteLine(message);
+			base.SendServerCommand(message);
 		}
 
 		/// <summary>
 		/// Проверяет данные серверного приложения.
 		/// </summary>
 		/// <param name="data">Информания о серверном приложении.</param>
-		public void CheckServerData(ServerData data)
+		public void CheckServerData(GameServerData data)
 		{
-			if (string.IsNullOrEmpty(data.Programm))
-			{
-				throw new ArgumentNullException(nameof(data.Programm), "Программа для запуска не задана");
-			}
+			CheckApplicationData(data);
 
-			if (string.IsNullOrEmpty(data.WorkDirectory))
-			{
-				throw new ArgumentNullException(nameof(data.WorkDirectory), "Директория не задана.");
-			}
-
-			if (!Directory.Exists(data.WorkDirectory))
-			{
-				throw new DirectoryNotFoundException($"Указанная директория не найдена: {data.WorkDirectory}");
-			}
-
-			if(data.Port != null)
+			if (data.Port != null)
 			{
 				if (data.Port <= 1023 || data.Port >= 65535)
 				{
@@ -316,7 +320,22 @@ namespace MCServerManager.Library.Actions
 			}
 		}
 
-		private void DetectionStartedServer(string message)
+		private void AutoStartBackgroundService()
+		{
+			Services.ForEach(service => {
+				if (service.AutoStart)
+				{
+					service.Start();
+				}
+			});
+		}
+
+		private void CloseBackgroundService()
+		{
+			Services.ForEach(service => service.Close());
+		}
+
+		private void DetectingCompletionStartupServer(string message)
 		{
 			if (State != Status.Launch && State != Status.Reboot)
 			{
@@ -336,7 +355,8 @@ namespace MCServerManager.Library.Actions
 				ServerStarted?.Invoke(Id);
 			}
 		}
-		private void DetectionUser(string message)
+
+		private void DetectingnUser(string message)
 		{
 			if (State != Status.Run)
 			{

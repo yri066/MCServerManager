@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Данные о приложении
 	/// </summary>
-	public class ServerData
+	public class ApplicationData
 	{
 		/// <summary>
 		/// Идентификатор приложения
@@ -34,15 +34,5 @@
 		/// Аргументы запуска
 		/// </summary>
 		public string Arguments { get; set; }
-
-		/// <summary>
-		/// Адрес сервера(ip)
-		/// </summary>
-		public string Addres { get; set; }
-
-		/// <summary>
-		/// Используемый порт
-		/// </summary>
-		public int? Port { get; set; }
 	}
 }

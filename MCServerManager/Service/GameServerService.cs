@@ -7,7 +7,7 @@ namespace MCServerManager.Service
 	/// <summary>
 	/// Сервис управляния работой серверов.
 	/// </summary>
-	public class ServerService
+	public class GameServerService
 	{
 		/// <summary>
 		/// Название файла настроек.
@@ -29,7 +29,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		private readonly IConfiguration _configuration;
 
-		public ServerService(IConfiguration configuration)
+		public GameServerService(IConfiguration configuration)
 		{
 			_configuration = configuration;
 			_pathFileSettings = _configuration.GetValue<string>(_keyGetFileSettings);
@@ -87,7 +87,7 @@ namespace MCServerManager.Service
 			string arguments, string addres, int? port)
 		{
 			var id = Guid.NewGuid();
-			AddServer(new ServerData()
+			AddServer(new GameServerData()
 			{
 				Id = id,
 				Name = name,
@@ -105,11 +105,44 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Создает новый сервер.
+		/// </summary>
+		/// <param name="name">Название.</param>
+		/// <param name="autoStart">Автозапуск.</param>
+		/// <param name="workDirectory">Расположение сервера.</param>
+		/// <param name="programm">Программа для запуска.</param>
+		/// <param name="arguments">Аргументы запуска.</param>
+		/// <param name="addres">Адрес сервера.</param>
+		/// <param name="port">Используемый порт.</param>
+		/// <returns>Идентификатор сервера.</returns>
+		public Guid CreateService(Guid id, string name, bool autoStart, string workDirectory, string programm,
+			string arguments, string addres, int? port)
+		{
+			var serviceId = Guid.NewGuid();
+			AddService(new BackgroundServiceData()
+			{
+				Id = serviceId,
+				GameServerId = id,
+				Name = name,
+				AutoStart = autoStart,
+				WorkDirectory = workDirectory,
+				Programm = programm,
+				Arguments = arguments,
+				Addres = addres,
+				Port = port
+			});
+
+			SaveServerData();
+
+			return serviceId;
+		}
+
+		/// <summary>
 		/// Добавить новый сервер.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
 		/// <exception cref="Exception">Директория или порт используются другим сервером.</exception>
-		private void AddServer(ServerData serverData)
+		private void AddServer(GameServerData serverData)
 		{
 			if (Servers.Where(x => x.Port == serverData.Port).Any())
 			{
@@ -125,6 +158,29 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Добавить новый сервис.
+		/// </summary>
+		/// <param name="serviceData">Информация о сервисе.</param>
+		/// <exception cref="Exception">Директория или порт используются другим сервером или сервисом.</exception>
+		private void AddService(BackgroundServiceData serviceData)
+		{
+			/// TODO Сделать проверку во всех сервисах, а не только в серверах.
+			
+			if (Servers.Where(x => x.Port == serviceData.Port).Any())
+			{
+				throw new Exception($"Порт {serviceData.Port} занят другим сервером");
+			}
+
+			if (Servers.Where(x => x.WorkDirectory == serviceData.WorkDirectory).Any())
+			{
+				throw new Exception($"Указанная директория используется другим сервером");
+			}
+
+			var exemplar = GetServer(serviceData.GameServerId);
+			exemplar.Services.Add(new Library.Actions.BackgroundService(serviceData));
+		}
+
+		/// <summary>
 		/// Удалить указанный сервер.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
@@ -132,7 +188,7 @@ namespace MCServerManager.Service
 		{
 			var exemplar = GetServer(id);
 			
-			if(exemplar.State != ServerStatus.Status.Off && exemplar.State != ServerStatus.Status.Error)
+			if(exemplar.State != GameServerStatus.Status.Off && exemplar.State != GameServerStatus.Status.Error)
 			{
 				exemplar.Close();
 			}
@@ -142,12 +198,23 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Удалить указанный сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="seriveId">Идентификатор сервиса.</param>
+		public void DeleteService(Guid id, Guid seriveId)
+		{
+			GetServer(id).DeleteService(seriveId);
+			SaveServerData();
+		}
+
+		/// <summary>
 		/// Обновить информацию указанного сервера.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="serverData">Информация о сервере.</param>
 		/// <exception cref="ArgumentException">Идентификаторы id и serverData.Id не совпадают.</exception>
-		public void UpdateServer(Guid id, ServerData serverData)
+		public void UpdateServer(Guid id, GameServerData serverData)
 		{
 			var exemplar = GetServer(id);
 
@@ -157,6 +224,25 @@ namespace MCServerManager.Service
 			}
 
 			exemplar.UpdateData(serverData);
+			SaveServerData();
+		}
+
+		/// <summary>
+		/// Обновить информацию указанного сервера.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverData">Информация о сервере.</param>
+		/// <exception cref="ArgumentException">Идентификаторы id и serverData.Id не совпадают.</exception>
+		public void UpdateService(Guid id, BackgroundServiceData serviceData)
+		{
+			var exemplar = GetService(id, serviceData.Id);
+
+			if (id != serviceData.GameServerId)
+			{
+				throw new ArgumentException("Ошибка, идентификатор сервиса не совпадает с идентификатором сервера.");
+			}
+
+			exemplar.UpdateData(serviceData);
 			SaveServerData();
 		}
 
@@ -200,9 +286,9 @@ namespace MCServerManager.Service
 		/// Загружает информацию о серверах.
 		/// </summary>
 		/// <returns>Список данных о серверах.</returns>
-		private List<ServerData> LoadServerData()
+		private List<GameServerData> LoadServerData()
 		{
-			return JsonTool.LoadJsonDataFromFile<List<ServerData>>(_pathFileSettings);
+			return JsonTool.LoadJsonDataFromFile<List<GameServerData>>(_pathFileSettings);
 		}
 
 		/// <summary>
@@ -221,7 +307,7 @@ namespace MCServerManager.Service
 		/// <exception cref="Exception">Указанный сервер не найден.</exception>
 		public GameServer GetServer(Guid id)
 		{
-			var exemplar = Servers.Where(x => x.Id == id).FirstOrDefault();
+			var exemplar = Servers.FirstOrDefault(x => x.Id == id);
 
 			if (exemplar == null)
 			{
@@ -231,14 +317,31 @@ namespace MCServerManager.Service
 			return exemplar;
 		}
 
+		public Library.Actions.BackgroundService GetService(Guid id, Guid serviceId)
+		{
+			var service = GetServer(id).Services.FirstOrDefault(x =>x.Id == serviceId);
+
+			if(service == null)
+			{
+				throw new Exception("Указанный сервис не найден");
+			}
+
+			return service;
+		}
+
+		public BackgroundServiceData GetServiceData(Guid id, Guid serviceId)
+		{
+			return GetService(id, serviceId).Data;
+		}
+
 		/// <summary>
 		/// Получить настройки серверного приложения по идентификатору.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <returns>Настройки серверного приложения.</returns>
-		public ServerData GetServerData(Guid id)
+		public GameServerData GetServerData(Guid id)
 		{
-			return GetServer(id).ServerData;
+			return GetServer(id).Data;
 		}
 
 		/// <summary>

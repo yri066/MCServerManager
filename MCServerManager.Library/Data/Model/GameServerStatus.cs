@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Состояние сервера
 	/// </summary>
-	public class ServerStatus
+	public class GameServerStatus
 	{
 		public enum Status
 		{
