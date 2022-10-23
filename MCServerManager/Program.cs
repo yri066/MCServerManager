@@ -15,7 +15,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Configuration.AddJsonFile("Settings.json");
 builder.Configuration.AddJsonFile("StyleSettings.json");
 
-builder.Services.AddSingleton<ServerService>();
+builder.Services.AddSingleton<GameServerService>();
 builder.Services.AddHostedService<RunGameServersHostedService>();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
