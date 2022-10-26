@@ -36,12 +36,12 @@
 		},
 		"Application": {
 			"StartButton": {
-				"Off": "none",
-				"Run": "inline"
-			},
-			"CloseButton": {
 				"Off": "inline",
 				"Run": "none"
+			},
+			"CloseButton": {
+				"Off": "none",
+				"Run": "inline"
 			}
 		}
 	}
