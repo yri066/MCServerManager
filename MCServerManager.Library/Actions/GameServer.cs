@@ -46,12 +46,12 @@ namespace MCServerManager.Library.Actions
 		/// Делегат события завершения работы серверного приложения.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void ServerStoppedEventHandler(Guid id);
+		public delegate void ServerClocedEventHandler(Guid id);
 
 		/// <summary>
 		/// Cобытие завершения работы серверного приложения.
 		/// </summary>
-		public event ServerStoppedEventHandler ServerCloced;
+		public event ServerClocedEventHandler ServerCloced;
 
 		/// <summary>
 		/// Делегат события начала работы серверного приложения.
