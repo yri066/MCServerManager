@@ -329,9 +329,29 @@ namespace MCServerManager.Service
 			return service;
 		}
 
+		public Library.Actions.BackgroundService GetService(Guid serviceId)
+		{
+			var exemplar = (from server in Servers
+					 from service in server.Services
+					 where service.Id == serviceId
+					 select service).FirstOrDefault();
+
+			if (exemplar == null)
+			{
+				throw new Exception("Указанный сервис не найден");
+			}
+
+			return exemplar;
+		}
+
 		public BackgroundServiceData GetServiceData(Guid id, Guid serviceId)
 		{
 			return GetService(id, serviceId).Data;
+		}
+
+		public BackgroundServiceData GetServiceData(Guid serviceId)
+		{
+			return GetService(serviceId).Data;
 		}
 
 		/// <summary>
