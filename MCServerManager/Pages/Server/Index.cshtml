@@ -8,7 +8,6 @@
 <script>
     let pathPage = "@Model.Request.Path";
 </script>
-<script defer type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
 <script defer type="text/javascript" src="~/js/ControlGameServer.js" asp-append-version="true"></script>
 
 <h4 class="card-title">
@@ -43,6 +42,37 @@
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
             Удалить
         </button>
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-sm">
+                <p class="card-text">Сервисы</p>
+                </div>
+                <div class="col-auto text-end">
+                    <a asp-page="/Application/AddService" asp-route-id="@Model.Exemplar.Id" class="btn btn-primary" role="button">Добавить</a>
+                </div>
+            </div>
+            <br />
+        @foreach (var item in @Model.Exemplar.Services)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm">
+                            <p class="card-text">@item.Name</p>
+                        </div>
+                        <div class="col-sm">
+                            <p class="card-text">Состояние: @item.State.ToString()</p>
+                        </div>
+                        <div class="col-auto text-end">
+                            <a asp-page="/Application/Index" asp-route-serviceId="@item.Id" class="btn btn-primary" role="button">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        }
+        
     </div>
     <div class="col-sm-6">
         <div class="card mb-3">
