@@ -8,10 +8,10 @@ namespace MCServerManager.Pages.Server
 	public class AddModel : PageModel
 	{
 		[BindProperty]
-		public ServerDetail Input { get; set; }
-		private readonly ServerService _service;
+		public GameServerDetail Input { get; set; }
+		private readonly GameServerService _service;
 
-		public AddModel(ServerService service)
+		public AddModel(GameServerService service)
 		{
 			_service = service;
 		}

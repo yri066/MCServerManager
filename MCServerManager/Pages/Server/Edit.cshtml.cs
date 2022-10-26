@@ -9,10 +9,10 @@ namespace MCServerManager.Pages.Server
 	public class EditModel : PageModel
 	{
 		[BindProperty]
-		public ServerDetail Input { get; set; }
-		private readonly ServerService _service;
+		public GameServerDetail Input { get; set; }
+		private readonly GameServerService _service;
 
-		public EditModel(ServerService serverService)
+		public EditModel(GameServerService serverService)
 		{
 			_service = serverService;
 		}
@@ -27,7 +27,7 @@ namespace MCServerManager.Pages.Server
 			try
 			{
 				var server = _service.GetServerData(id);
-				Input = new ServerDetail
+				Input = new GameServerDetail
 				{
 					Name = server.Name,
 					AutoStart = server.AutoStart,
@@ -57,7 +57,7 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-					_service.UpdateServer(id, Input.GetServerData(id));
+					_service.UpdateServer(id, Input.GetGameServerData(id));
 					return RedirectToPage("Index", new { id });
 				}
 			}
