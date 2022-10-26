@@ -216,7 +216,7 @@ namespace MCServerManager.Library.Actions
 			}
 
 			var stopCommand = "stop";
-			_process.StandardInput.WriteLine(stopCommand);
+			SendServerCommand(stopCommand);
 		}
 
 		/// <summary>
@@ -358,7 +358,7 @@ namespace MCServerManager.Library.Actions
 
 		private void DetectingnUser(string message)
 		{
-			if (State != Status.Run)
+			if (State == Status.Off || State == Status.Error || State == Status.Launch)
 			{
 				return;
 			}
