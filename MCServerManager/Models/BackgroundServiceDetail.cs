@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using MCServerManager.Library.Data.Model;
 
 namespace MCServerManager.Models
 {
@@ -19,5 +20,21 @@ namespace MCServerManager.Models
 		/// </summary>
 		[Range(1024, 65535), DisplayName("Используемый порт")]
 		public int? Port { get; set; }
+
+		public BackgroundServiceData GetBackgroundServiceData(Guid id, Guid serverId)
+		{
+			return new BackgroundServiceData
+			{
+				Id = id,
+				GameServerId = serverId,
+				Name = Name,
+				AutoStart = AutoStart,
+				WorkDirectory = WorkDirectory,
+				Programm = Programm,
+				Arguments = Arguments,
+				Addres = Addres,
+				Port = Port
+			};
+		}
 	}
 }
