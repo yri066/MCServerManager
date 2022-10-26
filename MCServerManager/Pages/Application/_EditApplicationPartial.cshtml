@@ -1,0 +1,43 @@
+﻿@using MCServerManager.Models
+@model BackgroundServiceDetail
+
+<div class="form-group">
+    <label asp-for="Name" class="col-md-10 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+</div>
+<br />
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+            <label class="col-md-10 control-label">
+                <input asp-for="AutoStart" /> Автозапуск
+                <span asp-validation-for="AutoStart" class="text-danger"></span>
+            </label>
+        </div>
+    </div>
+</div>
+<br />
+<div class="form-group">
+    <label asp-for="WorkDirectory" class="col-md-10 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="WorkDirectory" class="form-control" />
+        <span asp-validation-for="WorkDirectory" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="Programm" class="col-md-10 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="Programm" class="form-control" value="java" />
+        <span asp-validation-for="Programm" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="Arguments" class="col-md-10 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="Arguments" class="form-control" />
+        <span asp-validation-for="Arguments" class="text-danger"></span>
+    </div>
+</div>
