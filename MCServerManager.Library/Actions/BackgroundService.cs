@@ -24,6 +24,11 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public int? Port { get { return Data.Port; } }
 
+		/// <summary>
+		/// Автовыключение вместе с сервером.
+		/// </summary>
+		public bool AutoClose { get { return Data.AutoClose; } }
+
 		public Guid GameServerId { get { return Data.GameServerId; } }
 
 		public BackgroundService(BackgroundServiceData data) : base(data)
