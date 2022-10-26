@@ -323,7 +323,8 @@ namespace MCServerManager.Library.Actions
 		private void AutoStartBackgroundService()
 		{
 			Services.ForEach(service => {
-				if (service.AutoStart)
+				if (service.AutoStart &&
+					service.State == ApplicationStatus.Status.Off)
 				{
 					service.Start();
 				}
@@ -332,7 +333,13 @@ namespace MCServerManager.Library.Actions
 
 		private void CloseBackgroundService()
 		{
-			Services.ForEach(service => service.Close());
+			Services.ForEach(service => {
+				if (service.AutoClose &&
+					service.State == ApplicationStatus.Status.Run)
+				{
+					service.Close();
+				}
+			});
 		}
 
 		private void DetectingCompletionStartupServer(string message)
