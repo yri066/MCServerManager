@@ -21,6 +21,12 @@ namespace MCServerManager.Models
 		[Range(1024, 65535), DisplayName("Используемый порт")]
 		public int? Port { get; set; }
 
+		/// <summary>
+		/// Автовыключение вместе с сервером.
+		/// </summary>
+		[Required, DisplayName("Автовыключение вместе с сервером")]
+		public bool AutoClose { get; set; }
+
 		public BackgroundServiceData GetBackgroundServiceData(Guid id, Guid serverId)
 		{
 			return new BackgroundServiceData
@@ -29,6 +35,7 @@ namespace MCServerManager.Models
 				GameServerId = serverId,
 				Name = Name,
 				AutoStart = AutoStart,
+				AutoClose = AutoClose,
 				WorkDirectory = WorkDirectory,
 				Programm = Programm,
 				Arguments = Arguments,
