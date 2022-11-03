@@ -1,5 +1,6 @@
 ﻿using MCServerManager.Library.Data.Model;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 using static MCServerManager.Library.Data.Model.GameServerStatus;
 
 namespace MCServerManager.Library.Actions
@@ -335,14 +336,13 @@ namespace MCServerManager.Library.Actions
 			Services.ForEach(service => service.Close());
 		}
 
+		/// <summary>
+		/// Определение полной загрузки сервера.
+		/// </summary>
+		/// <param name="message">Текст сообщения от сервера.</param>
 		private void DetectingCompletionStartupServer(string message)
 		{
 			if (State != Status.Launch && State != Status.Reboot)
-			{
-				return;
-			}
-
-			if (string.IsNullOrEmpty(message))
 			{
 				return;
 			}
@@ -356,6 +356,10 @@ namespace MCServerManager.Library.Actions
 			}
 		}
 
+		/// <summary>
+		/// Определение подключения/отключения пользователя.
+		/// </summary>
+		/// <param name="message">Текст сообщения от сервера.</param>
 		private void DetectingnUser(string message)
 		{
 			if (State != Status.Run)
@@ -363,44 +367,25 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
-			if (string.IsNullOrEmpty(message))
-			{
-				return;
-			}
+			//Регулярное выражение для определения подключения пользователя.
+			var pattertUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
 
-			// Текст сообщения подключения/отключения пользователя.
-			string messageUserConnected = "joined the game";
-			string messageUserDisconnected = "left the game";
-			string[] messageUserConnectedArr = { "joined", "the", "game" };
-			string[] messageUserDisconnectedArr = { "left", "the", "game" };
+			//Регулярное выражение для определения отключения пользователя.
+			var pattertUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
 
 
-			int lengthArray = 7; // Длина массива подключения/отключения пользователя.
-			int positionLogin = 3; // Расположение логина в массиве.
-			Range positionRange = 4..7; // Расположение элементов массива для сравнения.
+			int groupLogin = 1; // Расположение логина в группе.
 
 			// Определение подключения пользователя к серверу.
-			if (message.Contains(messageUserConnected) &&
-				!message.Contains('<'))
+			if (Regex.Match(message, pattertUserConnected).Success)
 			{
-				var array = message.Split(' ');
-
-				if (array.Length == lengthArray && array[positionRange].SequenceEqual(messageUserConnectedArr))
-				{
-					UserList.Add(array[positionLogin]);
-				}
+				UserList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].ToString());
 			}
 
 			// Определение отключения пользователя от сервера.
-			if (message.Contains(messageUserDisconnected) &&
-				!message.Contains('<'))
+			if (Regex.Match(message, pattertUserDisconnected).Success)
 			{
-				var array = message.Split(' ');
-
-				if (array.Length == lengthArray && array[positionRange].SequenceEqual(messageUserDisconnectedArr))
-				{
-					UserList.Remove(array[positionLogin]);
-				}
+				UserList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].ToString());
 			}
 		}
 	}
