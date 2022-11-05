@@ -34,7 +34,7 @@ namespace MCServerManager.Pages.Server
 					WorkDirectory = server.WorkDirectory,
 					Programm = server.Programm,
 					Arguments = server.Arguments,
-					Addres = server.Addres,
+					Address = server.Address,
 					Port = server.Port
 				};
 			}
