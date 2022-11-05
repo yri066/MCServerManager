@@ -1,0 +1,21 @@
+﻿@page "/Service/Add/{id:guid}"
+@model MCServerManager.Pages.Service.AddServiceModel
+@{
+}
+
+<form method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <partial name="_EditServicePartial" model="Model.Input" />
+    <br />
+    <div class="form-group">
+        <div class="col-md-offset-10 col-md-10">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+    </div>
+</form>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
