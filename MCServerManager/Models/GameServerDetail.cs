@@ -13,7 +13,7 @@ namespace MCServerManager.Models
 		/// Адрес сервера(ip)
 		/// </summary>
 		[Required, StringLength(100), DisplayName("Адрес сервера")]
-		public string Addres { get; set; }
+		public string Address { get; set; }
 
 		/// <summary>
 		/// Используемый порт
@@ -31,7 +31,7 @@ namespace MCServerManager.Models
 				WorkDirectory = WorkDirectory,
 				Programm = Programm,
 				Arguments = Arguments,
-				Addres = Addres,
+				Address = Address,
 				Port = Port
 			};
 		}

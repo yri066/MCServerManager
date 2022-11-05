@@ -95,7 +95,7 @@ namespace MCServerManager.Service
 				WorkDirectory = workDirectory,
 				Programm = programm,
 				Arguments = arguments,
-				Addres = addres,
+				Address = addres,
 				Port = port
 			});
 
@@ -128,7 +128,7 @@ namespace MCServerManager.Service
 				WorkDirectory = workDirectory,
 				Programm = programm,
 				Arguments = arguments,
-				Addres = addres,
+				Address = addres,
 				Port = port
 			});
 
@@ -191,6 +191,7 @@ namespace MCServerManager.Service
 			if(exemplar.State != GameServerStatus.Status.Off && exemplar.State != GameServerStatus.Status.Error)
 			{
 				exemplar.Close();
+				exemplar.Services.ForEach(x => x.Close());
 			}
 
 			Servers.Remove(exemplar);
