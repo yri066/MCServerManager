@@ -17,12 +17,17 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Адрес сервера/ip.
 		/// </summary>
-		public string Addres { get { return Data.Addres; } }
+		public string Address { get { return Data.Address; } }
 
 		/// <summary>
 		/// Используемый порт.
 		/// </summary>
 		public int? Port { get { return Data.Port; } }
+
+		/// <summary>
+		/// Автовыключение вместе с сервером.
+		/// </summary>
+		public bool AutoClose { get { return Data.AutoClose; } }
 
 		public Guid GameServerId { get { return Data.GameServerId; } }
 

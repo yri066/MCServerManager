@@ -3,7 +3,7 @@ using MCServerManager.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using static MCServerManager.Library.Data.Model.ServerStatus;
+using static MCServerManager.Library.Data.Model.GameServerStatus;
 
 namespace MCServerManager.Pages.Server
 {
@@ -14,9 +14,9 @@ namespace MCServerManager.Pages.Server
 	[ApiController]
 	public class ActionController : ControllerBase
 	{
-		private readonly ServerService _serverService;
+		private readonly GameServerService _serverService;
 
-		public ActionController(ServerService serverService)
+		public ActionController(GameServerService serverService)
 		{
 			_serverService = serverService;
 		}

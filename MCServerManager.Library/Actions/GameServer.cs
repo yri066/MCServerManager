@@ -19,7 +19,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Адрес сервера/ip.
 		/// </summary>
-		public string Addres { get { return Data.Addres; } }
+		public string Address { get { return Data.Address; } }
 
 		/// <summary>
 		/// Используемый порт.
@@ -47,12 +47,12 @@ namespace MCServerManager.Library.Actions
 		/// Делегат события завершения работы серверного приложения.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void ServerStoppedEventHandler(Guid id);
+		public delegate void ServerClocedEventHandler(Guid id);
 
 		/// <summary>
 		/// Cобытие завершения работы серверного приложения.
 		/// </summary>
-		public event ServerStoppedEventHandler ServerCloced;
+		public event ServerClocedEventHandler ServerCloced;
 
 		/// <summary>
 		/// Делегат события начала работы серверного приложения.
@@ -217,7 +217,7 @@ namespace MCServerManager.Library.Actions
 			}
 
 			var stopCommand = "stop";
-			_process.StandardInput.WriteLine(stopCommand);
+			SendServerCommand(stopCommand);
 		}
 
 		/// <summary>
@@ -324,7 +324,8 @@ namespace MCServerManager.Library.Actions
 		private void AutoStartBackgroundService()
 		{
 			Services.ForEach(service => {
-				if (service.AutoStart)
+				if (service.AutoStart &&
+					service.State == ApplicationStatus.Status.Off)
 				{
 					service.Start();
 				}
@@ -333,7 +334,13 @@ namespace MCServerManager.Library.Actions
 
 		private void CloseBackgroundService()
 		{
-			Services.ForEach(service => service.Close());
+			Services.ForEach(service => {
+				if (service.AutoClose &&
+					service.State == ApplicationStatus.Status.Run)
+				{
+					service.Close();
+				}
+			});
 		}
 
 		/// <summary>
@@ -362,7 +369,7 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения от сервера.</param>
 		private void DetectingnUser(string message)
 		{
-			if (State != Status.Run)
+			if (State == Status.Off || State == Status.Error || State == Status.Launch)
 			{
 				return;
 			}

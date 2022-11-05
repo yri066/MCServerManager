@@ -1,16 +1,16 @@
-﻿@page
-@model MCServerManager.Pages.Server.AddModel
+﻿@page "/Service/Edit/{id:guid}"
+@using MCServerManager.Models
+@model MCServerManager.Pages.Service.EditServiceModel
 @{
 }
 
 <form method="post" class="form-horizontal">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <partial name="/Pages/Application/_EditApplicationPartial.cshtml" model="Model.Input" />
-    <partial name="_EditServerPartial" model="Model.Input" />
+    <partial name="_EditServicePartial" model="Model.Input" />
     <br />
     <div class="form-group">
         <div class="col-md-offset-10 col-md-10">
-            <button type="submit" class="btn btn-primary">Добавить</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
         </div>
     </div>
 </form>

@@ -12,10 +12,10 @@ namespace MCServerManager.Pages.Server
 		/// </summary>
 		public readonly IConfiguration ButtonStyle;
 
-		private readonly ServerService _serverService;
+		private readonly GameServerService _serverService;
 		public GameServer Exemplar { get; private set; }
 
-		public IndexModel(ServerService serverService, IConfiguration configuration)
+		public IndexModel(GameServerService serverService, IConfiguration configuration)
 		{
 			_serverService = serverService;
 			ButtonStyle = configuration.GetSection("Action:GameServer");

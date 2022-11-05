@@ -8,10 +8,10 @@ namespace MCServerManager.Pages.Server
 	public class AddModel : PageModel
 	{
 		[BindProperty]
-		public ServerDetail Input { get; set; }
-		private readonly ServerService _service;
+		public GameServerDetail Input { get; set; }
+		private readonly GameServerService _service;
 
-		public AddModel(ServerService service)
+		public AddModel(GameServerService service)
 		{
 			_service = service;
 		}
@@ -35,7 +35,7 @@ namespace MCServerManager.Pages.Server
 				if (ModelState.IsValid)
 				{
 					var id = _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.Programm,
-						Input.Arguments, Input.Addres, Input.Port);
+						Input.Arguments, Input.Address, Input.Port);
 					return RedirectToPage("Index", new { id });
 				}
 			}

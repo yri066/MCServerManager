@@ -7,10 +7,10 @@ namespace MCServerManager.Pages.Server
 {
     public class ListModel : PageModel
     {
-        private readonly ServerService _service;
-        public readonly List<GameServer> Servers;
+		private readonly GameServerService _service;
+		public readonly List<GameServer> Servers;
 
-        public ListModel(ServerService service)
+		public ListModel(GameServerService service)
         {
             _service = service;
 			Servers = _service.Servers;

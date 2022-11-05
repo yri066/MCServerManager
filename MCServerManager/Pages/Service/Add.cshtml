@@ -1,12 +1,12 @@
-﻿@page
-@model MCServerManager.Pages.Server.AddModel
+﻿@page "/Service/Add/{id:guid}"
+@model MCServerManager.Pages.Service.AddServiceModel
 @{
 }
 
 <form method="post" class="form-horizontal">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <partial name="/Pages/Application/_EditApplicationPartial.cshtml" model="Model.Input" />
-    <partial name="_EditServerPartial" model="Model.Input" />
+
+    <partial name="_EditServicePartial" model="Model.Input" />
     <br />
     <div class="form-group">
         <div class="col-md-offset-10 col-md-10">

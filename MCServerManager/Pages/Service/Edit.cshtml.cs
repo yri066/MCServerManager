@@ -1,36 +1,30 @@
 using MCServerManager.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MCServerManager.Pages.Server
+namespace MCServerManager.Pages.Service
 {
-	public class EditModel : PageModel
+	public class EditServiceModel : PageModel
 	{
 		[BindProperty]
-		public GameServerDetail Input { get; set; }
+		public BackgroundServiceDetail Input { get; set; }
 		private readonly GameServerService _service;
 
-		public EditModel(GameServerService serverService)
+		public EditServiceModel(GameServerService serverService)
 		{
 			_service = serverService;
 		}
-
-		/// <summary>
-		/// Обрабатывает Get запрос.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnGet(Guid id)
 		{
 			try
 			{
-				var server = _service.GetServerData(id);
-				Input = new GameServerDetail
+				var server = _service.GetServiceData(id);
+				Input = new BackgroundServiceDetail
 				{
 					Name = server.Name,
 					AutoStart = server.AutoStart,
+					AutoClose = server.AutoClose,
 					WorkDirectory = server.WorkDirectory,
 					Programm = server.Programm,
 					Arguments = server.Arguments,
@@ -57,8 +51,9 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-					_service.UpdateServer(id, Input.GetGameServerData(id));
-					return RedirectToPage("Index", new { id });
+					var serverId = _service.GetServiceData(id).GameServerId;
+					_service.UpdateService(serverId, Input.GetBackgroundServiceData(id, serverId));
+					return RedirectToPage("/Service/Service", new { serviceId = id });
 				}
 			}
 			catch (Exception ex)

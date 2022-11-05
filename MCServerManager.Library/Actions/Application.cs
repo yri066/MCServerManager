@@ -68,7 +68,6 @@ namespace MCServerManager.Library.Actions
 		/// <param name="data">Информания о серверном приложении.</param>
 		public void UpdateData(ApplicationData data)
 		{
-			Console.WriteLine("ToolData");
 			if (Id != data.Id)
 			{
 				throw new Exception("Идентификаторы не совпадают");
@@ -160,6 +159,7 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Команда для серверного приложения.</param>
 		public virtual void SendServerCommand(string message)
 		{
+			Console.WriteLine(message);
 			_process.StandardInput.WriteLine(message);
 		}
 
