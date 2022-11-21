@@ -2,15 +2,11 @@
 
 namespace MCServerManager.Data.ValidationAttributes
 {
+	/// <summary>
+	/// Атрибут для роверки наличия указанной директории.
+	/// </summary>
 	public class DirectoryExistsAttribute : ValidationAttribute
 	{
-		/*public string WorkDirectory { get; set; }
-
-		public DirectoryExistsAttribute(string directory)
-		{
-			WorkDirectory = directory;
-		}*/
-
 		public string GetErrorMessage() => "Указанная директория не найдена";
 
 		protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
