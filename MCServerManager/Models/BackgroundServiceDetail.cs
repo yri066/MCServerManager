@@ -12,19 +12,19 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Адрес сервера(ip)
 		/// </summary>
-		[Required, StringLength(100), DisplayName("Адрес сервера")]
-		public string Address { get; set; }
+		[StringLength(100), DisplayName("Адрес сервера.")]
+		public string? Address { get; set; }
 
 		/// <summary>
 		/// Используемый порт
 		/// </summary>
-		[Range(1024, 65535), DisplayName("Используемый порт")]
+		[DisplayName("Используемый порт.")]
 		public int? Port { get; set; }
 
 		/// <summary>
 		/// Автовыключение вместе с сервером.
 		/// </summary>
-		[Required, DisplayName("Автовыключение вместе с сервером")]
+		[Required, DisplayName("Автовыключение вместе с сервером.")]
 		public bool AutoClose { get; set; }
 
 		public BackgroundServiceData GetBackgroundServiceData(Guid id, Guid serverId)
