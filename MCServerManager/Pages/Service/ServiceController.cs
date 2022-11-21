@@ -13,11 +13,6 @@ namespace MCServerManager.Pages.Service
 			_serverService = serverService;
 		}
 
-		public IActionResult Index()
-		{
-			return View();
-		}
-
 		/// <summary>
 		/// Получить информацию о сервисе.
 		/// </summary>
@@ -50,7 +45,7 @@ namespace MCServerManager.Pages.Service
 		{
 			try
 			{
-				_serverService.GetService(id).Start();
+				_serverService.StartService(id);
 			}
 			catch (Exception ex)
 			{
@@ -70,7 +65,7 @@ namespace MCServerManager.Pages.Service
 		{
 			try
 			{
-				_serverService.GetService(id).Close();
+				_serverService.CloseService(id);
 			}
 			catch (Exception ex)
 			{
@@ -79,6 +74,11 @@ namespace MCServerManager.Pages.Service
 			}
 
 			return GetStatus(id);
+		}
+
+		public IActionResult Console(Guid id)
+		{
+			return View("/Pages/Application/Console.cshtml", "Service");
 		}
 	}
 }
