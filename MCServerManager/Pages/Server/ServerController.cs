@@ -1,9 +1,5 @@
-﻿using MCServerManager.Library.Data.Model;
-using MCServerManager.Service;
-using Microsoft.AspNetCore.Http;
+﻿using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using static MCServerManager.Library.Data.Model.GameServerStatus;
 
 namespace MCServerManager.Pages.Server
 {
@@ -11,12 +7,11 @@ namespace MCServerManager.Pages.Server
 	/// Взаимодействие с серверным приложением.
 	/// </summary>
 	[Route("/Server/{id:guid}/[action]")]
-	[ApiController]
-	public class ActionController : ControllerBase
+	public class ServerController : Controller
 	{
 		private readonly GameServerService _serverService;
 
-		public ActionController(GameServerService serverService)
+		public ServerController(GameServerService serverService)
 		{
 			_serverService = serverService;
 		}
@@ -161,6 +156,11 @@ namespace MCServerManager.Pages.Server
 				HttpContext.Response.StatusCode = 404;
 				return new { errorText = ex.Message };
 			}
+		}
+
+		public IActionResult Console(Guid id)
+		{
+			return View("/Pages/Application/Console.cshtml", "Server");
 		}
 	}
 }
