@@ -10,6 +10,7 @@ namespace MCServerManager.Pages.Server
 	{
 		[BindProperty]
 		public GameServerDetail Input { get; set; }
+		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
 
 		public EditModel(GameServerService serverService)
@@ -24,6 +25,7 @@ namespace MCServerManager.Pages.Server
 		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnGet(Guid id)
 		{
+			Id = id;
 			try
 			{
 				var server = _service.GetServerData(id);
@@ -58,7 +60,7 @@ namespace MCServerManager.Pages.Server
 				if (ModelState.IsValid)
 				{
 					_service.UpdateServer(id, Input.GetGameServerData(id));
-					return RedirectToPage("Index", new { id });
+					return RedirectToPage("Server", new { id });
 				}
 			}
 			catch (Exception ex)

@@ -9,6 +9,7 @@ namespace MCServerManager.Pages.Service
 	{
 		[BindProperty]
 		public BackgroundServiceDetail Input { get; set; }
+		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
 
 		public AddServiceModel(GameServerService service)
@@ -19,6 +20,7 @@ namespace MCServerManager.Pages.Service
 
 		public void OnGet(Guid id)
 		{
+			Id = id;
 			Input = new();
 
 		}
@@ -31,7 +33,7 @@ namespace MCServerManager.Pages.Service
 				{
 					var serviceId = _service.CreateService(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.Programm,
 						Input.Arguments, Input.Address, Input.Port);
-					return RedirectToPage("/Service/Service", new { serviceId = serviceId });
+					return RedirectToPage("/Service/Service", new { id = serviceId });
 				}
 			}
 			catch (Exception ex)
