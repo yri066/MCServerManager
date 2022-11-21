@@ -20,17 +20,17 @@ namespace MCServerManager.Pages.Service
 			_service = service;
 			ButtonStyle = configuration.GetSection("Action:Application");
 		}
-		public void OnGet(Guid serviceId)
+		public void OnGet(Guid id)
 		{
-			Service = _service.GetService(serviceId);
+			Service = _service.GetService(id);
 		}
 
-		public IActionResult OnGetDelete(Guid serviceId)
+		public IActionResult OnGetDelete(Guid id)
 		{
 			try
 			{
-				var serverId = _service.GetServiceData(serviceId).GameServerId;
-				_service.DeleteService(serverId, serviceId);
+				var serverId = _service.GetServiceData(id).GameServerId;
+				_service.DeleteService(serverId, id);
 			}
 			catch
 			{}
