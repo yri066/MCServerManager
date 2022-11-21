@@ -1,6 +1,7 @@
 ﻿using MCServerManager.Library.Actions;
 using MCServerManager.Library.Data.Model;
 using MCServerManager.Library.Data.Tools;
+using System.Net;
 
 namespace MCServerManager.Service
 {
@@ -10,7 +11,7 @@ namespace MCServerManager.Service
 	public class GameServerService
 	{
 		/// <summary>
-		/// Название файла настроек.
+		/// Ключ названия файла настроек.
 		/// </summary>
 		private const string _keyGetFileSettings = "GameServers";
 
@@ -22,7 +23,12 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Список серверов.
 		/// </summary>
-		public List<GameServer> Servers { get; private set; } = new();
+		private List<GameServer> _servers = new();
+
+		/// <summary>
+		/// Список серверов.
+		/// </summary>
+		public IEnumerable<GameServer> Servers { get { return _servers; } }
 
 		/// <summary>
 		/// Конфигурация.
@@ -63,7 +69,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		private void AutoRun()
 		{
-			foreach (var server in Servers)
+			foreach (var server in _servers)
 			{
 				if (server.AutoStart)
 				{
@@ -100,7 +106,6 @@ namespace MCServerManager.Service
 			});
 
 			SaveServerData();
-
 			return id;
 		}
 
@@ -133,7 +138,6 @@ namespace MCServerManager.Service
 			});
 
 			SaveServerData();
-
 			return serviceId;
 		}
 
@@ -144,17 +148,10 @@ namespace MCServerManager.Service
 		/// <exception cref="Exception">Директория или порт используются другим сервером.</exception>
 		private void AddServer(GameServerData serverData)
 		{
-			if (Servers.Where(x => x.Port == serverData.Port).Any())
-			{
-				throw new Exception($"Порт {serverData.Port} занят другим сервером");
-			}
+			CheckFreeDirectory(serverData.WorkDirectory);
+			CheckFreePort(serverData.Port, serverData.Address, serverData.Id);
 
-			if (Servers.Where(x => x.WorkDirectory == serverData.WorkDirectory).Any())
-			{
-				throw new Exception($"Указанная директория используется другим сервером");
-			}
-
-			Servers.Add(new GameServer(serverData));
+			_servers.Add(new GameServer(serverData));
 		}
 
 		/// <summary>
@@ -165,19 +162,12 @@ namespace MCServerManager.Service
 		private void AddService(BackgroundServiceData serviceData)
 		{
 			/// TODO Сделать проверку во всех сервисах, а не только в серверах.
-			
-			if (Servers.Where(x => x.Port == serviceData.Port).Any())
-			{
-				throw new Exception($"Порт {serviceData.Port} занят другим сервером");
-			}
 
-			if (Servers.Where(x => x.WorkDirectory == serviceData.WorkDirectory).Any())
-			{
-				throw new Exception($"Указанная директория используется другим сервером");
-			}
+			CheckFreeDirectory(serviceData.WorkDirectory);
+			CheckFreePort(serviceData.Port, serviceData.Address, serviceData.Id);
 
 			var exemplar = GetServer(serviceData.GameServerId);
-			exemplar.Services.Add(new Library.Actions.BackgroundService(serviceData));
+			exemplar.AddService(new Library.Actions.BackgroundService(serviceData));
 		}
 
 		/// <summary>
@@ -188,13 +178,13 @@ namespace MCServerManager.Service
 		{
 			var exemplar = GetServer(id);
 			
-			if(exemplar.State != GameServerStatus.Status.Off && exemplar.State != GameServerStatus.Status.Error)
+			if(exemplar.State != GameServer.Status.Off && exemplar.State != GameServer.Status.Error)
 			{
 				exemplar.Close();
-				exemplar.Services.ForEach(x => x.Close());
+				exemplar.CloseAllServices();
 			}
 
-			Servers.Remove(exemplar);
+			_servers.Remove(exemplar);
 			SaveServerData();
 		}
 
@@ -214,34 +204,39 @@ namespace MCServerManager.Service
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="serverData">Информация о сервере.</param>
-		/// <exception cref="ArgumentException">Идентификаторы id и serverData.Id не совпадают.</exception>
+		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
 		public void UpdateServer(Guid id, GameServerData serverData)
 		{
-			var exemplar = GetServer(id);
-
 			if (id != serverData.Id)
 			{
 				throw new ArgumentException("Ошибка, идентификатор настроек не совпадает с идентификатором изменяемого сервера.");
 			}
 
+			CheckFreeDirectory(serverData.WorkDirectory, serverData.Id);
+			CheckFreePort(serverData.Port, serverData.Address, serverData.Id);
+
+			var exemplar = GetServer(id);
 			exemplar.UpdateData(serverData);
 			SaveServerData();
 		}
 
 		/// <summary>
-		/// Обновить информацию указанного сервера.
+		/// Обновить информацию указанного сервиса.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <param name="serverData">Информация о сервере.</param>
-		/// <exception cref="ArgumentException">Идентификаторы id и serverData.Id не совпадают.</exception>
+		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="serverData">Информация о сервисе.</param>
+		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
 		public void UpdateService(Guid id, BackgroundServiceData serviceData)
 		{
-			var exemplar = GetService(id, serviceData.Id);
-
-			if (id != serviceData.GameServerId)
+			if (id != serviceData.Id)
 			{
-				throw new ArgumentException("Ошибка, идентификатор сервиса не совпадает с идентификатором сервера.");
+				throw new ArgumentException("Ошибка, идентификатор настроек не совпадает с идентификатором изменяемого сервиса.");
 			}
+
+			CheckFreeDirectory(serviceData.WorkDirectory, serviceData.Id);
+			CheckFreePort(serviceData.Port, serviceData.Address, serviceData.Id);
+
+			var exemplar = GetService(id);
 
 			exemplar.UpdateData(serviceData);
 			SaveServerData();
@@ -284,6 +279,24 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Запустить указанный сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		public void StartService(Guid id)
+		{
+			GetService(id).Start();
+		}
+
+		/// <summary>
+		/// Выключает указанный сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		public void CloseService(Guid id)
+		{
+			GetService(id).Close();
+		}
+
+		/// <summary>
 		/// Загружает информацию о серверах.
 		/// </summary>
 		/// <returns>Список данных о серверах.</returns>
@@ -297,18 +310,18 @@ namespace MCServerManager.Service
 		/// </summary>
 		private void SaveServerData()
 		{
-			JsonTool.SaveJsonDataToFile(_pathFileSettings, Servers);
+			JsonTool.SaveJsonDataToFile(_pathFileSettings, _servers);
 		}
 
 		/// <summary>
 		/// Получить экземпляе класса сервера по идентификатору.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Экземпляе класса</returns>
+		/// <returns>Экземпляе класса.</returns>
 		/// <exception cref="Exception">Указанный сервер не найден.</exception>
 		public GameServer GetServer(Guid id)
 		{
-			var exemplar = Servers.FirstOrDefault(x => x.Id == id);
+			var exemplar = _servers.FirstOrDefault(x => x.Id == id);
 
 			if (exemplar == null)
 			{
@@ -318,24 +331,18 @@ namespace MCServerManager.Service
 			return exemplar;
 		}
 
-		public Library.Actions.BackgroundService GetService(Guid id, Guid serviceId)
-		{
-			var service = GetServer(id).Services.FirstOrDefault(x =>x.Id == serviceId);
-
-			if(service == null)
-			{
-				throw new Exception("Указанный сервис не найден");
-			}
-
-			return service;
-		}
-
+		/// <summary>
+		/// Получить экземпляе класса сервиса по идентификатору.
+		/// </summary>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
+		/// <returns>Экземпляе класса.</returns>
+		/// <exception cref="Exception">Указанный сервис не найден.</exception>
 		public Library.Actions.BackgroundService GetService(Guid serviceId)
 		{
-			var exemplar = (from server in Servers
-					 from service in server.Services
-					 where service.Id == serviceId
-					 select service).FirstOrDefault();
+			var exemplar = (from server in _servers
+							from service in server.Services
+							where service.Id == serviceId
+							select service).FirstOrDefault();
 
 			if (exemplar == null)
 			{
@@ -343,16 +350,6 @@ namespace MCServerManager.Service
 			}
 
 			return exemplar;
-		}
-
-		public BackgroundServiceData GetServiceData(Guid id, Guid serviceId)
-		{
-			return GetService(id, serviceId).Data;
-		}
-
-		public BackgroundServiceData GetServiceData(Guid serviceId)
-		{
-			return GetService(serviceId).Data;
 		}
 
 		/// <summary>
@@ -366,6 +363,16 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
+		/// Получить настройки сервисного приложения по идентификатору.
+		/// </summary>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
+		/// <returns>Настройки сервисного приложения.</returns>
+		public BackgroundServiceData GetServiceData(Guid serviceId)
+		{
+			return GetService(serviceId).Data;
+		}
+
+		/// <summary>
 		/// Отправляет сообщение в серверное приложение
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
@@ -373,6 +380,51 @@ namespace MCServerManager.Service
 		public void SendServerCommand(Guid id, string message)
 		{
 			GetServer(id).SendServerCommand(message);
+		}
+
+		/// <summary>
+		/// Проверяет порта на использование другими приложениями.
+		/// </summary>
+		/// <param name="port">Порт.</param>
+		/// <param name="id">Идентификатор приложения при обнорлении данных.</param>
+		/// <exception cref="Exception">Данный порт используется другим приложением.</exception>
+		public void CheckFreePort(int? port, string address, Guid? id = null)
+		{
+			if (port != null)
+			{
+				if (_servers.Where(x => x.Port == port &&
+										x.Address == address &&
+										x.Id != id).Any())
+				{
+					throw new Exception($"Порт {port} занят другим сервером");
+				}
+
+				if (_servers.Where(x => x.Services.Where(y => y.Port == port &&
+																y.Address == address &&
+																y.Id != id).Any()).Any())
+				{
+					throw new Exception($"Порт {port} занят другим сервисом");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Проверяет директорию на использование другими приложениями.
+		/// </summary>
+		/// <param name="directory">Директория.</param>
+		/// <param name="id">Идентификатор приложения при обнорлении данных.</param>
+		/// <exception cref="Exception">Данная директория используется другим приложением.</exception>
+		public void CheckFreeDirectory(string directory, Guid? id = null)
+		{
+			if (_servers.Where(x => x.WorkDirectory == directory && x.Id != id).Any())
+			{
+				throw new Exception($"Указанная директория используется другим сервером");
+			}
+
+			if (_servers.Where(x => x.Services.Where(y => y.WorkDirectory == directory && y.Id != id).Any()).Any())
+			{
+				throw new Exception($"Указанная директория используется другим сервисом");
+			}
 		}
 	}
 }
