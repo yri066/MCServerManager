@@ -18,14 +18,21 @@
                         <h5 class="card-title">@server.Name</h5>
                     </div>
                     <div class="col-sm">
-                        <p class="card-text">@server.Address:@server.Port</p>
+                        @if (server.Address != null && server.Port != null)
+                        {
+                            <p class="card-text">@server.Address:@server.Port</p>
+                        }
+                        else if (server.Address != null && server.Port == null)
+                        {
+                            <p class="card-text">@server.Address</p>
+                        }
                     </div>
                     <div class="col-auto text-end">
                         <p class="card-text">Колличество игроков: @server.UserList.Count</p>
                     </div>
                 </div>
                 <div class="col-auto text-end">
-                    <a asp-page="/Server/Index" asp-route-id="@server.Id" class="btn btn-primary">Информация о сервере</a>
+                    <a asp-page="/Server/Server" asp-route-id="@server.Id" class="btn btn-primary">Информация о сервере</a>
                 </div>
             </div>
         </div>
