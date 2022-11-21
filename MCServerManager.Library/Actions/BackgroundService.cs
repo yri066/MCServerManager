@@ -1,11 +1,5 @@
 ﻿using MCServerManager.Library.Data.Model;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static MCServerManager.Library.Data.Model.ApplicationStatus;
 
 namespace MCServerManager.Library.Actions
 {
