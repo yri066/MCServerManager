@@ -27,6 +27,7 @@ namespace MCServerManager.Pages.Service
 
 		public IActionResult OnPost(Guid id)
 		{
+			Id = id;
 			try
 			{
 				if (ModelState.IsValid)

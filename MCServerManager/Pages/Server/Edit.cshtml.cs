@@ -55,6 +55,7 @@ namespace MCServerManager.Pages.Server
 		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnPost(Guid id)
 		{
+			Id = id;
 			try
 			{
 				if (ModelState.IsValid)
