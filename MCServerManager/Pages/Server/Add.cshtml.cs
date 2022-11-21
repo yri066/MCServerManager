@@ -36,7 +36,7 @@ namespace MCServerManager.Pages.Server
 				{
 					var id = _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.Programm,
 						Input.Arguments, Input.Address, Input.Port);
-					return RedirectToPage("Index", new { id });
+					return RedirectToPage("Server", new { id });
 				}
 			}
 			catch (Exception ex)
