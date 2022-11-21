@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Список игроков
 	/// </summary>
-	public class UsersListServer
+	public class UsersListServer<T>
 	{
 		/// <summary>
 		/// Версия списка пользователей
@@ -13,30 +13,35 @@
 		/// <summary>
 		/// Список пользователей
 		/// </summary>
-		public List<string> UserList { get; private set; } = new();
+		private List<T> _userList = new();
+
+		/// <summary>
+		/// Список пользователей
+		/// </summary>
+		public IEnumerable<T> UserList { get { return _userList; } }
 
 		/// <summary>
 		/// Количество пользователей
 		/// </summary>
-		public int Count { get { return UserList.Count; } }
+		public int Count { get { return _userList.Count; } }
 
 		/// <summary>
 		/// Добавление пользователя в список
 		/// </summary>
-		/// <param name="text">Имя пользователя</param>
-		public void Add(string text)
+		/// <param name="user">Имя пользователя</param>
+		public void Add(T user)
 		{
-			UserList.Add(text);
+			_userList.Add(user);
 			Version = Guid.NewGuid();
 		}
 
 		/// <summary>
 		/// Удаление пользователя из списка
 		/// </summary>
-		/// <param name="text">Имя пользователя</param>
-		public void Remove(string text)
+		/// <param name="user">Имя пользователя</param>
+		public void Remove(T user)
 		{
-			UserList.Remove(text);
+			_userList.Remove(user);
 			Version = Guid.NewGuid();
 		}
 
@@ -45,7 +50,7 @@
 		/// </summary>
 		public void Clear()
 		{
-			UserList.Clear();
+			_userList.Clear();
 			Version = Guid.NewGuid();
 		}
 	}

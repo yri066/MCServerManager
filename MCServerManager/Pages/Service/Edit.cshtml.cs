@@ -9,6 +9,7 @@ namespace MCServerManager.Pages.Service
 	{
 		[BindProperty]
 		public BackgroundServiceDetail Input { get; set; }
+		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
 
 		public EditServiceModel(GameServerService serverService)
@@ -17,6 +18,7 @@ namespace MCServerManager.Pages.Service
 		}
 		public IActionResult OnGet(Guid id)
 		{
+			Id = id;
 			try
 			{
 				var server = _service.GetServiceData(id);
@@ -47,13 +49,14 @@ namespace MCServerManager.Pages.Service
 		/// <returns>Перенаправление на страницу.</returns>
 		public IActionResult OnPost(Guid id)
 		{
+			Id = id;
 			try
 			{
 				if (ModelState.IsValid)
 				{
 					var serverId = _service.GetServiceData(id).GameServerId;
-					_service.UpdateService(serverId, Input.GetBackgroundServiceData(id, serverId));
-					return RedirectToPage("/Service/Service", new { serviceId = id });
+					_service.UpdateService(id, Input.GetBackgroundServiceData(id, serverId));
+					return RedirectToPage("/Service/Service", new { id = id });
 				}
 			}
 			catch (Exception ex)

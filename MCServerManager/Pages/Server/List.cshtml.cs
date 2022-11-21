@@ -5,20 +5,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Server
 {
-    public class ListModel : PageModel
-    {
+	public class ListModel : PageModel
+	{
 		private readonly GameServerService _service;
 		public readonly List<GameServer> Servers;
 
 		public ListModel(GameServerService service)
-        {
-            _service = service;
-			Servers = _service.Servers;
-
+		{
+			_service = service;
+			Servers = _service.Servers.ToList();
 		}
 
-        public void OnGet()
-        {
-        }
-    }
+		public void OnGet()
+		{
+		}
+	}
 }

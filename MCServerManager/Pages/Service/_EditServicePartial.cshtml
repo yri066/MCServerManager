@@ -2,17 +2,17 @@
 @model BackgroundServiceDetail
 
 <div class="form-group">
-    <label asp-for="Name" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
+    <label asp-for="Name" class="col-md-12 control-label"></label>
+    <div class="col-md-12">
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 </div>
 <br />
 <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
+    <div class="col-sm-offset-2 col-sm-12">
         <div class="checkbox">
-            <label class="col-md-10 control-label">
+            <label class="col-md-12 control-label">
                 <input asp-for="AutoStart" /> Автозапуск вместе с включением сервера
                 <span asp-validation-for="AutoStart" class="text-danger"></span>
             </label>
@@ -21,9 +21,9 @@
 </div>
 <br />
 <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
+    <div class="col-sm-offset-2 col-sm-12">
         <div class="checkbox">
-            <label class="col-md-10 control-label">
+            <label class="col-md-12 control-label">
                 <input asp-for="AutoClose" /> Автовыключение вместе с сервером
                 <span asp-validation-for="AutoClose" class="text-danger"></span>
             </label>
@@ -32,44 +32,40 @@
 </div>
 <br />
 <div class="form-group">
-    <label asp-for="WorkDirectory" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
+    <label asp-for="WorkDirectory" class="col-md-12 control-label"></label>
+    <div class="col-md-12">
         <input asp-for="WorkDirectory" class="form-control" />
         <span asp-validation-for="WorkDirectory" class="text-danger"></span>
     </div>
 </div>
 <div class="form-group">
-    <label asp-for="Programm" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
-        @if (string.IsNullOrEmpty(Model.Programm))
-        {
-            <input asp-for="Programm" class="form-control" value="java" />
-        }
-        else
-        {
-            <input asp-for="Programm" class="form-control" />
-        }
+    <label asp-for="Programm" class="col-md-12 control-label"></label>
+    <div class="col-md-12">
+     <label class="text-muted">Пример: java</label>
+        <input asp-for="Programm" class="form-control" />
         <span asp-validation-for="Programm" class="text-danger"></span>
     </div>
 </div>
 <div class="form-group">
-    <label asp-for="Arguments" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
+    <label asp-for="Arguments" class="col-md-12 control-label"></label>
+    <label class="text-muted">Пример: -Xmx1024M -Xms1024M -jar server.jar nogui</label>
+    <div class="col-md-12">
         <input asp-for="Arguments" class="form-control" />
         <span asp-validation-for="Arguments" class="text-danger"></span>
     </div>
 </div>
 <div class="form-group">
-    <label asp-for="Address" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
+    <label asp-for="Address" class="col-md-12 control-label"></label>
+    <div class="col-md-12">
         <input asp-for="Address" class="form-control" />
         <span asp-validation-for="Address" class="text-danger"></span>
     </div>
 </div>
 <div class="form-group">
-    <label asp-for="Port" class="col-md-10 control-label"></label>
-    <div class="col-md-10">
-        <input asp-for="Port" class="form-control" min="1024" max="65535" />
+    <label asp-for="Port" class="col-md-12 control-label"></label>
+    <label class="text-muted">Стандартный порт для Minecraft: 25565 – Java Edition, 19132-19133 – Bedrock Edition</label>
+    <div class="col-md-12">
+        <input asp-for="Port" class="form-control" />
         <span asp-validation-for="Port" class="text-danger"></span>
     </div>
 </div>

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Server
 {
-	public class IndexModel : PageModel
+	public class ServerModel : PageModel
 	{
 		/// <summary>
 		/// Конфигурация.
@@ -15,7 +15,7 @@ namespace MCServerManager.Pages.Server
 		private readonly GameServerService _serverService;
 		public GameServer Exemplar { get; private set; }
 
-		public IndexModel(GameServerService serverService, IConfiguration configuration)
+		public ServerModel(GameServerService serverService, IConfiguration configuration)
 		{
 			_serverService = serverService;
 			ButtonStyle = configuration.GetSection("Action:GameServer");
