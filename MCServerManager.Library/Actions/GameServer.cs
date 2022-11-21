@@ -1,7 +1,6 @@
 ﻿using MCServerManager.Library.Data.Model;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
-using static MCServerManager.Library.Data.Model.GameServerStatus;
 
 namespace MCServerManager.Library.Actions
 {
@@ -10,6 +9,19 @@ namespace MCServerManager.Library.Actions
 	/// </summary>
 	public class GameServer : Application
 	{
+		/// <summary>
+		/// Состояния сервера.
+		/// </summary>
+		public new enum Status
+		{
+			Launch,
+			Run,
+			Shutdown,
+			Off,
+			Reboot,
+			Error
+		}
+
 		/// <summary>
 		/// Информация о серверном приложении.
 		/// </summary>
@@ -29,7 +41,9 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Список сервисов.
 		/// </summary>
-		public List<BackgroundService> Services { get; private set; } = new();
+		private List<BackgroundService> _services = new();
+
+		public IEnumerable<BackgroundService> Services { get { return _services; } }
 
 		/// <summary>
 		/// Состояние сервера.
@@ -41,7 +55,8 @@ namespace MCServerManager.Library.Actions
 		/// Список игроков на сервере.
 		/// </summary>
 		[JsonIgnore]
-		public UsersListServer UserList { get; private set; } = new();
+		public UsersListServer<string> UserList { get; private set; } = new();
+
 
 		/// <summary>
 		/// Делегат события завершения работы серверного приложения.
@@ -90,7 +105,7 @@ namespace MCServerManager.Library.Actions
 			{
 				foreach (var service in Data.Services)
 				{
-					Services.Add(new BackgroundService(service));
+					_services.Add(new BackgroundService(service));
 				}
 			}
 
@@ -141,17 +156,17 @@ namespace MCServerManager.Library.Actions
 				throw new Exception("Сервис предназначен для использования с другим сервером.");
 			}
 
-			if(Services.FirstOrDefault(x=> x.Id == service.Id) != null)
+			if(_services.FirstOrDefault(x=> x.Id == service.Id) != null)
 			{
 				throw new Exception("Сервис с таким же id уже существует.");
 			}
 
-			Services.Add(service);
+			_services.Add(service);
 		}
 
 		public BackgroundService GetService(Guid serviceId)
 		{
-			var service = Services.FirstOrDefault(x => x.Id == serviceId);
+			var service = _services.FirstOrDefault(x => x.Id == serviceId);
 
 			if (service == null)
 			{
@@ -163,19 +178,19 @@ namespace MCServerManager.Library.Actions
 
 		public void DeleteService(Guid serviceId)
 		{
-			var service = Services.FirstOrDefault(x => x.Id == serviceId);
+			var service = _services.FirstOrDefault(x => x.Id == serviceId);
 
 			if (service == null)
 			{
 				throw new Exception("Сервис с таким id отсутствует.");
 			}
 
-			if(service.State == ApplicationStatus.Status.Run)
+			if(service.State == Application.Status.Run)
 			{
 				service.Close();
 			}
 
-			Services.Remove(service);
+			_services.Remove(service);
 		}
 
 		/// <summary>
@@ -217,7 +232,7 @@ namespace MCServerManager.Library.Actions
 			}
 
 			var stopCommand = "stop";
-			SendServerCommand(stopCommand);
+			_process.StandardInput.WriteLine(stopCommand);
 		}
 
 		/// <summary>
@@ -284,6 +299,14 @@ namespace MCServerManager.Library.Actions
 		}
 
 		/// <summary>
+		/// Отключает все сервисы.
+		/// </summary>
+		public void CloseAllServices()
+		{
+			_services.ForEach(x => x.Close());
+		}
+
+		/// <summary>
 		/// Выводит сообщение от серверного приложения.
 		/// </summary>
 		/// <param name="message">Текст сообщения.</param>
@@ -323,9 +346,9 @@ namespace MCServerManager.Library.Actions
 
 		private void AutoStartBackgroundService()
 		{
-			Services.ForEach(service => {
+			_services.ForEach(service => {
 				if (service.AutoStart &&
-					service.State == ApplicationStatus.Status.Off)
+					service.State == Application.Status.Off)
 				{
 					service.Start();
 				}
@@ -334,9 +357,9 @@ namespace MCServerManager.Library.Actions
 
 		private void CloseBackgroundService()
 		{
-			Services.ForEach(service => {
+			_services.ForEach(service => {
 				if (service.AutoClose &&
-					service.State == ApplicationStatus.Status.Run)
+					service.State == Application.Status.Run)
 				{
 					service.Close();
 				}
@@ -369,16 +392,21 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения от сервера.</param>
 		private void DetectingnUser(string message)
 		{
+			if(string.IsNullOrEmpty(message))
+			{
+				return;
+			}
+
 			if (State == Status.Off || State == Status.Error || State == Status.Launch)
 			{
 				return;
 			}
 
 			//Регулярное выражение для определения подключения пользователя.
-			var pattertUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
+			const string pattertUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
 
 			//Регулярное выражение для определения отключения пользователя.
-			var pattertUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
+			const string pattertUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
 
 
 			int groupLogin = 1; // Расположение логина в группе.
@@ -386,13 +414,13 @@ namespace MCServerManager.Library.Actions
 			// Определение подключения пользователя к серверу.
 			if (Regex.Match(message, pattertUserConnected).Success)
 			{
-				UserList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].ToString());
+				UserList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].Value);
 			}
 
 			// Определение отключения пользователя от сервера.
 			if (Regex.Match(message, pattertUserDisconnected).Success)
 			{
-				UserList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].ToString());
+				UserList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].Value);
 			}
 		}
 	}

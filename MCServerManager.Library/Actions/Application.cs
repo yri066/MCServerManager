@@ -1,12 +1,23 @@
 ﻿using MCServerManager.Library.Data.Model;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using static MCServerManager.Library.Data.Model.ApplicationStatus;
 
 namespace MCServerManager.Library.Actions
 {
+	/// <summary>
+	/// Работа с приложением.
+	/// </summary>
 	public class Application
 	{
+		/// <summary>
+		/// Состояния приложения.
+		/// </summary>
+		public enum Status
+		{
+			Run,
+			Off
+		}
+
 		/// <summary>
 		/// Информация о серверном приложении.
 		/// </summary>
@@ -150,6 +161,11 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения.</param>
 		protected virtual void GetServerMessage(string message)
 		{
+			if (string.IsNullOrEmpty(message))
+			{
+				message = "";
+			}
+
 			Console.WriteLine(message);
 		}
 
@@ -159,6 +175,11 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Команда для серверного приложения.</param>
 		public virtual void SendServerCommand(string message)
 		{
+			if (string.IsNullOrEmpty(message))
+			{
+				message = "";
+			}
+
 			Console.WriteLine(message);
 			_process.StandardInput.WriteLine(message);
 		}
