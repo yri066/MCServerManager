@@ -49,12 +49,12 @@ namespace MCServerManager.Library.Data.Tools
 		{
 			if (string.IsNullOrEmpty(path))
 			{
-				throw new ArgumentException("Указанный путь к файлу пустой", nameof(path));
+				throw new ArgumentException("Не указан путь к файлу загрузки данных", nameof(path));
 			}
 
 			if (!File.Exists(path))
 			{
-				throw new FileNotFoundException("Указанный файл не найден", nameof(path));
+				throw new FileNotFoundException("Указанный файл загрузки данных не найден", nameof(path));
 			}
 
 			return JsonConvert.DeserializeObject<T>(File.ReadAllText(path));
@@ -69,9 +69,14 @@ namespace MCServerManager.Library.Data.Tools
 		/// <returns>true - данные успешно сохранены, false - не удалось сохранить.</returns>
 		public static bool SaveJsonDataToFile<T>(string path, T data)
 		{
+			if (string.IsNullOrEmpty(path))
+			{
+				throw new ArgumentException("Не указан путь к файлу сохранения данных", nameof(path));
+			}
+
 			if (!File.Exists(path))
 			{
-				throw new FileNotFoundException("Указанный файл не найден", nameof(path));
+				throw new FileNotFoundException("Указанный файл сохранения данных не найден", nameof(path));
 			}
 
 			if (data == null)
