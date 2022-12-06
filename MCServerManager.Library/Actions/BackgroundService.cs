@@ -1,4 +1,5 @@
 ﻿using MCServerManager.Library.Data.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace MCServerManager.Library.Actions
@@ -25,7 +26,7 @@ namespace MCServerManager.Library.Actions
 
 		public Guid GameServerId { get { return Data.GameServerId; } }
 
-		public BackgroundService(BackgroundServiceData data) : base(data)
+		public BackgroundService(BackgroundServiceData data, IConfiguration configuration) : base(data, configuration)
 		{
 			CheckServiceData(data);
 			Data = data;
