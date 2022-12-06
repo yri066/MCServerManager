@@ -1,12 +1,1 @@
-[
-	{
-		"id": "bc252e0a-b2fa-4996-89ae-755c9f7d6ed3",
-		"name": "Minecraft Server",
-		"autoStart": false,
-		"workDirectory": "D:\\3D Objects\\mine",
-		"programm": "java",
-		"arguments": "-Xmx1024M -Xms1024M -jar server.jar nogui",
-		"addres": "",
-		"port": 25565
-	}
-]
+[]
