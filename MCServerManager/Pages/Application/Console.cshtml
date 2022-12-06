@@ -1,0 +1,185 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_Layout";
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+	let pathPage = new URL(window.location.origin + window.location.pathname);
+    let getStatusUrl = new URL('GetStatus', window.location.origin + window.location.pathname);
+</script>
+
+<script>
+    /**Текущее состояние сервера. */
+    let status = "";
+
+    let consoleVersion = "00000000-0000-0000-0000-000000000000";
+
+    let timer = setInterval(() => takeAction(getStatusUrl), 1500);
+
+    function takeAction(url) {
+        queryHandling(url, data => {
+            changeState(data);
+        });
+    }
+
+    /**
+ * Выполняет обработку запроса
+ * param {any} url Ссылка на Api.
+ * param {any} resolve Ответ от Api.
+ */
+function queryHandling(url, resolve) {
+	loadJson(url)
+		.then(data => {
+			resolve(data);
+		})
+			.catch();
+}
+
+/**
+ * Загрузка Json по ссылке.
+ * param {string} url Ссылка на Json.
+ * returns Promise с загруженными данными
+ */
+function loadJson(url) {
+
+	if (url == "" || url == null) {
+		throw `Строка не должна быть пустой`;
+	}
+
+	return new Promise(function (resolve, reject) {
+		let xmlhttprequest = new XMLHttpRequest();
+		xmlhttprequest.open('GET', url, true);
+		xmlhttprequest.responseType = 'json';
+
+		xmlhttprequest.onload = function () {
+			let status = xmlhttprequest.status;
+
+			if (status == 200) {
+				resolve(xmlhttprequest.response);
+			} else {
+				reject(xmlhttprequest.response.errorText);
+			}
+		};
+
+		xmlhttprequest.onerror = () => reject(`Не удалось загрузить данные.`);
+		xmlhttprequest.send();
+	});
+};
+
+function changeState(element) {
+
+	if (status != element.status) {
+			status = element.status;
+	}
+
+		checkConsole(element);
+		
+}
+
+	function checkConsole(element) {
+
+		if (consoleVersion == element.consoleVersion) {
+			return;
+		}
+		
+		if (consoleVersion == "00000000-0000-0000-0000-000000000000") {
+			$("#consoleView").empty();
+		}
+
+
+		queryHandling(`${pathPage}/${consoleVersion}`, function (element) {
+			
+		consoleVersion = element.version;
+		let list = "";
+			for (let x = element.console.length - 1; x>=0; x--) {
+				if (element.console[x] == null) {
+					element.console[x] = "&nbsp;";
+				}
+				list += `<div class="console">${element.console[x]}</div>`;
+		}
+
+		$("#consoleView").prepend(list);
+			
+		while ($("#consoleView p").length > 1000)
+			{
+				$("#consoleView").find("p:last").remove();
+			}
+	});
+}
+</script>
+
+<script>
+	window.onload=function(){
+    var input = document.getElementById("inputConsole");
+	input.addEventListener("keypress", function (event) {
+		if (event.key === "Enter") {
+				postCommand(input.value);
+			input.value = "";
+		}
+	});
+
+	$( "#button-addon2" ).click(function() {
+			postCommand(input.value);
+	  input.value = "";
+	});
+}
+
+	function postCommand(command) {
+		$.ajax({
+			url: pathPage,
+			type: 'POST',
+			cache: false,
+			data: { message: command },
+			beforeSend: function () {
+
+			},
+			success: function (data) {
+				console.log(data);
+			}
+		});
+	}
+	
+</script>
+
+<style>
+    .console {
+        text-indent: 1.2ch;
+        margin-bottom: 0px;
+		-webkit-transform: rotateX(180deg);
+    }
+
+	#consoleView::-webkit-scrollbar {
+		display: none;
+	}
+
+	#consoleView{
+		height: 70vh;
+		overflow-x: hidden;
+		overflow-y: scroll;
+		overflow-wrap: break-word;
+		-webkit-transform: rotateX(180deg);
+		flex-direction: row-reverse;
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+</style>
+
+<h1>@ViewData["Name"]</h1>
+
+<div class="w-100 bg-light" id="consoleView">
+	<div class="text-center" style="height: 50%; transform: translate(0,100%)">
+		<div class="spinner-border " role="status" >
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</div>
+</div>
+
+<br />
+<div class="col-md-12">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="inputConsole" aria-label="Recipient's username" aria-describedby="button-addon2">
+        <button class="btn btn-outline-primary" type="button" id="button-addon2">Отправить</button>
+    </div>
+</div>
