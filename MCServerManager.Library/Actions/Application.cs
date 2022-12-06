@@ -1,5 +1,7 @@
 ﻿using MCServerManager.Library.Data.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 
 namespace MCServerManager.Library.Actions
@@ -63,12 +65,24 @@ namespace MCServerManager.Library.Actions
 		/// Состояние сервера.
 		/// </summary>
 		[JsonIgnore]
-		public virtual Status State { get; private set; }
+		public Status State { get; protected set; }
 
-		public Application(ApplicationData data)
+		/// <summary>
+		/// Буфер вывода консольного приложения.
+		/// </summary>
+		private ConsoleBufferApp _consoleBuffer { get; set; }
+
+		/// <summary>
+		/// Буфер вывода консольного приложения.
+		/// </summary>
+		[JsonIgnore]
+		public IConsoleBufferApp ConsoleBuffer { get { return _consoleBuffer; } }
+
+		public Application(ApplicationData data, IConfiguration configuration)
 		{
 			CheckApplicationData(data);
 
+			_consoleBuffer = new(configuration);
 			Data = data;
 			State = Status.Off;
 		}
@@ -161,11 +175,7 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения.</param>
 		protected virtual void GetServerMessage(string message)
 		{
-			if (string.IsNullOrEmpty(message))
-			{
-				message = "";
-			}
-
+			_consoleBuffer.Add(message);
 			Console.WriteLine(message);
 		}
 
@@ -173,13 +183,14 @@ namespace MCServerManager.Library.Actions
 		/// Отправляет команду в серверное приложение.
 		/// </summary>
 		/// <param name="message">Команда для серверного приложения.</param>
-		public virtual void SendServerCommand(string message)
+		public virtual void SendCommand(string message)
 		{
-			if (string.IsNullOrEmpty(message))
+			if (State != Status.Run)
 			{
-				message = "";
+				return;
 			}
 
+			_consoleBuffer.Add(message);
 			Console.WriteLine(message);
 			_process.StandardInput.WriteLine(message);
 		}
