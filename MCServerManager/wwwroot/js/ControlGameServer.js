@@ -111,15 +111,30 @@ function checkUserList(element) {
 
 		let list = "";
 		for (let x = 0; x < usersInfo.count; x++) {
-			list += `<div class="card">
-			<div class="card-body">
-				${usersInfo.userList[x]}
+			list += `
+		<div class="card">
+			<div class="row">
+				<div class="col">
+					<div class="card-body">
+						${usersInfo.userList[x]}
+					</div>
+				</div>
+				<div class="col-auto text-end">
+					<div class="card-body">
+						<button type="button" class="btn btn-danger" onclick="kickUser('${usersInfo.userList[x]}')">Исключить</button>
+					</div>
+				</div>
 			</div>
 		</div>`;
 		}
 
 		$("#user-list").html(list);
 	});
+}
+
+function kickUser(user) {
+	let pathPage = new URL(window.location.origin + window.location.pathname + "/Console");
+	$.post(pathPage, { message: `kick ${user}` });
 }
 
 /**
