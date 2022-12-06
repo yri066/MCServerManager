@@ -1,4 +1,5 @@
 ﻿using MCServerManager.Library.Data.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 
@@ -14,10 +15,10 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public new enum Status
 		{
-			Launch,
 			Run,
-			Shutdown,
 			Off,
+			Launch,
+			Shutdown,
 			Reboot,
 			Error
 		}
@@ -43,26 +44,34 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		private List<BackgroundService> _services = new();
 
+		/// <summary>
+		/// Список сервисов.
+		/// </summary>
 		public IEnumerable<BackgroundService> Services { get { return _services; } }
 
 		/// <summary>
 		/// Состояние сервера.
 		/// </summary>
 		[JsonIgnore]
-		public new Status State { get; private set; }
+		public Status State { get; private set; }
+
+		/// <summary>
+		/// Список игроков на сервере.
+		/// </summary>
+		private UsersListServer<string> _userList = new();
 
 		/// <summary>
 		/// Список игроков на сервере.
 		/// </summary>
 		[JsonIgnore]
-		public UsersListServer<string> UserList { get; private set; } = new();
+		public IUsersListServer<string> UserList { get { return _userList; } }
 
 
-		/// <summary>
-		/// Делегат события завершения работы серверного приложения.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void ServerClocedEventHandler(Guid id);
+/// <summary>
+/// Делегат события завершения работы серверного приложения.
+/// </summary>
+/// <param name="id">Идентификатор сервера.</param>
+public delegate void ServerClocedEventHandler(Guid id);
 
 		/// <summary>
 		/// Cобытие завершения работы серверного приложения.
@@ -94,7 +103,7 @@ namespace MCServerManager.Library.Actions
 		/// Конструктор с параметром
 		/// </summary>
 		/// <param name="data">Информания о серверном приложении.</param>
-		public GameServer(GameServerData data) : base(data)
+		public GameServer(GameServerData data, IConfiguration configuration) : base(data, configuration)
 		{
 			CheckServerData(data);
 
@@ -105,7 +114,7 @@ namespace MCServerManager.Library.Actions
 			{
 				foreach (var service in Data.Services)
 				{
-					_services.Add(new BackgroundService(service));
+					_services.Add(new BackgroundService(service, configuration));
 				}
 			}
 
@@ -226,13 +235,13 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
+			var stopCommand = "stop";
+			SendCommand(stopCommand);
+
 			if (State != Status.Reboot)
 			{
 				State = Status.Shutdown;
 			}
-
-			var stopCommand = "stop";
-			_process.StandardInput.WriteLine(stopCommand);
 		}
 
 		/// <summary>
@@ -266,9 +275,9 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
-			State = Status.Reboot;
 			ServerOff += RunOffServer;
 			Stop();
+			State = Status.Reboot;
 		}
 
 		/// <summary>
@@ -293,6 +302,7 @@ namespace MCServerManager.Library.Actions
 			if (State == Status.Reboot)
 			{
 				ServerOff -= RunOffServer;
+				State = Status.Off;
 			}
 
 			_process.Kill();
@@ -322,9 +332,14 @@ namespace MCServerManager.Library.Actions
 		/// Отправляет команду в серверное приложение.
 		/// </summary>
 		/// <param name="message">Команда для серверного приложения.</param>
-		public override void SendServerCommand(string message)
+		public override void SendCommand(string message)
 		{
-			base.SendServerCommand(message);
+			if (State != Status.Run)
+			{
+				return;
+			}
+
+			base.SendCommand(message);
 		}
 
 		/// <summary>
@@ -372,6 +387,11 @@ namespace MCServerManager.Library.Actions
 		/// <param name="message">Текст сообщения от сервера.</param>
 		private void DetectingCompletionStartupServer(string message)
 		{
+			if (string.IsNullOrEmpty(message))
+			{
+				return;
+			}
+
 			if (State != Status.Launch && State != Status.Reboot)
 			{
 				return;
@@ -382,6 +402,7 @@ namespace MCServerManager.Library.Actions
 			if (message.Contains(MessageServerStarted))
 			{
 				State = Status.Run;
+				base.State = Application.Status.Run;
 				ServerStarted?.Invoke(Id);
 			}
 		}
@@ -414,13 +435,13 @@ namespace MCServerManager.Library.Actions
 			// Определение подключения пользователя к серверу.
 			if (Regex.Match(message, pattertUserConnected).Success)
 			{
-				UserList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].Value);
+				_userList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].Value);
 			}
 
 			// Определение отключения пользователя от сервера.
 			if (Regex.Match(message, pattertUserDisconnected).Success)
 			{
-				UserList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].Value);
+				_userList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].Value);
 			}
 		}
 	}
