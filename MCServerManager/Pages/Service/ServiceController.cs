@@ -22,11 +22,11 @@ namespace MCServerManager.Pages.Service
 		{
 			try
 			{
-				var server = _serverService.GetService(id);
+				var service = _serverService.GetService(id);
 
 				return new
 				{
-					Status = server.State.ToString()
+					Status = service.State.ToString()
 				};
 			}
 			catch (Exception ex)
@@ -76,9 +76,70 @@ namespace MCServerManager.Pages.Service
 			return GetStatus(id);
 		}
 
+		/// <summary>
+		/// Открыть страницу консоли приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <returns>Страница консоли.</returns>
 		public IActionResult Console(Guid id)
 		{
-			return View("/Pages/Application/Console.cshtml", "Service");
+			try
+			{
+				ViewData["Name"] = _serverService.GetService(id).Name;
+				return View("/Pages/Application/Console.cshtml");
+			}
+			catch (Exception)
+			{
+				return Redirect("/List");
+			}
+		}
+
+		/// <summary>
+		/// Получить буфер вывода приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="bufferId">Версия буфера.</param>
+		/// <returns>Буфер вывода приложения.</returns>
+		[Route("/Service/{id:guid}/[action]/{bufferId:guid}")]
+		public object Console(Guid id, Guid bufferId)
+		{
+			try
+			{
+				var service = _serverService.GetService(id);
+
+				return new
+				{
+					Console = service.ConsoleBuffer.GetConsoleBuffer(bufferId),
+					service.ConsoleBuffer.Version
+				};
+			}
+			catch (Exception ex)
+			{
+				HttpContext.Response.StatusCode = 404;
+				return new { errorText = ex.Message };
+			}
+		}
+
+		/// <summary>
+		/// Отправить сообщение в сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="message">Сообщение.</param>
+		/// <returns>Информация о сервисе.</returns>
+		[HttpPost]
+		public object Console(Guid id, string? message)
+		{
+			try
+			{
+				_serverService.SendServiceCommand(id, message);
+			}
+			catch (Exception ex)
+			{
+				HttpContext.Response.StatusCode = 404;
+				return new { errorText = ex.Message };
+			}
+
+			return GetStatus(id);
 		}
 	}
 }
