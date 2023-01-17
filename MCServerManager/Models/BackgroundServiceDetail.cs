@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using MCServerManager.Library.Data.Model;
+using MCServerManager.Library.Data.Models;
 
 namespace MCServerManager.Models
 {
@@ -37,7 +37,7 @@ namespace MCServerManager.Models
 				AutoStart = AutoStart,
 				AutoClose = AutoClose,
 				WorkDirectory = WorkDirectory,
-				Programm = Programm,
+				Program = Programm,
 				Arguments = Arguments,
 				Address = Address,
 				Port = Port

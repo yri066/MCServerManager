@@ -1,3 +1,4 @@
 {
-	"GameServers": "Servers.json"
+	"GameServers": "Servers.json",
+	"ConsoleCapacity": 100
 }

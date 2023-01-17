@@ -9,7 +9,7 @@ namespace MCServerManager.Pages.Server
 	public class EditModel : PageModel
 	{
 		[BindProperty]
-		public GameServerDetail Input { get; set; }
+		public ServerDetail Input { get; set; }
 		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
 
@@ -29,12 +29,12 @@ namespace MCServerManager.Pages.Server
 			try
 			{
 				var server = _service.GetServerData(id);
-				Input = new GameServerDetail
+				Input = new ServerDetail
 				{
 					Name = server.Name,
 					AutoStart = server.AutoStart,
 					WorkDirectory = server.WorkDirectory,
-					Programm = server.Programm,
+					Programm = server.Program,
 					Arguments = server.Arguments,
 					Address = server.Address,
 					Port = server.Port
@@ -60,7 +60,7 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-					_service.UpdateServer(id, Input.GetGameServerData(id));
+					_service.UpdateServer(id, Input.GetServerData(id));
 					return RedirectToPage("Server", new { id });
 				}
 			}

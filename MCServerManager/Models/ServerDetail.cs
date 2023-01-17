@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using MCServerManager.Library.Data.Model;
+using MCServerManager.Library.Data.Models;
 
 namespace MCServerManager.Models
 {
 	/// <summary>
 	/// Данные о сервере
 	/// </summary>
-	public class GameServerDetail : ApplicationDetail
+	public class ServerDetail : ApplicationDetail
 	{
 		/// <summary>
 		/// Адрес сервера(ip)
@@ -21,15 +21,15 @@ namespace MCServerManager.Models
 		[DisplayName("Используемый порт.")]
 		public int? Port { get; set; }
 
-		public GameServerData GetGameServerData(Guid id)
+		public ServerData GetServerData(Guid id)
 		{
-			return new GameServerData
+			return new ServerData
 			{
 				Id = id,
 				Name = Name,
 				AutoStart = AutoStart,
 				WorkDirectory = WorkDirectory,
-				Programm = Programm,
+				Program = Programm,
 				Arguments = Arguments,
 				Address = Address,
 				Port = Port

@@ -151,7 +151,7 @@ namespace MCServerManager.Service
 			CheckFreeDirectory(serverData.WorkDirectory);
 			CheckFreePort(serverData.Port, serverData.Address, serverData.Id);
 
-			_servers.Add(new GameServer(serverData));
+			_servers.Add(new GameServer(serverData, _configuration));
 		}
 
 		/// <summary>
@@ -167,7 +167,7 @@ namespace MCServerManager.Service
 			CheckFreePort(serviceData.Port, serviceData.Address, serviceData.Id);
 
 			var exemplar = GetServer(serviceData.GameServerId);
-			exemplar.AddService(new Library.Actions.BackgroundService(serviceData));
+			exemplar.AddService(new Library.Actions.BackgroundService(serviceData, _configuration));
 		}
 
 		/// <summary>
@@ -373,13 +373,23 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
-		/// Отправляет сообщение в серверное приложение
+		/// Отправляет сообщение в серверное приложение.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="text">Сообщение.</param>
-		public void SendServerCommand(Guid id, string message)
+		public void SendServerAppMessage(Guid id, string message)
 		{
-			GetServer(id).SendServerCommand(message);
+			GetServer(id).SendAppMessage(message);
+		}
+
+		/// <summary>
+		/// Отправляет сообщение в сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="text">Сообщение.</param>
+		public void SendServiceAppMessage(Guid id, string message)
+		{
+			GetService(id).SendAppMessage(message);
 		}
 
 		/// <summary>
