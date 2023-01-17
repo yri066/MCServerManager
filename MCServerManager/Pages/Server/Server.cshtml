@@ -1,14 +1,11 @@
 ﻿@page "/Server/{id:guid}"
-@using MCServerManager.Library.Data.Model
+@using MCServerManager.Library.Data.Models
 @model MCServerManager.Pages.Server.ServerModel
 @{
     ViewData["Title"] = Model.Exemplar.Name;
 }
 
-<script>
-    let pathPage = "@Model.Request.Path";
-</script>
-<script defer type="text/javascript" src="~/js/ControlGameServer.js" asp-append-version="true"></script>
+<script defer type="text/javascript" src="~/js/Server/ControlGameServer.js" asp-append-version="true"></script>
 
 <h4 class="card-title">
     @Model.Exemplar.Name
@@ -34,7 +31,7 @@
             <li class="list-group-item" id="StatusServer">Состояние сервера: @Model.Exemplar.State</li>
             <li class="list-group-item">Автозапуск: @Model.Exemplar.AutoStart</li>
             <li class="list-group-item">Расположение сервера: @Model.Exemplar.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Exemplar.Programm</li>
+            <li class="list-group-item">Программа для запуска: @Model.Exemplar.Program</li>
             @if (@Model.Exemplar.Arguments != null)
             {
                 <li class="list-group-item">Аргументы запуска: @Model.Exemplar.Arguments</li>
