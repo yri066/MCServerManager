@@ -1,12 +1,33 @@
 ﻿namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
-	/// Список игроков
+	/// Список пользователей
 	/// </summary>
-	public class UsersListServer<T>
+	public interface IUsersListServer<T>
 	{
 		/// <summary>
-		/// Версия списка пользователей
+		/// Версия списка
+		/// </summary>
+		public Guid Version { get; }
+
+		/// <summary>
+		/// Список пользователей
+		/// </summary>
+		public IEnumerable<T> UserList { get; }
+
+		/// <summary>
+		/// Количество пользователей
+		/// </summary>
+		public int Count { get; }
+	}
+
+	/// <summary>
+	/// Список пользователей
+	/// </summary>
+	public class UsersListServer<T> : IUsersListServer<T>
+	{
+		/// <summary>
+		/// Версия списка
 		/// </summary>
 		public Guid Version { get; private set; } = Guid.NewGuid();
 

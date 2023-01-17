@@ -28,7 +28,7 @@ namespace MCServerManager.Pages.Service
 					AutoStart = server.AutoStart,
 					AutoClose = server.AutoClose,
 					WorkDirectory = server.WorkDirectory,
-					Programm = server.Programm,
+					Programm = server.Program,
 					Arguments = server.Arguments,
 					Address = server.Address,
 					Port = server.Port

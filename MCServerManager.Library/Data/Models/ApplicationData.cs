@@ -28,7 +28,7 @@
 		/// <summary>
 		/// Программа для запуска
 		/// </summary>
-		public string Programm { get; set; }
+		public string Program { get; set; }
 
 		/// <summary>
 		/// Аргументы запуска

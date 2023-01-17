@@ -37,7 +37,7 @@ namespace MCServerManager.Models
 				AutoStart = AutoStart,
 				AutoClose = AutoClose,
 				WorkDirectory = WorkDirectory,
-				Programm = Programm,
+				Program = Programm,
 				Arguments = Arguments,
 				Address = Address,
 				Port = Port

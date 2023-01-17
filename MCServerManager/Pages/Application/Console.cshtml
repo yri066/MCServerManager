@@ -1,0 +1,51 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_Layout";
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script defer type="text/javascript" src="~/js/Application/Console.js" asp-append-version="true"></script>
+
+
+<style>
+    .console {
+        text-indent: 1.2ch;
+        margin-bottom: 0px;
+		-webkit-transform: rotateX(180deg);
+    }
+
+	#consoleView::-webkit-scrollbar {
+		display: none;
+	}
+
+	#consoleView{
+		height: 65vh;
+		overflow-x: hidden;
+		overflow-y: scroll;
+		overflow-wrap: break-word;
+		-webkit-transform: rotateX(180deg);
+		flex-direction: row-reverse;
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+</style>
+
+<h1>@ViewData["Name"]</h1>
+
+<div class="w-100 bg-light" id="consoleView">
+	<div class="text-center" style="height: 50%; transform: translate(0,100%)">
+		<div class="spinner-border " role="status" >
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</div>
+</div>
+
+<br />
+<div class="col-md-12">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="inputConsole" aria-label="Recipient's username" aria-describedby="button-addon2">
+        <button class="btn btn-outline-primary" type="button" id="button-addon2">Отправить</button>
+    </div>
+</div>
+<a id="back" href="">@("<Назад")</a>

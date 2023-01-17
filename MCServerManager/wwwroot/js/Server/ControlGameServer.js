@@ -1,4 +1,7 @@
-﻿/**Текущее состояние сервера. */
+﻿/**Url текущей страницы */
+let pathPage = new URL(window.location.origin + window.location.pathname);
+
+/**Текущее состояние сервера. */
 let status = "";
 
 /**Список пользователей на сервере */
@@ -8,7 +11,7 @@ let usersInfo = {
 	count: 0
 };
 
-/**Таймер */
+/**Получение состояния сервера */
 let timer = setInterval(() => takeAction(`${pathPage}/GetStatus`), 1500);
 
 /**
@@ -18,7 +21,7 @@ let timer = setInterval(() => takeAction(`${pathPage}/GetStatus`), 1500);
  */
 function loadJson(url) {
 	if (typeof url !== "string") {
-		throw `Перменная должена быть типом String (${typeof str})`;
+		throw `Переменная должна быть типом String (${typeof str})`;
 	}
 
 	if (url == "" || url == null) {
@@ -111,15 +114,31 @@ function checkUserList(element) {
 
 		let list = "";
 		for (let x = 0; x < usersInfo.count; x++) {
-			list += `<div class="card">
-			<div class="card-body">
-				${usersInfo.userList[x]}
-			</div>
-		</div>`;
+			list += `
+			<div class="card">
+				<div class="row">
+					<div class="col">
+						<div class="card-body">
+							${usersInfo.userList[x]}
+						</div>
+					</div>
+					<div class="col-auto text-end">
+						<div class="card-body">
+							<button type="button" class="btn btn-danger" onclick="kickUser('${usersInfo.userList[x]}')">Исключить</button>
+						</div>
+					</div>
+				</div>
+			</div>`;
 		}
 
 		$("#user-list").html(list);
 	});
+}
+
+/**Отправляет сообщение о исключении пользователя с сервера. */
+function kickUser(user) {
+	let pathPage = new URL(window.location.origin + window.location.pathname + "/Console");
+	$.post(pathPage, { message: `kick ${user}` });
 }
 
 /**

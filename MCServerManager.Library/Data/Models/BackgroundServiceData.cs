@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-namespace MCServerManager.Library.Data.Models
+﻿namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
 	/// Данные о сервисе

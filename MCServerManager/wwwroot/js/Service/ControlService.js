@@ -1,4 +1,7 @@
-﻿/**Текущее состояние сервера. */
+﻿/**Url текущей страницы */
+let pathPage = new URL(window.location.origin + window.location.pathname);
+
+/**Текущее состояние сервера. */
 let status = "";
 
 /**Список пользователей на сервере */
@@ -8,7 +11,7 @@ let usersInfo = {
 	count: 0
 };
 
-/**Таймер */
+/**Получение состояния сервиса */
 let timer = setInterval(() => takeAction(`${pathPage}/GetStatus`), 1500);
 
 /**
@@ -18,7 +21,7 @@ let timer = setInterval(() => takeAction(`${pathPage}/GetStatus`), 1500);
  */
 function loadJson(url) {
 	if (typeof url !== "string") {
-		throw `Перменная должена быть типом String (${typeof str})`;
+		throw `Переменная должна быть типом String (${typeof str})`;
 	}
 
 	if (url == "" || url == null) {

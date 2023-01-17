@@ -1,31 +1,37 @@
 ﻿@page "/Server/{id:guid}"
-@using MCServerManager.Library.Data.Model
+@using MCServerManager.Library.Data.Models
 @model MCServerManager.Pages.Server.ServerModel
 @{
     ViewData["Title"] = Model.Exemplar.Name;
 }
 
-<script>
-    let pathPage = "@Model.Request.Path";
-</script>
-<script defer type="text/javascript" src="~/js/ControlGameServer.js" asp-append-version="true"></script>
+<script defer type="text/javascript" src="~/js/Server/ControlGameServer.js" asp-append-version="true"></script>
 
 <h4 class="card-title">
     @Model.Exemplar.Name
 </h4>
+
 <div class="row">
     <div class="col-sm-6">
         <div id="ChangeServerStatus">
-            <button type="button" class="btn btn-success" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Exemplar.State.ToString()}"];">Включить</button>
-            <button type="button" class="btn btn-warning" id="RebootServer" style="display: @Model.ButtonStyle[$"RebootButton:{@Model.Exemplar.State.ToString()}"];">Перезагрузить</button>
-            <button type="button" class="btn btn-danger" id="StopServer" style="display: @Model.ButtonStyle[$"StopButton:{@Model.Exemplar.State.ToString()}"];">Выключить</button>
-            <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Exemplar.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-success" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Exemplar.State.ToString()}"];">Включить</button>
+                    <button type="button" class="btn btn-warning" id="RebootServer" style="display: @Model.ButtonStyle[$"RebootButton:{@Model.Exemplar.State.ToString()}"];">Перезагрузить</button>
+                    <button type="button" class="btn btn-danger" id="StopServer" style="display: @Model.ButtonStyle[$"StopButton:{@Model.Exemplar.State.ToString()}"];">Выключить</button>
+                    <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Exemplar.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
+                </div>
+                <div class="col-auto text-end">
+                    <a asp-controller="Server" asp-action="Console" asp-route-id="@Model.Exemplar.Id" class="btn btn-dark" role="button">Консоль</a>
+                </div>
+            </div>
 		</div>
+        <br />
         <ul class="list-group list-group-flush">
             <li class="list-group-item" id="StatusServer">Состояние сервера: @Model.Exemplar.State</li>
             <li class="list-group-item">Автозапуск: @Model.Exemplar.AutoStart</li>
             <li class="list-group-item">Расположение сервера: @Model.Exemplar.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Exemplar.Programm</li>
+            <li class="list-group-item">Программа для запуска: @Model.Exemplar.Program</li>
             @if (@Model.Exemplar.Arguments != null)
             {
                 <li class="list-group-item">Аргументы запуска: @Model.Exemplar.Arguments</li>
@@ -49,24 +55,24 @@
         <br />
         <br />
         <div class="row">
-            <div class="col-sm">
+            <div class="col">
                 <p class="card-text">Сервисы</p>
-                </div>
-                <div class="col-auto text-end">
-                <a asp-page="/Service/Add" asp-route-id="@Model.Exemplar.Id" class="btn btn-primary" role="button">Добавить</a>
-                </div>
             </div>
-            <br />
+            <div class="col-auto text-end">
+                <a asp-page="/Service/Add" asp-route-id="@Model.Exemplar.Id" class="btn btn-primary" role="button">Добавить</a>
+            </div>
+        </div>
+        <br />
         @foreach (var item in @Model.Exemplar.Services)
         {
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-sm">
+                        <div class="col">
                             <p class="card-text">@item.Name</p>
                         </div>
-                        <div class="col-sm">
-                            <p class="card-text">Состояние: @item.State.ToString()</p>
+                        <div class="col" >
+                            <div class="card-text" style="display:inline;">Состояние: </div><div class="card-text" style="display:inline;"> @item.State.ToString()</div>
                         </div>
                         <div class="col-auto text-end">
                             <a asp-page="/Service/Service" asp-route-id="@item.Id" class="btn btn-info" role="button">Подробнее</a>
@@ -82,16 +88,21 @@
         <div class="card mb-3">
             <div class="card-body bg-light">
                 <div class="row">
-                    <div class="col-sm">
+                    <div class="col">
                         <p class="card-text">Игроки</p>
                     </div>
                     <div class="col-auto text-end">
-                        <p class="card-text" id="user-count">Количество игроков: 0</p>
+                        <p class="card-text" id="user-count">Количество игроков: @Model.Exemplar.UserList.Count</p>
                     </div>
                 </div>
             </div>
         </div>
         <div id="user-list">
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

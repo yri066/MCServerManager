@@ -43,7 +43,11 @@ else
 	app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+	app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -55,6 +59,9 @@ app.UseEndpoints(endpoints =>
 {
 	endpoints.MapRazorPages();
 	endpoints.MapControllers();
+	endpoints.MapControllerRoute(
+		name: "console",
+		pattern: "{controller}/{id:guid}/{action}");
 });
 
 app.Run();

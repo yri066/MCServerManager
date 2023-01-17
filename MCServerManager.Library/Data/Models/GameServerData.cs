@@ -3,18 +3,8 @@
 	/// <summary>
 	/// Данные о сервере
 	/// </summary>
-	public class GameServerData : ApplicationData
+	public class GameServerData : ServerData
 	{
-		/// <summary>
-		/// Адрес сервера(ip)
-		/// </summary>
-		public string Address { get; set; }
-
-		/// <summary>
-		/// Используемый порт
-		/// </summary>
-		public int? Port { get; set; }
-
 		/// <summary>
 		/// Список сервисов.
 		/// </summary>
