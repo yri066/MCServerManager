@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace MCServerManager.Library.Data.Model
+namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
 	/// Буфер вывода консольного приложения.
@@ -32,7 +32,7 @@ namespace MCServerManager.Library.Data.Model
 		/// <summary>
 		/// Ключ количества элементов в буфере.
 		/// </summary>
-		private string _keyGetConsoleCountItems = "ConsoleСapacity";
+		private string _keyGetConsoleCountItems = "ConsoleCapacity";
 
 		/// <summary>
 		/// Количество элементов в буфере.
@@ -40,7 +40,7 @@ namespace MCServerManager.Library.Data.Model
 		private int _consoleCountItems { get; set; } = 100;
 
 		/// <summary>
-		/// Список идентификаторов мукыий буфера.
+		/// Список идентификаторов сообщений буфера.
 		/// </summary>
 		private List<Guid> _consoleMap = new();
 

@@ -1,4 +1,4 @@
-﻿namespace MCServerManager.Library.Data.Model
+﻿namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
 	/// Данные о приложении
@@ -28,7 +28,7 @@
 		/// <summary>
 		/// Программа для запуска
 		/// </summary>
-		public string Programm { get; set; }
+		public string Program { get; set; }
 
 		/// <summary>
 		/// Аргументы запуска
