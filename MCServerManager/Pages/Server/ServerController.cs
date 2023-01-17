@@ -1,5 +1,6 @@
 ﻿using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Newtonsoft.Json;
 using System;
 
@@ -29,7 +30,8 @@ namespace MCServerManager.Pages.Server
 			{
 				var server = _serverService.GetServer(id);
 
-				return new {
+				return new
+				{
 					Status = server.State.ToString(),
 					UserListVersion = server.UserList.Version,
 					ConsoleVersion = server.ConsoleBuffer.Version
@@ -140,31 +142,31 @@ namespace MCServerManager.Pages.Server
 			}
 		}
 
-        /// <summary>
-        /// Открыть страницу консоли приложения.
-        /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
-        /// <returns>Страница консоли.</returns>
-        public IActionResult Console(Guid id)
+		/// <summary>
+		/// Открыть страницу консоли приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <returns>Страница консоли.</returns>
+		public IActionResult Console(Guid id)
 		{
-            try
-            {
+			try
+			{
 				ViewData["Name"] = _serverService.GetServer(id).Name;
 				return View("/Pages/Application/Console.cshtml");
-            }
-            catch (Exception)
-            {
-                return Redirect("/List");
-            }
+			}
+			catch (Exception)
+			{
+				return Redirect("/List");
+			}
 		}
 
-        /// <summary>
-        /// Получить буфер вывода приложения.
-        /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
-        /// <param name="bufferId">Версия буфера.</param>
-        /// <returns>Буфер вывода приложения.</returns>
-        [Route("/Server/{id:guid}/[action]/{version:guid}")]
+		/// <summary>
+		/// Получить буфер вывода приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="bufferId">Версия буфера.</param>
+		/// <returns>Буфер вывода приложения.</returns>
+		[Route("/Server/{id:guid}/[action]/{version:guid}")]
 		public object Console(Guid id, Guid version)
 		{
 			try
@@ -190,11 +192,11 @@ namespace MCServerManager.Pages.Server
 		/// <param name="message">Сообщение.</param>
 		/// <returns>Информация о сервере.</returns>
 		[HttpPost]
-		public object Console(Guid id, string? message)
+		public object Console(Guid id, string message = "")
 		{
 			try
 			{
-				_serverService.SendServerCommand(id, message);
+				_serverService.SendServerAppMessage(id, message);
 			}
 			catch (Exception ex)
 			{

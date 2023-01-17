@@ -127,11 +127,11 @@ namespace MCServerManager.Pages.Service
 		/// <param name="message">Сообщение.</param>
 		/// <returns>Информация о сервисе.</returns>
 		[HttpPost]
-		public object Console(Guid id, string? message)
+		public object Console(Guid id, string message = "")
 		{
 			try
 			{
-				_serverService.SendServiceCommand(id, message);
+				_serverService.SendServiceAppMessage(id, message);
 			}
 			catch (Exception ex)
 			{
