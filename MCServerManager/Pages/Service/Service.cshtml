@@ -4,10 +4,7 @@
     ViewData["Title"] = Model.Service.Name;
 }
 
-<script>
-    let pathPage = "@Model.Request.Path";
-</script>
-<script defer type="text/javascript" src="~/js/ControlService.js" asp-append-version="true"></script>
+<script defer type="text/javascript" src="~/js/Service/ControlService.js" asp-append-version="true"></script>
 
 <h4 class="card-title">
     @Model.Service.Name
@@ -30,7 +27,7 @@
             <li class="list-group-item">Автозапуск: @Model.Service.AutoStart</li>
             <li class="list-group-item">Автовыключение: @Model.Service.AutoClose</li>
             <li class="list-group-item">Расположение сервиса: @Model.Service.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Service.Programm</li>
+            <li class="list-group-item">Программа для запуска: @Model.Service.Program</li>
             @if (@Model.Service.Arguments != null)
             {
                 <li class="list-group-item">Аргументы запуска: @Model.Service.Arguments</li>
@@ -53,7 +50,7 @@
         </button>
         <br />
         <br />
-        <a asp-page="/Server/Server" asp-route-Id="@Model.Service.GameServerId"><К серверу</a>
+        <a asp-page="/Server/Server" asp-route-Id="@Model.Service.GameServerId">@("<К серверу")</a>
     </div>
 </div>
 
