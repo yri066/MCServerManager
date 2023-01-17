@@ -1,4 +1,4 @@
-﻿using MCServerManager.Library.Data.Model;
+﻿using MCServerManager.Library.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
@@ -53,7 +53,7 @@ namespace MCServerManager.Library.Actions
 		/// Состояние сервера.
 		/// </summary>
 		[JsonIgnore]
-		public Status State { get; private set; }
+		public new Status State { get; private set; }
 
 		/// <summary>
 		/// Список игроков на сервере.
@@ -66,17 +66,16 @@ namespace MCServerManager.Library.Actions
 		[JsonIgnore]
 		public IUsersListServer<string> UserList { get { return _userList; } }
 
-
-/// <summary>
-/// Делегат события завершения работы серверного приложения.
-/// </summary>
-/// <param name="id">Идентификатор сервера.</param>
-public delegate void ServerClocedEventHandler(Guid id);
+		/// <summary>
+		/// Делегат события завершения работы серверного приложения.
+		/// </summary>
+		/// <param name="id">Идентификатор сервера.</param>
+		public delegate void ServerClosedEventHandler(Guid id);
 
 		/// <summary>
-		/// Cобытие завершения работы серверного приложения.
+		/// Событие завершения работы серверного приложения.
 		/// </summary>
-		public event ServerClocedEventHandler ServerCloced;
+		public event ServerClosedEventHandler ServerClosed;
 
 		/// <summary>
 		/// Делегат события начала работы серверного приложения.
@@ -85,7 +84,7 @@ public delegate void ServerClocedEventHandler(Guid id);
 		public delegate void ServerStartedEventHandler(Guid id);
 
 		/// <summary>
-		/// Cобытие начала работы серверного приложения.
+		/// Событие начала работы серверного приложения.
 		/// </summary>
 		public event ServerStartedEventHandler ServerStarted;
 
@@ -95,14 +94,14 @@ public delegate void ServerClocedEventHandler(Guid id);
 		delegate void ServerOffEventHandler();
 
 		/// <summary>
-		/// Cобытие завершения работы серверного приложения при перезагрузке.
+		/// Событие завершения работы серверного приложения при перезагрузке.
 		/// </summary>
 		event ServerOffEventHandler ServerOff;
 
 		/// <summary>
 		/// Конструктор с параметром
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
+		/// <param name="data">Информация о серверном приложении.</param>
 		public GameServer(GameServerData data, IConfiguration configuration) : base(data, configuration)
 		{
 			CheckServerData(data);
@@ -125,8 +124,8 @@ public delegate void ServerClocedEventHandler(Guid id);
 		/// <summary>
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
-		public void UpdateData(GameServerData data)
+		/// <param name="data">Информация о серверном приложении.</param>
+		public void UpdateData(ServerData data)
 		{
 			base.UpdateData(data);
 
@@ -136,13 +135,13 @@ public delegate void ServerClocedEventHandler(Guid id);
 			}
 
 			CheckServerData(data);
-			Data = data;
+			data.UpdateServerData(Data);
 		}
 
 		/// <summary>
 		/// Обновляет информацию о сервисе.
 		/// </summary>
-		/// <param name="serviceData">Информания о сервисе.</param>
+		/// <param name="serviceData">Информация о сервисе.</param>
 		public void UpdateServiceData(BackgroundServiceData serviceData)
 		{
 			var service = GetService(serviceData.Id);
@@ -153,9 +152,8 @@ public delegate void ServerClocedEventHandler(Guid id);
 			if (item != null)
 			{
 				Data.Services.Remove(item);
+				Data.Services.Add(serviceData);
 			}
-
-			Data.Services.Add(serviceData);
 		}
 
 		public void AddService(BackgroundService service)
@@ -226,7 +224,7 @@ public delegate void ServerClocedEventHandler(Guid id);
 		}
 
 		/// <summary>
-		/// Завершает работу серверого приложения.
+		/// Завершает работу серверного приложения.
 		/// </summary>
 		public void Stop()
 		{
@@ -236,7 +234,7 @@ public delegate void ServerClocedEventHandler(Guid id);
 			}
 
 			var stopCommand = "stop";
-			SendCommand(stopCommand);
+			SendAppMessage(stopCommand);
 
 			if (State != Status.Reboot)
 			{
@@ -261,7 +259,7 @@ public delegate void ServerClocedEventHandler(Guid id);
 			{
 				State = Status.Off;
 				// Вызывается событие отключения серверного приложения
-				ServerCloced?.Invoke(Id);
+				ServerClosed?.Invoke(Id);
 			}
 		}
 
@@ -302,9 +300,9 @@ public delegate void ServerClocedEventHandler(Guid id);
 			if (State == Status.Reboot)
 			{
 				ServerOff -= RunOffServer;
-				State = Status.Off;
 			}
 
+			State = Status.Off;
 			_process.Kill();
 		}
 
@@ -320,33 +318,33 @@ public delegate void ServerClocedEventHandler(Guid id);
 		/// Выводит сообщение от серверного приложения.
 		/// </summary>
 		/// <param name="message">Текст сообщения.</param>
-		protected override void GetServerMessage(string message)
+		protected override void GetAppMessage(string message = "")
 		{
-			base.GetServerMessage(message);
+			base.GetAppMessage(message);
 
 			DetectingCompletionStartupServer(message);
-			DetectingnUser(message);
+			DetectingUser(message);
 		}
 
 		/// <summary>
 		/// Отправляет команду в серверное приложение.
 		/// </summary>
 		/// <param name="message">Команда для серверного приложения.</param>
-		public override void SendCommand(string message)
+		public override void SendAppMessage(string message = "")
 		{
 			if (State != Status.Run)
 			{
 				return;
 			}
 
-			base.SendCommand(message);
+			base.SendAppMessage(message);
 		}
 
 		/// <summary>
 		/// Проверяет данные серверного приложения.
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
-		public void CheckServerData(GameServerData data)
+		/// <param name="data">Информация о серверном приложении.</param>
+		public void CheckServerData(ServerData data)
 		{
 			CheckApplicationData(data);
 
@@ -411,7 +409,7 @@ public delegate void ServerClocedEventHandler(Guid id);
 		/// Определение подключения/отключения пользователя.
 		/// </summary>
 		/// <param name="message">Текст сообщения от сервера.</param>
-		private void DetectingnUser(string message)
+		private void DetectingUser(string message)
 		{
 			if(string.IsNullOrEmpty(message))
 			{
@@ -424,24 +422,24 @@ public delegate void ServerClocedEventHandler(Guid id);
 			}
 
 			//Регулярное выражение для определения подключения пользователя.
-			const string pattertUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
+			const string patternUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
 
 			//Регулярное выражение для определения отключения пользователя.
-			const string pattertUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
+			const string patternUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
 
 
 			int groupLogin = 1; // Расположение логина в группе.
 
 			// Определение подключения пользователя к серверу.
-			if (Regex.Match(message, pattertUserConnected).Success)
+			if (Regex.Match(message, patternUserConnected).Success)
 			{
-				_userList.Add(Regex.Match(message, pattertUserConnected).Groups[groupLogin].Value);
+				_userList.Add(Regex.Match(message, patternUserConnected).Groups[groupLogin].Value);
 			}
 
 			// Определение отключения пользователя от сервера.
-			if (Regex.Match(message, pattertUserDisconnected).Success)
+			if (Regex.Match(message, patternUserDisconnected).Success)
 			{
-				_userList.Remove(Regex.Match(message, pattertUserDisconnected).Groups[groupLogin].Value);
+				_userList.Remove(Regex.Match(message, patternUserDisconnected).Groups[groupLogin].Value);
 			}
 		}
 	}

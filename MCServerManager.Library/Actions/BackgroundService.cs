@@ -1,4 +1,4 @@
-﻿using MCServerManager.Library.Data.Model;
+﻿using MCServerManager.Library.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -35,7 +35,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
+		/// <param name="data">Информация о серверном приложении.</param>
 		public void UpdateData(BackgroundServiceData data)
 		{
 			base.UpdateData(data);
@@ -52,7 +52,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Проверяет данные сервиса.
 		/// </summary>
-		/// <param name="data">Информания о сервисе.</param>
+		/// <param name="data">Информация о сервисе.</param>
 		public void CheckServiceData(BackgroundServiceData data)
 		{
 			CheckApplicationData(data);

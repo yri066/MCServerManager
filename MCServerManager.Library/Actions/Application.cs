@@ -1,4 +1,4 @@
-﻿using MCServerManager.Library.Data.Model;
+﻿using MCServerManager.Library.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -49,7 +49,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Программа для запуска.
 		/// </summary>
-		public string Programm { get { return Data.Programm; } }
+		public string Program { get { return Data.Program; } }
 
 		/// <summary>
 		/// Аргументы запуска.
@@ -90,7 +90,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
+		/// <param name="data">Информация о серверном приложении.</param>
 		public void UpdateData(ApplicationData data)
 		{
 			if (Id != data.Id)
@@ -128,7 +128,7 @@ namespace MCServerManager.Library.Actions
 		{
 			_process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
-			_process.StartInfo.FileName = Programm;
+			_process.StartInfo.FileName = Program;
 			_process.StartInfo.Arguments = Arguments;
 			_process.StartInfo.UseShellExecute = false;
 			_process.StartInfo.RedirectStandardInput = true;
@@ -137,7 +137,7 @@ namespace MCServerManager.Library.Actions
 
 			_process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
 			{
-				GetServerMessage(e.Data);
+				GetAppMessage(e.Data);
 			});
 
 			_process.Exited += @event;
@@ -173,17 +173,16 @@ namespace MCServerManager.Library.Actions
 		/// Выводит сообщение от серверного приложения.
 		/// </summary>
 		/// <param name="message">Текст сообщения.</param>
-		protected virtual void GetServerMessage(string message)
+		protected virtual void GetAppMessage(string message = "")
 		{
 			_consoleBuffer.Add(message);
-			Console.WriteLine(message);
 		}
 
 		/// <summary>
 		/// Отправляет команду в серверное приложение.
 		/// </summary>
 		/// <param name="message">Команда для серверного приложения.</param>
-		public virtual void SendCommand(string message)
+		public virtual void SendAppMessage(string message = "")
 		{
 			if (State != Status.Run)
 			{
@@ -191,19 +190,18 @@ namespace MCServerManager.Library.Actions
 			}
 
 			_consoleBuffer.Add(message);
-			Console.WriteLine(message);
 			_process.StandardInput.WriteLine(message);
 		}
 
 		/// <summary>
 		/// Проверяет данные серверного приложения.
 		/// </summary>
-		/// <param name="data">Информания о серверном приложении.</param>
+		/// <param name="data">Информация о серверном приложении.</param>
 		public void CheckApplicationData(ApplicationData data)
 		{
-			if (string.IsNullOrEmpty(data.Programm))
+			if (string.IsNullOrEmpty(data.Program))
 			{
-				throw new ArgumentNullException(nameof(data.Programm), "Программа для запуска не задана");
+				throw new ArgumentNullException(nameof(data.Program), "Программа для запуска не задана");
 			}
 
 			if (string.IsNullOrEmpty(data.WorkDirectory))
