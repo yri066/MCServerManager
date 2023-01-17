@@ -1,12 +1,12 @@
 ﻿using MCServerManager.Library.Actions;
-using MCServerManager.Library.Data.Model;
+using MCServerManager.Library.Data.Interface;
+using MCServerManager.Library.Data.Models;
 using MCServerManager.Library.Data.Tools;
-using System.Net;
 
 namespace MCServerManager.Service
 {
 	/// <summary>
-	/// Сервис управляния работой серверов.
+	/// Сервис управления работой серверов.
 	/// </summary>
 	public class GameServerService
 	{
@@ -34,10 +34,12 @@ namespace MCServerManager.Service
 		/// Конфигурация.
 		/// </summary>
 		private readonly IConfiguration _configuration;
+		private readonly IGameServerDataContext _context;
 
-		public GameServerService(IConfiguration configuration)
+		public GameServerService(IConfiguration configuration, IGameServerDataContext context)
 		{
 			_configuration = configuration;
+			_context = context;
 			_pathFileSettings = _configuration.GetValue<string>(_keyGetFileSettings);
 
 			LoadServers();
@@ -49,7 +51,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		private void LoadServers()
 		{
-			var list = LoadServerData();
+			var list = _context.LoadServerData().Result;
 
 			foreach (var server in list)
 			{
@@ -84,13 +86,13 @@ namespace MCServerManager.Service
 		/// <param name="name">Название.</param>
 		/// <param name="autoStart">Автозапуск.</param>
 		/// <param name="workDirectory">Расположение сервера.</param>
-		/// <param name="programm">Программа для запуска.</param>
+		/// <param name="program">Программа для запуска.</param>
 		/// <param name="arguments">Аргументы запуска.</param>
-		/// <param name="addres">Адрес сервера.</param>
+		/// <param name="address">Адрес сервера.</param>
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
-		public Guid CreateServer(string name, bool autoStart, string workDirectory, string programm,
-			string arguments, string addres, int? port)
+		public Guid CreateServer(string name, bool autoStart, string workDirectory, string program,
+			string arguments, string address, int? port)
 		{
 			var id = Guid.NewGuid();
 			AddServer(new GameServerData()
@@ -99,13 +101,13 @@ namespace MCServerManager.Service
 				Name = name,
 				AutoStart = autoStart,
 				WorkDirectory = workDirectory,
-				Programm = programm,
+				Program = program,
 				Arguments = arguments,
-				Address = addres,
-				Port = port
+				Address = address,
+				Port = port,
+				Services = new List<BackgroundServiceData>()
 			});
 
-			SaveServerData();
 			return id;
 		}
 
@@ -115,13 +117,13 @@ namespace MCServerManager.Service
 		/// <param name="name">Название.</param>
 		/// <param name="autoStart">Автозапуск.</param>
 		/// <param name="workDirectory">Расположение сервера.</param>
-		/// <param name="programm">Программа для запуска.</param>
+		/// <param name="program">Программа для запуска.</param>
 		/// <param name="arguments">Аргументы запуска.</param>
-		/// <param name="addres">Адрес сервера.</param>
+		/// <param name="address">Адрес сервера.</param>
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
-		public Guid CreateService(Guid id, string name, bool autoStart, string workDirectory, string programm,
-			string arguments, string addres, int? port)
+		public Guid CreateService(Guid id, string name, bool autoStart, string workDirectory, string program,
+			string arguments, string address, int? port)
 		{
 			var serviceId = Guid.NewGuid();
 			AddService(new BackgroundServiceData()
@@ -131,13 +133,12 @@ namespace MCServerManager.Service
 				Name = name,
 				AutoStart = autoStart,
 				WorkDirectory = workDirectory,
-				Programm = programm,
+				Program = program,
 				Arguments = arguments,
-				Address = addres,
+				Address = address,
 				Port = port
 			});
 
-			SaveServerData();
 			return serviceId;
 		}
 
@@ -151,7 +152,8 @@ namespace MCServerManager.Service
 			CheckFreeDirectory(serverData.WorkDirectory);
 			CheckFreePort(serverData.Port, serverData.Address, serverData.Id);
 
-			_servers.Add(new GameServer(serverData));
+			_servers.Add(new GameServer(serverData, _configuration));
+			_context.CreateServer(serverData);
 		}
 
 		/// <summary>
@@ -161,13 +163,12 @@ namespace MCServerManager.Service
 		/// <exception cref="Exception">Директория или порт используются другим сервером или сервисом.</exception>
 		private void AddService(BackgroundServiceData serviceData)
 		{
-			/// TODO Сделать проверку во всех сервисах, а не только в серверах.
-
 			CheckFreeDirectory(serviceData.WorkDirectory);
 			CheckFreePort(serviceData.Port, serviceData.Address, serviceData.Id);
 
 			var exemplar = GetServer(serviceData.GameServerId);
-			exemplar.AddService(new Library.Actions.BackgroundService(serviceData));
+			exemplar.AddService(new Library.Actions.BackgroundService(serviceData, _configuration));
+			_context.CreateService(serviceData);
 		}
 
 		/// <summary>
@@ -185,18 +186,18 @@ namespace MCServerManager.Service
 			}
 
 			_servers.Remove(exemplar);
-			SaveServerData();
+			_context.DeleteServer(id);
 		}
 
 		/// <summary>
 		/// Удалить указанный сервис.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		/// <param name="seriveId">Идентификатор сервиса.</param>
-		public void DeleteService(Guid id, Guid seriveId)
+		/// <param name="serviceId">Идентификатор сервиса.</param>
+		public void DeleteService(Guid id, Guid serviceId)
 		{
-			GetServer(id).DeleteService(seriveId);
-			SaveServerData();
+			GetServer(id).DeleteService(serviceId);
+			_context.DeleteService(serviceId);
 		}
 
 		/// <summary>
@@ -204,20 +205,13 @@ namespace MCServerManager.Service
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="serverData">Информация о сервере.</param>
-		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
-		public void UpdateServer(Guid id, GameServerData serverData)
+		public void UpdateServer(Guid id, ServerData serverData)
 		{
-			if (id != serverData.Id)
-			{
-				throw new ArgumentException("Ошибка, идентификатор настроек не совпадает с идентификатором изменяемого сервера.");
-			}
-
-			CheckFreeDirectory(serverData.WorkDirectory, serverData.Id);
-			CheckFreePort(serverData.Port, serverData.Address, serverData.Id);
+			CheckData(id, serverData, serverData.Port, serverData.Address);
 
 			var exemplar = GetServer(id);
 			exemplar.UpdateData(serverData);
-			SaveServerData();
+			_context.UpdateServer(serverData);
 		}
 
 		/// <summary>
@@ -228,18 +222,12 @@ namespace MCServerManager.Service
 		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
 		public void UpdateService(Guid id, BackgroundServiceData serviceData)
 		{
-			if (id != serviceData.Id)
-			{
-				throw new ArgumentException("Ошибка, идентификатор настроек не совпадает с идентификатором изменяемого сервиса.");
-			}
-
-			CheckFreeDirectory(serviceData.WorkDirectory, serviceData.Id);
-			CheckFreePort(serviceData.Port, serviceData.Address, serviceData.Id);
+			CheckData(id, serviceData, serviceData.Port, serviceData.Address);
 
 			var exemplar = GetService(id);
 
 			exemplar.UpdateData(serviceData);
-			SaveServerData();
+			_context.UpdateService(exemplar.Data);
 		}
 
 		/// <summary>
@@ -297,27 +285,10 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
-		/// Загружает информацию о серверах.
-		/// </summary>
-		/// <returns>Список данных о серверах.</returns>
-		private List<GameServerData> LoadServerData()
-		{
-			return JsonTool.LoadJsonDataFromFile<List<GameServerData>>(_pathFileSettings);
-		}
-
-		/// <summary>
-		/// Сохраняет информацию о серверах.
-		/// </summary>
-		private void SaveServerData()
-		{
-			JsonTool.SaveJsonDataToFile(_pathFileSettings, _servers);
-		}
-
-		/// <summary>
-		/// Получить экземпляе класса сервера по идентификатору.
+		/// Получить экземпляр класса сервера по идентификатору.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Экземпляе класса.</returns>
+		/// <returns>Экземпляр класса.</returns>
 		/// <exception cref="Exception">Указанный сервер не найден.</exception>
 		public GameServer GetServer(Guid id)
 		{
@@ -332,10 +303,10 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
-		/// Получить экземпляе класса сервиса по идентификатору.
+		/// Получить экземпляр класса сервиса по идентификатору.
 		/// </summary>
 		/// <param name="serviceId">Идентификатор сервиса.</param>
-		/// <returns>Экземпляе класса.</returns>
+		/// <returns>Экземпляр класса.</returns>
 		/// <exception cref="Exception">Указанный сервис не найден.</exception>
 		public Library.Actions.BackgroundService GetService(Guid serviceId)
 		{
@@ -373,22 +344,52 @@ namespace MCServerManager.Service
 		}
 
 		/// <summary>
-		/// Отправляет сообщение в серверное приложение
+		/// Отправляет сообщение в серверное приложение.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <param name="text">Сообщение.</param>
-		public void SendServerCommand(Guid id, string message)
+		public void SendServerAppMessage(Guid id, string message = "")
 		{
-			GetServer(id).SendServerCommand(message);
+			GetServer(id).SendAppMessage(message);
 		}
+
+		/// <summary>
+		/// Отправляет сообщение в сервис.
+		/// </summary>
+		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="text">Сообщение.</param>
+		public void SendServiceAppMessage(Guid id, string message = "")
+		{
+			GetService(id).SendAppMessage(message);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="data"></param>
+		/// <param name="Port"></param>
+		/// <param name="Address"></param>
+		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
+		private void CheckData(Guid id, ApplicationData data, int? Port, string Address)
+		{
+			if (id != data.Id)
+			{
+				throw new ArgumentException("Ошибка, идентификаторы не совпадают.");
+			}
+
+			CheckFreeDirectory(data.WorkDirectory, data.Id);
+			CheckFreePort(Port, Address, data.Id);
+		}
+
 
 		/// <summary>
 		/// Проверяет порта на использование другими приложениями.
 		/// </summary>
 		/// <param name="port">Порт.</param>
-		/// <param name="id">Идентификатор приложения при обнорлении данных.</param>
+		/// <param name="id">Идентификатор приложения при обновлении данных.</param>
 		/// <exception cref="Exception">Данный порт используется другим приложением.</exception>
-		public void CheckFreePort(int? port, string address, Guid? id = null)
+		private void CheckFreePort(int? port, string address, Guid? id = null)
 		{
 			if (port != null)
 			{
@@ -412,9 +413,9 @@ namespace MCServerManager.Service
 		/// Проверяет директорию на использование другими приложениями.
 		/// </summary>
 		/// <param name="directory">Директория.</param>
-		/// <param name="id">Идентификатор приложения при обнорлении данных.</param>
+		/// <param name="id">Идентификатор приложения при обновлении данных.</param>
 		/// <exception cref="Exception">Данная директория используется другим приложением.</exception>
-		public void CheckFreeDirectory(string directory, Guid? id = null)
+		private void CheckFreeDirectory(string directory, Guid? id = null)
 		{
 			if (_servers.Where(x => x.WorkDirectory == directory && x.Id != id).Any())
 			{

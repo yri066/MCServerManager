@@ -1,4 +1,4 @@
-﻿namespace MCServerManager.Library.Data.Model
+﻿namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
 	/// Список игроков

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using MCServerManager.Library.Data.Model;
+using MCServerManager.Library.Data.Models;
 
 namespace MCServerManager.Models
 {
