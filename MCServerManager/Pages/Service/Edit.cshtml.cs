@@ -28,7 +28,7 @@ namespace MCServerManager.Pages.Service
 					AutoStart = server.AutoStart,
 					AutoClose = server.AutoClose,
 					WorkDirectory = server.WorkDirectory,
-					Programm = server.Program,
+					StartProgram = server.StartProgram,
 					Arguments = server.Arguments,
 					Address = server.Address,
 					Port = server.Port
@@ -47,16 +47,16 @@ namespace MCServerManager.Pages.Service
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public IActionResult OnPost(Guid id)
+		public async Task<IActionResult> OnPostAsync(Guid id)
 		{
 			Id = id;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var serverId = _service.GetServiceData(id).GameServerId;
-					_service.UpdateService(id, Input.GetBackgroundServiceData(id, serverId));
-					return RedirectToPage("/Service/Service", new { id = id });
+					var serverId = _service.GetServiceData(id).ServerId;
+					await _service.UpdateServiceAsync(id, Input.GetBackgroundServiceData(id, (Guid)serverId!));
+					return RedirectToPage("/Service/Service", new { id });
 				}
 			}
 			catch (Exception ex)

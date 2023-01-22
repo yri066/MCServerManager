@@ -25,14 +25,14 @@ namespace MCServerManager.Pages.Service
 
 		}
 
-		public IActionResult OnPost(Guid id)
+		public async Task<IActionResult> OnPost(Guid id)
 		{
 			Id = id;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var serviceId = _service.CreateService(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.Programm,
+					var serviceId = await _service.CreateServiceAsync(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
 						Input.Arguments, Input.Address, Input.Port);
 					return RedirectToPage("/Service/Service", new { id = serviceId });
 				}

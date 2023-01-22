@@ -27,12 +27,14 @@ namespace MCServerManager.Library.Actions
 		/// Информация о серверном приложении.
 		/// </summary>
 		[JsonIgnore]
-		public new GameServerData Data { get; private set; }
+		public new Server Data { get; private set; }
 
-		/// <summary>
-		/// Адрес сервера/ip.
-		/// </summary>
-		public string Address { get { return Data.Address; } }
+        public Guid ServerId { get { return Data.Id; } }
+
+        /// <summary>
+        /// Адрес сервера/ip.
+        /// </summary>
+        public string Address { get { return Data.Address; } }
 
 		/// <summary>
 		/// Используемый порт.
@@ -102,7 +104,7 @@ namespace MCServerManager.Library.Actions
 		/// Конструктор с параметром
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public GameServer(GameServerData data, IConfiguration configuration) : base(data, configuration)
+		public GameServer(Server data, IConfiguration configuration) : base(data, configuration)
 		{
 			CheckServerData(data);
 
@@ -125,11 +127,11 @@ namespace MCServerManager.Library.Actions
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public void UpdateData(ServerData data)
+		public void UpdateData(Server data)
 		{
 			base.UpdateData(data);
 
-			if (Id != data.Id)
+			if (ServerId != data.Id)
 			{
 				throw new Exception("Идентификаторы не совпадают");
 			}
@@ -142,7 +144,7 @@ namespace MCServerManager.Library.Actions
 		/// Обновляет информацию о сервисе.
 		/// </summary>
 		/// <param name="serviceData">Информация о сервисе.</param>
-		public void UpdateServiceData(BackgroundServiceData serviceData)
+		public void UpdateServiceData(Service serviceData)
 		{
 			var service = GetService(serviceData.Id);
 			service.UpdateData(Data);
@@ -158,12 +160,12 @@ namespace MCServerManager.Library.Actions
 
 		public void AddService(BackgroundService service)
 		{
-			if (Id != service.GameServerId)
+			if (ServerId != service.GameServerId)
 			{
 				throw new Exception("Сервис предназначен для использования с другим сервером.");
 			}
 
-			if(_services.FirstOrDefault(x=> x.Id == service.Id) != null)
+			if(_services.FirstOrDefault(x=> x.ServiceId == service.ServiceId) != null)
 			{
 				throw new Exception("Сервис с таким же id уже существует.");
 			}
@@ -173,7 +175,7 @@ namespace MCServerManager.Library.Actions
 
 		public BackgroundService GetService(Guid serviceId)
 		{
-			var service = _services.FirstOrDefault(x => x.Id == serviceId);
+			var service = _services.FirstOrDefault(x => x.ServiceId == serviceId);
 
 			if (service == null)
 			{
@@ -185,14 +187,14 @@ namespace MCServerManager.Library.Actions
 
 		public void DeleteService(Guid serviceId)
 		{
-			var service = _services.FirstOrDefault(x => x.Id == serviceId);
+			var service = _services.FirstOrDefault(x => x.ServiceId == serviceId);
 
 			if (service == null)
 			{
 				throw new Exception("Сервис с таким id отсутствует.");
 			}
 
-			if(service.State == Application.Status.Run)
+			if(service.State == Actions.Application.Status.Run)
 			{
 				service.Close();
 			}
@@ -259,12 +261,12 @@ namespace MCServerManager.Library.Actions
 			{
 				State = Status.Off;
 				// Вызывается событие отключения серверного приложения
-				ServerClosed?.Invoke(Id);
+				ServerClosed?.Invoke(ServerId);
 			}
 		}
 
 		/// <summary>
-		/// Перезапускает серверное приложение.
+		/// Перезапустить серверное приложение.
 		/// </summary>
 		public void Restart()
 		{
@@ -344,7 +346,7 @@ namespace MCServerManager.Library.Actions
 		/// Проверяет данные серверного приложения.
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public void CheckServerData(ServerData data)
+		public void CheckServerData(Server data)
 		{
 			CheckApplicationData(data);
 
@@ -361,7 +363,7 @@ namespace MCServerManager.Library.Actions
 		{
 			_services.ForEach(service => {
 				if (service.AutoStart &&
-					service.State == Application.Status.Off)
+					service.State == Actions.Application.Status.Off)
 				{
 					service.Start();
 				}
@@ -372,7 +374,7 @@ namespace MCServerManager.Library.Actions
 		{
 			_services.ForEach(service => {
 				if (service.AutoClose &&
-					service.State == Application.Status.Run)
+					service.State == Actions.Application.Status.Run)
 				{
 					service.Close();
 				}
@@ -400,8 +402,8 @@ namespace MCServerManager.Library.Actions
 			if (message.Contains(MessageServerStarted))
 			{
 				State = Status.Run;
-				base.State = Application.Status.Run;
-				ServerStarted?.Invoke(Id);
+				base.State = Actions.Application.Status.Run;
+				ServerStarted?.Invoke(ServerId);
 			}
 		}
 

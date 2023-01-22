@@ -34,7 +34,7 @@ namespace MCServerManager.Pages.Server
 					Name = server.Name,
 					AutoStart = server.AutoStart,
 					WorkDirectory = server.WorkDirectory,
-					Programm = server.Program,
+					StartProgram = server.StartProgram,
 					Arguments = server.Arguments,
 					Address = server.Address,
 					Port = server.Port
@@ -53,14 +53,14 @@ namespace MCServerManager.Pages.Server
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public IActionResult OnPost(Guid id)
+		public async Task<IActionResult> OnPostAsync(Guid id)
 		{
 			Id = id;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					_service.UpdateServer(id, Input.GetServerData(id));
+					await _service.UpdateServerAsync(id, Input.GetServerData(id));
 					return RedirectToPage("Server", new { id });
 				}
 			}

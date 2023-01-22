@@ -4,6 +4,8 @@ using MCServerManager.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
+using MCServerManager.Library.Data.Data;
+using MCServerManager.Library.Data.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Configuration.AddJsonFile("Settings.json");
 builder.Configuration.AddJsonFile("StyleSettings.json");
 
+builder.Services.AddSingleton<IGameServerDataContext, GameServerDataFileRepository>();
 builder.Services.AddSingleton<GameServerService>();
 builder.Services.AddHostedService<RunGameServersHostedService>();
 

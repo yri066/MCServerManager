@@ -27,17 +27,17 @@ namespace MCServerManager.Models
 		[Required, DisplayName("Автовыключение вместе с сервером.")]
 		public bool AutoClose { get; set; }
 
-		public BackgroundServiceData GetBackgroundServiceData(Guid id, Guid serverId)
+		public Library.Data.Models.Service GetBackgroundServiceData(Guid id, Guid serverId)
 		{
-			return new BackgroundServiceData
+			return new Library.Data.Models.Service
 			{
-				Id = id,
-				GameServerId = serverId,
+				ServiceId = id,
+				ServerId = serverId,
 				Name = Name,
 				AutoStart = AutoStart,
 				AutoClose = AutoClose,
 				WorkDirectory = WorkDirectory,
-				Program = Programm,
+                StartProgram = StartProgram,
 				Arguments = Arguments,
 				Address = Address,
 				Port = Port

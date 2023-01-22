@@ -29,7 +29,7 @@ namespace MCServerManager.Library.Data.Tools
 		}
 
 		/// <summary>
-		/// Сериализация обьекта в JSON.
+		/// Сериализация объекта в JSON.
 		/// </summary>
 		/// <typeparam name="T">Тип объекта.</typeparam>
 		/// <param name="data">Объект для сериализации.</param>
@@ -45,7 +45,7 @@ namespace MCServerManager.Library.Data.Tools
 		/// <typeparam name="T">Тип объекта.</typeparam>
 		/// <param name="path">Путь до файла.</param>
 		/// <returns>Экземпляр объекта.</returns>
-		public static T LoadJsonDataFromFile<T>(string path)
+		public static async Task<T> LoadJsonDataFromFile<T>(string path)
 		{
 			if (string.IsNullOrEmpty(path))
 			{
@@ -57,7 +57,7 @@ namespace MCServerManager.Library.Data.Tools
 				throw new FileNotFoundException("Указанный файл загрузки данных не найден", nameof(path));
 			}
 
-			return JsonConvert.DeserializeObject<T>(File.ReadAllText(path));
+			return JsonConvert.DeserializeObject<T>(await File.ReadAllTextAsync(path));
 		}
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace MCServerManager.Library.Data.Tools
 		/// <param name="path">Путь до файла.</param>
 		/// <param name="data">Объект для сериализации.</param>
 		/// <returns>true - данные успешно сохранены, false - не удалось сохранить.</returns>
-		public static bool SaveJsonDataToFile<T>(string path, T data)
+		public static async Task SaveJsonDataToFile<T>(string path, T data)
 		{
 			if (string.IsNullOrEmpty(path))
 			{
@@ -88,15 +88,10 @@ namespace MCServerManager.Library.Data.Tools
 
 			try
 			{
-				File.WriteAllText(path, json);
+				await File.WriteAllTextAsync(path, json);
 			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.ToString());
-				return false;
-			}
-
-			return true;
+			catch (Exception)
+			{ }
 		}
 	}
 }

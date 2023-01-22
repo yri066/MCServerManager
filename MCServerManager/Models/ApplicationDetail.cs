@@ -31,7 +31,7 @@ namespace MCServerManager.Models
 		/// Программа для запуска
 		/// </summary>
 		[Required, StringLength(100), DisplayName("Программа для запуска.")]
-		public string Programm { get; set; }
+		public string StartProgram { get; set; }
 
 		/// <summary>
 		/// Аргументы запуска
