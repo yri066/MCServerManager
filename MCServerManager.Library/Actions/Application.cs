@@ -1,13 +1,13 @@
-﻿using MCServerManager.Library.Data.Models;
+﻿using MCServerManager.Library.Data.Interface;
+using MCServerManager.Library.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
 using System.Diagnostics;
 
 namespace MCServerManager.Library.Actions
 {
 	/// <summary>
-	/// Работа с приложением.
+	/// Базовый класс для запуска приложения.
 	/// </summary>
 	public class Application
 	{
@@ -24,12 +24,7 @@ namespace MCServerManager.Library.Actions
 		/// Информация о серверном приложении.
 		/// </summary>
 		[JsonIgnore]
-		public ApplicationData Data { get; private set; }
-
-		/// <summary>
-		/// Идентификатор приложения.
-		/// </summary>
-		public Guid Id { get { return Data.Id; } }
+		public IApplication Data { get; private set; }
 
 		/// <summary>
 		/// Автозапуск.
@@ -49,7 +44,7 @@ namespace MCServerManager.Library.Actions
 		/// <summary>
 		/// Программа для запуска.
 		/// </summary>
-		public string Program { get { return Data.Program; } }
+		public string StartProgram { get { return Data.StartProgram; } }
 
 		/// <summary>
 		/// Аргументы запуска.
@@ -78,7 +73,7 @@ namespace MCServerManager.Library.Actions
 		[JsonIgnore]
 		public IConsoleBufferApp ConsoleBuffer { get { return _consoleBuffer; } }
 
-		public Application(ApplicationData data, IConfiguration configuration)
+		public Application(IApplication data, IConfiguration configuration)
 		{
 			CheckApplicationData(data);
 
@@ -91,9 +86,9 @@ namespace MCServerManager.Library.Actions
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public void UpdateData(ApplicationData data)
+		public void UpdateData(IApplication data)
 		{
-			if (Id != data.Id)
+			if (Data.Id != data.Id)
 			{
 				throw new Exception("Идентификаторы не совпадают");
 			}
@@ -128,7 +123,7 @@ namespace MCServerManager.Library.Actions
 		{
 			_process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
-			_process.StartInfo.FileName = Program;
+			_process.StartInfo.FileName = StartProgram;
 			_process.StartInfo.Arguments = Arguments;
 			_process.StartInfo.UseShellExecute = false;
 			_process.StartInfo.RedirectStandardInput = true;
@@ -197,11 +192,11 @@ namespace MCServerManager.Library.Actions
 		/// Проверяет данные серверного приложения.
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public void CheckApplicationData(ApplicationData data)
+		public void CheckApplicationData(IApplication data)
 		{
-			if (string.IsNullOrEmpty(data.Program))
+			if (string.IsNullOrEmpty(data.StartProgram))
 			{
-				throw new ArgumentNullException(nameof(data.Program), "Программа для запуска не задана");
+				throw new ArgumentNullException(nameof(data.StartProgram), "Программа для запуска не задана");
 			}
 
 			if (string.IsNullOrEmpty(data.WorkDirectory))

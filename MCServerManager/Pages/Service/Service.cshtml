@@ -18,7 +18,7 @@
                     <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Service.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
                 </div>
                 <div class="col-auto text-end">
-                    <a asp-controller="Service" asp-action="Console" asp-route-id="@Model.Service.Id" class="btn btn-dark" role="button">Консоль</a>
+                    <a asp-controller="Service" asp-action="Console" asp-route-id="@Model.Service.ServiceId" class="btn btn-dark" role="button">Консоль</a>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
             <li class="list-group-item">Автозапуск: @Model.Service.AutoStart</li>
             <li class="list-group-item">Автовыключение: @Model.Service.AutoClose</li>
             <li class="list-group-item">Расположение сервиса: @Model.Service.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Service.Program</li>
+            <li class="list-group-item">Программа для запуска: @Model.Service.StartProgram</li>
             @if (@Model.Service.Arguments != null)
             {
                 <li class="list-group-item">Аргументы запуска: @Model.Service.Arguments</li>
@@ -42,7 +42,7 @@
             }
         </ul>
         <br />
-        <a asp-page="/Service/Edit" asp-route-id="@Model.Service.Id" class="btn btn-primary" role="button">Редактировать</a>
+        <a asp-page="/Service/Edit" asp-route-id="@Model.Service.ServiceId" class="btn btn-primary" role="button">Редактировать</a>
 
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">

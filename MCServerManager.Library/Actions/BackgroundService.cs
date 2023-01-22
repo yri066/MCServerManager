@@ -7,12 +7,14 @@ namespace MCServerManager.Library.Actions
 	public class BackgroundService : Application
 	{
 		[JsonIgnore]
-		public new BackgroundServiceData Data { get; private set; }
+		public new Service Data { get; private set; }
 
-		/// <summary>
-		/// Адрес сервера/ip.
-		/// </summary>
-		public string Address { get { return Data.Address; } }
+        public Guid ServiceId { get { return Data.Id; } }
+
+        /// <summary>
+        /// Адрес сервера/ip.
+        /// </summary>
+        public string Address { get { return Data.Address; } }
 
 		/// <summary>
 		/// Используемый порт.
@@ -24,9 +26,9 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public bool AutoClose { get { return Data.AutoClose; } }
 
-		public Guid GameServerId { get { return Data.GameServerId; } }
+		public Guid? GameServerId { get { return Data.ServerId; } }
 
-		public BackgroundService(BackgroundServiceData data, IConfiguration configuration) : base(data, configuration)
+		public BackgroundService(Service data, IConfiguration configuration) : base(data, configuration)
 		{
 			CheckServiceData(data);
 			Data = data;
@@ -36,11 +38,11 @@ namespace MCServerManager.Library.Actions
 		/// Обновляет настройки серверного приложения.
 		/// </summary>
 		/// <param name="data">Информация о серверном приложении.</param>
-		public void UpdateData(BackgroundServiceData data)
+		public void UpdateData(Service data)
 		{
 			base.UpdateData(data);
 
-			if (Id != data.Id)
+			if (ServiceId != data.Id)
 			{
 				throw new Exception("Идентификаторы не совпадают");
 			}
@@ -53,7 +55,7 @@ namespace MCServerManager.Library.Actions
 		/// Проверяет данные сервиса.
 		/// </summary>
 		/// <param name="data">Информация о сервисе.</param>
-		public void CheckServiceData(BackgroundServiceData data)
+		public void CheckServiceData(Service data)
 		{
 			CheckApplicationData(data);
 

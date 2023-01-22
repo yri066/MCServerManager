@@ -28,13 +28,13 @@ namespace MCServerManager.Pages.Server
 		/// Обрабатывает Post запрос на добавление нового сервера.
 		/// </summary>
 		/// <returns>Перенаправление на страницу.</returns>
-		public IActionResult OnPost()
+		public async Task<IActionResult> OnPost()
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var id = _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.Programm,
+					var id = await _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
 						Input.Arguments, Input.Address, Input.Port);
 					return RedirectToPage("Server", new { id });
 				}
