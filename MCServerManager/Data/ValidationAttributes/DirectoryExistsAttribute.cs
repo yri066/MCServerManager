@@ -3,7 +3,7 @@
 namespace MCServerManager.Data.ValidationAttributes
 {
 	/// <summary>
-	/// Атрибут для роверки наличия указанной директории.
+	/// Атрибут для проверки наличия указанной директории.
 	/// </summary>
 	public class DirectoryExistsAttribute : ValidationAttribute
 	{

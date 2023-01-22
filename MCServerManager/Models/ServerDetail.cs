@@ -21,15 +21,15 @@ namespace MCServerManager.Models
 		[DisplayName("Используемый порт.")]
 		public int? Port { get; set; }
 
-		public ServerData GetServerData(Guid id)
+		public Server GetServerData(Guid id)
 		{
-			return new ServerData
+			return new Server
 			{
-				Id = id,
+                ServerId = id,
 				Name = Name,
 				AutoStart = AutoStart,
 				WorkDirectory = WorkDirectory,
-				Program = Programm,
+                StartProgram = StartProgram,
 				Arguments = Arguments,
 				Address = Address,
 				Port = Port
