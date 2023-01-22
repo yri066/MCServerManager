@@ -2,8 +2,6 @@
 let pathPage = new URL(window.location.origin + window.location.pathname);
 /**Url получения состояния приложения. */
 let getStatusUrl = new URL('GetStatus', pathPage);
-/**Текущее состояние приложения. */
-let status = "";
 /**Версия вывода консоли. */
 let consoleVersion = "00000000-0000-0000-0000-000000000000";
 
@@ -64,10 +62,6 @@ function loadJson(url) {
  */
 function checkConsole(element) {
 
-	if (status != element.status) {
-		status = element.status;
-	}
-
 	if (consoleVersion == element.consoleVersion) {
 		return;
 	}
@@ -100,9 +94,9 @@ function checkConsole(element) {
  * Действия, выполняемые после загрузки страницы.
  */
 window.onload = function () {
-	document.getElementById("back").href = (window.location.origin + window.location.pathname).replace('/Console', '');
 
 	var input = document.getElementById("inputConsole");
+
 	input.addEventListener("keypress", function (event) {
 		if (event.key === "Enter") {
 			postCommand(input.value);
