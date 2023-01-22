@@ -25,12 +25,12 @@ namespace MCServerManager.Pages.Service
 			Service = _service.GetService(id);
 		}
 
-		public IActionResult OnGetDelete(Guid id)
+		public async Task<IActionResult> OnGetDeleteAsync(Guid id)
 		{
 			try
 			{
-				var serverId = _service.GetServiceData(id).GameServerId;
-				_service.DeleteService(serverId, id);
+				var serverId = _service.GetServiceData(id).ServerId;
+				await _service.DeleteServiceAsync((Guid)serverId!, id);
 			}
 			catch
 			{}

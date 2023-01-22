@@ -35,11 +35,11 @@ namespace MCServerManager.Pages.Server
 			return Page();
 		}
 
-		public IActionResult OnGetDelete(Guid id)
+		public async Task<IActionResult> OnGetDeleteAsync(Guid id)
 		{
 			try
 			{
-				_serverService.DeleteServer(id);
+				await _serverService.DeleteServerAsync(id);
 			}
 			catch
 			{}
