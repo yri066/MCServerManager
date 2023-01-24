@@ -73,7 +73,29 @@ namespace MCServerManager.Library.Actions
 		[JsonIgnore]
 		public IConsoleBufferApp ConsoleBuffer { get { return _consoleBuffer; } }
 
-		public Application(IApplication data, IConfiguration configuration)
+        /// <summary>
+        /// Делегат события завершения работы серверного приложения.
+        /// </summary>
+        /// <param name="id">Идентификатор сервера.</param>
+        public delegate void ServerClosedEventHandler(Guid id);
+
+        /// <summary>
+        /// Событие завершения работы серверного приложения.
+        /// </summary>
+        public event ServerClosedEventHandler Closed;
+
+        /// <summary>
+        /// Делегат события начала работы серверного приложения.
+        /// </summary>
+        /// <param name="id">Идентификатор сервера.</param>
+        public delegate void ServerStartedEventHandler(Guid id);
+
+        /// <summary>
+        /// Событие начала работы серверного приложения.
+        /// </summary>
+        public event ServerStartedEventHandler Started;
+
+        public Application(IApplication data, IConfiguration configuration)
 		{
 			CheckApplicationData(data);
 
@@ -114,12 +136,13 @@ namespace MCServerManager.Library.Actions
 			);
 
 			State = Status.Run;
-		}
+            Started?.Invoke(Data.Id);
+        }
 
 		/// <summary>
 		/// Запускает процесс, управляющий серверным приложением.
 		/// </summary>
-		protected void StartServer(EventHandler @event = null)
+		protected void StartServer(EventHandler eventExited = null)
 		{
 			_process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
@@ -135,7 +158,7 @@ namespace MCServerManager.Library.Actions
 				GetAppMessage(e.Data);
 			});
 
-			_process.Exited += @event;
+			_process.Exited += eventExited;
 
 			_process.Start();
 			_process.BeginOutputReadLine();
@@ -149,7 +172,8 @@ namespace MCServerManager.Library.Actions
 			_process.Dispose();
 
 			State = Status.Off;
-		}
+            Closed?.Invoke(Data.Id);
+        }
 
 		/// <summary>
 		/// Отключает серверное приложение не дожидаясь завершения работы.

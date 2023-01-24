@@ -68,32 +68,20 @@ namespace MCServerManager.Library.Actions
 		[JsonIgnore]
 		public IUsersListServer<string> UserList { get { return _userList; } }
 
-		/// <summary>
-		/// Делегат события завершения работы серверного приложения.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void ServerClosedEventHandler(Guid id);
+        /// <summary>
+        /// Событие завершения работы серверного приложения.
+        /// </summary>
+        public new event ServerClosedEventHandler Closed;
 
-		/// <summary>
-		/// Событие завершения работы серверного приложения.
-		/// </summary>
-		public event ServerClosedEventHandler ServerClosed;
+        /// <summary>
+        /// Событие начала работы серверного приложения.
+        /// </summary>
+        public new event ServerStartedEventHandler Started;
 
-		/// <summary>
-		/// Делегат события начала работы серверного приложения.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public delegate void ServerStartedEventHandler(Guid id);
-
-		/// <summary>
-		/// Событие начала работы серверного приложения.
-		/// </summary>
-		public event ServerStartedEventHandler ServerStarted;
-
-		/// <summary>
-		/// Делегат события завершения работы серверного приложения при перезагрузке.
-		/// </summary>
-		delegate void ServerOffEventHandler();
+        /// <summary>
+        /// Делегат события завершения работы серверного приложения при перезагрузке.
+        /// </summary>
+        delegate void ServerOffEventHandler();
 
 		/// <summary>
 		/// Событие завершения работы серверного приложения при перезагрузке.
@@ -119,7 +107,7 @@ namespace MCServerManager.Library.Actions
 				}
 			}
 
-			ServerStarted += (id) => AutoStartBackgroundService();
+			Started += (id) => AutoStartBackgroundService();
 			ServerOff += () => CloseBackgroundService();
 		}
 
@@ -221,8 +209,7 @@ namespace MCServerManager.Library.Actions
 			{
 				ProcessClosed();
 				ServerOff?.Invoke();
-			})
-			);
+			}));
 		}
 
 		/// <summary>
@@ -261,7 +248,7 @@ namespace MCServerManager.Library.Actions
 			{
 				State = Status.Off;
 				// Вызывается событие отключения серверного приложения
-				ServerClosed?.Invoke(ServerId);
+				Closed?.Invoke(ServerId);
 			}
 		}
 
@@ -403,7 +390,7 @@ namespace MCServerManager.Library.Actions
 			{
 				State = Status.Run;
 				base.State = Actions.Application.Status.Run;
-				ServerStarted?.Invoke(ServerId);
+				Started?.Invoke(ServerId);
 			}
 		}
 
