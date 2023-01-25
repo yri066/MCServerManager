@@ -12,7 +12,7 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Название приложения
 		/// </summary>
-		[Required, StringLength(100), DisplayName("Название сервера.")]
+		[Required, StringLength(100), DisplayName("Название приложения.")]
 		public string Name { get; set; }
 
 		/// <summary>
