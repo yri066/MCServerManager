@@ -10,32 +10,29 @@ namespace MCServerManager.Pages.Server
 		[BindProperty]
 		public ServerDetail Input { get; set; }
 		private readonly GameServerService _service;
+        private readonly UserService _userService;
 
-		public AddModel(GameServerService service)
+        public AddModel(GameServerService service, UserService userService)
 		{
 			_service = service;
+			_userService = userService;
 		}
 
-		/// <summary>
-		/// Обрабатывает Get запрос.
-		/// </summary>
 		public void OnGet()
 		{
 			Input = new();
 		}
 
-		/// <summary>
-		/// Обрабатывает Post запрос на добавление нового сервера.
-		/// </summary>
-		/// <returns>Перенаправление на страницу.</returns>
 		public async Task<IActionResult> OnPost()
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var id = await _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
-						Input.Arguments, Input.Address, Input.Port);
+                    var userId = _userService.UserId!;
+
+                    var id = await _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
+						Input.Arguments, Input.Address, Input.Port, userId);
 					return RedirectToPage("Server", new { id });
 				}
 			}

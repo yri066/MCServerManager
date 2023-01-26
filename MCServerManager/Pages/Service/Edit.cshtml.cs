@@ -11,27 +11,34 @@ namespace MCServerManager.Pages.Service
 		public BackgroundServiceDetail Input { get; set; }
 		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
+        private readonly UserService _userService;
 
-		public EditServiceModel(GameServerService serverService)
+        public EditServiceModel(GameServerService serverService, UserService userService)
 		{
 			_service = serverService;
-		}
+            _userService = userService;
+        }
+
 		public IActionResult OnGet(Guid id)
 		{
 			Id = id;
 			try
 			{
-				var server = _service.GetServiceData(id);
-				Input = new BackgroundServiceDetail
+				var service = _service.GetServiceData(id);
+                var userId = _userService.UserId;
+
+                if (userId != service.UserId) return Forbid();
+
+                Input = new BackgroundServiceDetail
 				{
-					Name = server.Name,
-					AutoStart = server.AutoStart,
-					AutoClose = server.AutoClose,
-					WorkDirectory = server.WorkDirectory,
-					StartProgram = server.StartProgram,
-					Arguments = server.Arguments,
-					Address = server.Address,
-					Port = server.Port
+					Name = service.Name,
+					AutoStart = service.AutoStart,
+					AutoClose = service.AutoClose,
+					WorkDirectory = service.WorkDirectory,
+					StartProgram = service.StartProgram,
+					Arguments = service.Arguments,
+					Address = service.Address,
+					Port = service.Port
 				};
 			}
 			catch
@@ -54,8 +61,13 @@ namespace MCServerManager.Pages.Service
 			{
 				if (ModelState.IsValid)
 				{
-					var serverId = _service.GetServiceData(id).ServerId;
-					await _service.UpdateServiceAsync(id, Input.GetBackgroundServiceData(id, (Guid)serverId!));
+					var service = _service.GetServiceData(id);
+                    var userId = _userService.UserId;
+
+                    if (userId != service.UserId) return Forbid();
+
+					service.UpdateData(Input.GetBackgroundServiceData(id, service.ServiceId));
+                    await _service.UpdateServiceAsync(id, service);
 					return RedirectToPage("/Service/Service", new { id });
 				}
 			}

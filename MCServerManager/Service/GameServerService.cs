@@ -1,6 +1,8 @@
-﻿using MCServerManager.Library.Actions;
+﻿using MCServerManager.Data;
+using MCServerManager.Library.Actions;
 using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MCServerManager.Service
 {
@@ -30,7 +32,7 @@ namespace MCServerManager.Service
 			_configuration = configuration;
 			_context = context;
 
-			LoadServers();
+            LoadServers();
 			AutoRun();
 		}
 
@@ -80,7 +82,7 @@ namespace MCServerManager.Service
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
 		public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
-			string? arguments, string? address, int? port)
+			string? arguments, string? address, int? port, string userId)
 		{
 			var id = Guid.NewGuid();
 			var server = new Server()
@@ -93,6 +95,7 @@ namespace MCServerManager.Service
 				Arguments = arguments,
 				Address = address,
 				Port = port,
+				UserId = userId,
 				Services = new List<Library.Data.Models.Service>()
 			};
 
@@ -114,7 +117,7 @@ namespace MCServerManager.Service
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
 		public async Task<Guid> CreateServiceAsync(Guid id, string name, bool autoStart, string workDirectory, string program,
-			string? arguments, string? address, int? port)
+			string? arguments, string? address, int? port, string userId)
 		{
 			var serviceId = Guid.NewGuid();
 			var servise = new Library.Data.Models.Service()
@@ -127,8 +130,9 @@ namespace MCServerManager.Service
 				StartProgram = program,
 				Arguments = arguments,
 				Address = address,
-				Port = port
-			};
+				Port = port,
+                UserId = userId
+            };
 
             AddService(servise);
             await _context.CreateServiceAsycn(servise);
