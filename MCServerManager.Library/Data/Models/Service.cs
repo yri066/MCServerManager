@@ -69,8 +69,6 @@ namespace MCServerManager.Library.Data.Models
         /// Идентификатор пользователя.
         /// </summary>
         public string UserId { get; set; }
-        
-        public IdentityUser User { get; set; }
 
 
         public void UpdateServiceData(Service service)
@@ -83,6 +81,18 @@ namespace MCServerManager.Library.Data.Models
             service.Arguments = Arguments;
             service.Address = Address;
             service.Port = Port;
+        }
+
+        public void UpdateData(Service service)
+        {
+            Name = service.Name;
+            AutoStart = service.AutoStart;
+            AutoClose = service.AutoClose;
+            WorkDirectory = service.WorkDirectory;
+            StartProgram = service.StartProgram;
+            Arguments = service.Arguments;
+            Address = service.Address;
+            Port = service.Port;
         }
     }
 }
