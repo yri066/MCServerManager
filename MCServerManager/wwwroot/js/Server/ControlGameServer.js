@@ -68,7 +68,15 @@ function queryHandling(url, resolve) {
 		.then(data => {
 			resolve(data);
 		})
-		.catch(error => $("#StatusServer").html(`Состояние сервера: ${error}`));
+		.catch(error => {
+			if (status == error) {
+				return;
+			}
+
+			status = error;
+
+			$("#StatusServer").html(`Состояние сервера: ${error}`)
+		});
 }
 
 /**
