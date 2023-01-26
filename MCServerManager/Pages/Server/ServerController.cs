@@ -160,10 +160,12 @@ namespace MCServerManager.Pages.Server
 		{
 			try
 			{
-				if(_userService.UserId is null)
+				var server = _serverService.GetServer(id);
+
+                if (_userService.UserId is null || _userService.UserId != server.Data.UserId)
 					return Forbid();
 
-				ViewData["Name"] = _serverService.GetServer(id).Name;
+				ViewData["Name"] = server.Name;
 				return View("/Pages/Application/Console.cshtml");
 			}
 			catch (Exception)

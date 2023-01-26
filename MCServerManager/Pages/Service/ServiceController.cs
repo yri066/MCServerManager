@@ -1,4 +1,5 @@
 ﻿using MCServerManager.Data.FilterAttributes;
+using MCServerManager.Library.Data.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -96,10 +97,12 @@ namespace MCServerManager.Pages.Service
 		{
 			try
 			{
-                if (_userService.UserId is null)
+                var service = _serverService.GetService(id);
+
+                if (_userService.UserId is null || _userService.UserId != service.Data.UserId)
 					return Forbid();
 
-                ViewData["Name"] = _serverService.GetService(id).Name;
+                ViewData["Name"] = service.Name;
 				return View("/Pages/Application/Console.cshtml");
 			}
 			catch (Exception)
