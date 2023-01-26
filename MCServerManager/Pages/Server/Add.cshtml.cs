@@ -1,11 +1,13 @@
 using MCServerManager.Models;
 using MCServerManager.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Server
 {
-	public class AddModel : PageModel
+    [Authorize]
+    public class AddModel : PageModel
 	{
 		[BindProperty]
 		public ServerDetail Input { get; set; }
