@@ -1,13 +1,14 @@
 ﻿using MCServerManager.Library.Data.Interface;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
 namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
-	/// Данные о сервере
+	/// Данные о сервере.
 	/// </summary>
 	public class Server : IApplication
-	{
+    {
 		/// <summary>
 		/// Идентификатор приложения
 		/// </summary>
@@ -58,6 +59,13 @@ namespace MCServerManager.Library.Data.Models
 		/// Список сервисов.
 		/// </summary>
 		public ICollection<Service> Services { get; set; }
+
+        /// <summary>
+        /// Идентификатор пользователя.
+        /// </summary>
+        public string UserId { get; set; }
+        public IdentityUser User { get; set; }
+
         public void UpdateServerData(Server server)
 		{
 			server.Name = Name;

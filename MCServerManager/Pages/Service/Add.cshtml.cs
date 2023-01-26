@@ -11,12 +11,13 @@ namespace MCServerManager.Pages.Service
 		public BackgroundServiceDetail Input { get; set; }
 		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
+        private readonly UserService _userService;
 
-		public AddServiceModel(GameServerService service)
+        public AddServiceModel(GameServerService service, UserService userService)
 		{
 			_service = service;
-		}
-
+            _userService = userService;
+        }
 
 		public void OnGet(Guid id)
 		{
@@ -32,8 +33,10 @@ namespace MCServerManager.Pages.Service
 			{
 				if (ModelState.IsValid)
 				{
-					var serviceId = await _service.CreateServiceAsync(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
-						Input.Arguments, Input.Address, Input.Port);
+                    var userId = _userService.UserId!;
+
+                    var serviceId = await _service.CreateServiceAsync(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
+						Input.Arguments, Input.Address, Input.Port, userId);
 					return RedirectToPage("/Service/Service", new { id = serviceId });
 				}
 			}

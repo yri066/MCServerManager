@@ -12,11 +12,13 @@ namespace MCServerManager.Pages.Server
 		public ServerDetail Input { get; set; }
 		public Guid Id { get; private set; }
 		private readonly GameServerService _service;
+        private readonly UserService _userService;
 
-		public EditModel(GameServerService serverService)
+        public EditModel(GameServerService serverService, UserService userService)
 		{
 			_service = serverService;
-		}
+            _userService = userService;
+        }
 
 		/// <summary>
 		/// Обрабатывает Get запрос.
@@ -29,7 +31,11 @@ namespace MCServerManager.Pages.Server
 			try
 			{
 				var server = _service.GetServerData(id);
-				Input = new ServerDetail
+                var userId = _userService.UserId;
+
+                if (userId != server.UserId) return Forbid();
+
+                Input = new ServerDetail
 				{
 					Name = server.Name,
 					AutoStart = server.AutoStart,
@@ -49,7 +55,7 @@ namespace MCServerManager.Pages.Server
 		}
 
 		/// <summary>
-		/// Обрабатывает Post запрос на изменение информации о сервера.
+		/// Обрабатывает Post запрос на изменение информации о сервере.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
@@ -60,7 +66,12 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-					await _service.UpdateServerAsync(id, Input.GetServerData(id));
+                    var server = _service.GetServerData(id);
+                    var userId = _userService.UserId;
+
+                    if (userId != server.UserId) return Forbid();
+
+                    await _service.UpdateServerAsync(id, Input.GetServerData(id));
 					return RedirectToPage("Server", new { id });
 				}
 			}

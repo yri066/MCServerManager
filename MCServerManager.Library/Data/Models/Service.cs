@@ -1,10 +1,11 @@
 ﻿using MCServerManager.Library.Data.Interface;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
 namespace MCServerManager.Library.Data.Models
 {
 	/// <summary>
-	/// Данные о сервисе
+	/// Данные о сервисе.
 	/// </summary>
 	public class Service : IApplication
 	{
@@ -22,12 +23,7 @@ namespace MCServerManager.Library.Data.Models
         /// <summary>
         /// Идентификатор сервера
         /// </summary>
-        public Guid? ServerId { get; set; }
-
-		/// <summary>
-		/// Идентификатор приложения
-		/// </summary>
-		//public Guid Id { get { return ServiceId; } }
+        public Guid ServerId { get; set; }
 
         /// <summary>
         /// Название приложения
@@ -38,6 +34,11 @@ namespace MCServerManager.Library.Data.Models
         /// Автозапуск
         /// </summary>
         public bool AutoStart { get; set; }
+
+		/// <summary>
+		/// Выключение вместе с сервером
+		/// </summary>
+		public bool AutoClose { get; set; }
 
         /// <summary>
         /// Расположение приложения
@@ -64,9 +65,34 @@ namespace MCServerManager.Library.Data.Models
 		/// </summary>
 		public int? Port { get; set; }
 
-		/// <summary>
-		/// Выключение вместе с сервером
-		/// </summary>
-		public bool AutoClose { get; set; }
-	}
+        /// <summary>
+        /// Идентификатор пользователя.
+        /// </summary>
+        public string UserId { get; set; }
+
+
+        public void UpdateServiceData(Service service)
+        {
+            service.Name = Name;
+            service.AutoStart = AutoStart;
+            service.AutoClose = AutoClose;
+            service.WorkDirectory = WorkDirectory;
+            service.StartProgram = StartProgram;
+            service.Arguments = Arguments;
+            service.Address = Address;
+            service.Port = Port;
+        }
+
+        public void UpdateData(Service service)
+        {
+            Name = service.Name;
+            AutoStart = service.AutoStart;
+            AutoClose = service.AutoClose;
+            WorkDirectory = service.WorkDirectory;
+            StartProgram = service.StartProgram;
+            Arguments = service.Arguments;
+            Address = service.Address;
+            Port = service.Port;
+        }
+    }
 }

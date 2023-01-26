@@ -11,11 +11,6 @@ namespace MCServerManager.Library.Data.Interface
 		public Task<List<Server>> LoadServerDataAsycn();
 
 		/// <summary>
-		/// Сохраняет информацию о серверах.
-		/// </summary>
-		public Task SaveServerDataAsycn(List<Server> gameServers);
-
-		/// <summary>
 		/// Добавить новый сервер.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
