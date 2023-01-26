@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MCServerManager.Data
 {
+    /// <summary>
+	/// Взаимодействие с данными хранящимся на сервере.
+	/// </summary>
     public class ServerDataRepository : IGameServerDataContext
     {
         private readonly IServiceProvider _provider;
