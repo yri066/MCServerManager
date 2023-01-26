@@ -1,11 +1,15 @@
 ﻿@page "/List"
 @model MCServerManager.Pages.Server.ListModel
+@inject SignInManager<IdentityUser> SignInManager
 @{
 }
 
-<div class="col-md-12 text-end">
-    <a asp-page="/Server/Add" class="btn btn-success">Добавить сервер</a>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="col-md-12 text-end">
+        <a asp-page="/Server/Add" class="btn btn-success">Добавить сервер</a>
+    </div>
+}
 <br />
 @if (Model.Servers.Count != 0)
 {
@@ -28,12 +32,15 @@
                         }
                     </div>
                     <div class="col-auto text-end">
-                        <p class="card-text">Колличество игроков: @server.UserList.Count</p>
+                        <p class="card-text">Количество игроков: @server.UserList.Count</p>
                     </div>
                 </div>
-                <div class="col-auto text-end">
-                    <a asp-page="/Server/Server" asp-route-id="@server.ServerId" class="btn btn-primary">Информация о сервере</a>
-                </div>
+                @if (SignInManager.IsSignedIn(User) && server.Data.UserId == Model.UserId)
+                {
+                    <div class="col-auto text-end">
+                        <a asp-page="/Server/Server" asp-route-id="@server.ServerId" class="btn btn-primary">Информация о сервере</a>
+                    </div>
+                }
             </div>
         </div>
     }
