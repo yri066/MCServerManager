@@ -18,7 +18,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Configuration.AddJsonFile("Settings.json");
 builder.Configuration.AddJsonFile("StyleSettings.json");
 
+
 builder.Services.AddSingleton<IGameServerDataContext, GameServerDataFileRepository>();
+builder.Services.AddSingleton<IGameServerDataContext, ServerDataRepository>();
 builder.Services.AddSingleton<GameServerService>();
 builder.Services.AddHostedService<RunGameServersHostedService>();
 
