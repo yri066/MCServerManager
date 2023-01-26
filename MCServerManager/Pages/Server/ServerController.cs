@@ -1,14 +1,14 @@
-﻿using MCServerManager.Data;
-using MCServerManager.Data.FilterAttributes;
+﻿using MCServerManager.Data.FilterAttributes;
 using MCServerManager.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace MCServerManager.Pages.Server
 {
     /// <summary>
     /// Взаимодействие с серверным приложением.
     /// </summary>
+	[Authorize]
     [Route("/Server/{id:guid}/[action]")]
     public class ServerController : Controller
 	{

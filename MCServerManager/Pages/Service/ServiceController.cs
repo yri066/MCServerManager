@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MCServerManager.Pages.Service
 {
+    /// <summary>
+    /// Взаимодействие с серверным приложением.
+    /// </summary>
+    [Authorize]
     [Route("/Service/{id:guid}/[action]")]
 	public class ServiceController : Controller
 	{

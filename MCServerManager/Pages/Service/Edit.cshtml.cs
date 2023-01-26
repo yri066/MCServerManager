@@ -1,11 +1,13 @@
 using MCServerManager.Models;
 using MCServerManager.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Service
 {
-	public class EditServiceModel : PageModel
+    [Authorize]
+    public class EditServiceModel : PageModel
 	{
 		[BindProperty]
 		public BackgroundServiceDetail Input { get; set; }

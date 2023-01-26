@@ -1,10 +1,12 @@
 using MCServerManager.Library.Actions;
 using MCServerManager.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace MCServerManager.Pages.Server
 {
+	[Authorize]
 	public class ServerModel : PageModel
 	{
 		/// <summary>

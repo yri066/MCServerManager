@@ -1,10 +1,12 @@
 using MCServerManager.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BackgroundService = MCServerManager.Library.Actions.BackgroundService;
 
 namespace MCServerManager.Pages.Service
 {
+    [Authorize]
     public class ServiceModel : PageModel
     {
         /// <summary>
