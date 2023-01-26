@@ -14,18 +14,25 @@ namespace MCServerManager.Pages.Server
 
 		private readonly GameServerService _serverService;
 		public GameServer Exemplar { get; private set; }
+        private readonly UserService _userService;
 
-		public ServerModel(GameServerService serverService, IConfiguration configuration)
+        public ServerModel(GameServerService serverService, IConfiguration configuration, UserService userService)
 		{
 			_serverService = serverService;
-			ButtonStyle = configuration.GetSection("Action:GameServer");
-		}
+            _userService = userService;
+            ButtonStyle = configuration.GetSection("Action:GameServer");
+        }
 
 		public IActionResult OnGet(Guid id)
 		{
 			try
 			{
-				Exemplar = _serverService.GetServer(id);
+				var server = _serverService.GetServer(id);
+                var userId = _userService.UserId;
+
+                if (userId != server.Data.UserId) return Forbid();
+
+                Exemplar = server;
 			}
 			catch
 			{
@@ -39,10 +46,17 @@ namespace MCServerManager.Pages.Server
 		{
 			try
 			{
-				await _serverService.DeleteServerAsync(id);
+                var server = _serverService.GetServer(id);
+                var userId = _userService.UserId;
+
+                if (userId != server.Data.UserId) return Forbid();
+
+                await _serverService.DeleteServerAsync(id);
 			}
 			catch
-			{}
+			{
+                return NotFound();
+            }
 			
 			return RedirectToPage("List");
 		}

@@ -5,37 +5,61 @@ using BackgroundService = MCServerManager.Library.Actions.BackgroundService;
 
 namespace MCServerManager.Pages.Service
 {
-	public class ServiceModel : PageModel
-	{
-		/// <summary>
-		/// Конфигурация.
-		/// </summary>
-		public readonly IConfiguration ButtonStyle;
+    public class ServiceModel : PageModel
+    {
+        /// <summary>
+        /// Конфигурация.
+        /// </summary>
+        public readonly IConfiguration ButtonStyle;
 
-		private readonly GameServerService _service;
-		public BackgroundService Service { get; set; }
+        private readonly GameServerService _service;
+        public BackgroundService Service { get; set; }
+        private readonly UserService _userService;
 
-		public ServiceModel(GameServerService service, IConfiguration configuration)
-		{
-			_service = service;
-			ButtonStyle = configuration.GetSection("Action:Application");
-		}
-		public void OnGet(Guid id)
-		{
-			Service = _service.GetService(id);
-		}
+        public ServiceModel(GameServerService service, IConfiguration configuration, UserService userService)
+        {
+            _service = service;
+            _userService = userService;
+            ButtonStyle = configuration.GetSection("Action:Application");
+        }
 
-		public async Task<IActionResult> OnGetDeleteAsync(Guid id)
-		{
-			try
-			{
-				var serverId = _service.GetServiceData(id).ServerId;
-				await _service.DeleteServiceAsync((Guid)serverId!, id);
-			}
-			catch
-			{}
+        public IActionResult OnGet(Guid id)
+        {
 
-			return RedirectToPage("/Server/List");
-		}
-	}
+            try
+            {
+                var service = _service.GetService(id);
+                var userId = _userService.UserId;
+
+                if (userId != service.Data.UserId) return Forbid();
+
+                Service = service;
+            }
+            catch
+            {
+                return NotFound();
+            }
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetDeleteAsync(Guid id)
+        {
+            try
+            {
+                var service = _service.GetService(id);
+                var userId = _userService.UserId;
+
+                if (userId != service.Data.UserId) return Forbid();
+
+                await _service.DeleteServiceAsync(service.ServiceId!, id);
+            }
+            catch
+            {
+                return NotFound();
+            }
+
+            return RedirectToPage("/Server/List");
+        }
+    }
 }
