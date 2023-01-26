@@ -47,7 +47,12 @@ namespace MCServerManager.Library.Actions
 				throw new Exception("Идентификаторы не совпадают");
 			}
 
-			CheckServiceData(data);
+            if (Data.UserId != data.UserId)
+            {
+                throw new Exception("Идентификаторы не совпадают");
+            }
+
+            CheckServiceData(data);
 			Data = data;
 		}
 
