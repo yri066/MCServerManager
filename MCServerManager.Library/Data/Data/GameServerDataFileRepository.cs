@@ -108,11 +108,9 @@ namespace MCServerManager.Library.Data.Data
 			var list = await LoadServerDataAsycn();
 			var item = GetService(list, service.Id);
 
-			if (service is not null)
+			if (item is not null)
 			{
-				var server = GetServer(list, item.ServerId);
-				server.Services.Remove(item);
-				server.Services.Add(item);
+				service.UpdateServiceData(item);
 				await SaveServerDataAsycn(list);
 			}
 		}
