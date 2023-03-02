@@ -22,7 +22,7 @@ function queryHandling(url, resolve) {
 		.then(data => {
 			resolve(data);
 		})
-		.catch();
+		.catch(error => {});
 }
 
 /**
