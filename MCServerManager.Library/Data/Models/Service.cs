@@ -39,6 +39,11 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public bool AutoStart { get; set; }
 
+		/// <summary>
+		/// Выключение вместе с сервером
+		/// </summary>
+		public bool AutoClose { get; set; }
+
         /// <summary>
         /// Расположение приложения
         /// </summary>
@@ -64,9 +69,16 @@ namespace MCServerManager.Library.Data.Models
 		/// </summary>
 		public int? Port { get; set; }
 
-		/// <summary>
-		/// Выключение вместе с сервером
-		/// </summary>
-		public bool AutoClose { get; set; }
-	}
+        public void UpdateServiceData(Service service)
+        {
+            service.Name = Name;
+            service.AutoStart = AutoStart;
+            service.AutoClose = AutoClose;
+            service.WorkDirectory = WorkDirectory;
+            service.StartProgram = StartProgram;
+            service.Arguments = Arguments;
+            service.Address = Address;
+            service.Port = Port;
+        }
+    }
 }
