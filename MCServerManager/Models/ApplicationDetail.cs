@@ -36,7 +36,7 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Аргументы запуска
 		/// </summary>
-		[StringLength(100), DisplayName("Аргументы для запуска.")]
+		[StringLength(200), DisplayName("Аргументы для запуска.")]
 		public string? Arguments { get; set; }
 	}
 }
