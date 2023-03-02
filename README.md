@@ -9,6 +9,8 @@
 
 Веб-менеджер для серверов [Minecraft: Java Edition](https://www.minecraft.net/ru-ru/download/server)
 
+[Версия для локальной сети](https://github.com/yri066/MCServerManager/tree/LocalNetwork)
+
 MC Server Manager позволяет управлять серверами Minecraft, получать списки пользователей на сервере и использовать консольные команды.
 
 ## Минимальные системные требования
