@@ -18,7 +18,7 @@ namespace MCServerManager.Data.FilterAttributes
     {
         private readonly GameServerService _serverService;
 
-        public string Key = "id";
+        public string Key = "serviceId";
         public string ErrorMessage = "Доступ запрещен.";
 
         public UserServiceAccessFilter(GameServerService serverService)

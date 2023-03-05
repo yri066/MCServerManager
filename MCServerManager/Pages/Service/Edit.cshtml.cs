@@ -21,12 +21,12 @@ namespace MCServerManager.Pages.Service
             _userService = userService;
         }
 
-		public IActionResult OnGet(Guid id)
+		public IActionResult OnGet(Guid serviceId)
 		{
-			Id = id;
+			Id = serviceId;
 			try
 			{
-				var service = _service.GetServiceData(id);
+				var service = _service.GetServiceData(serviceId);
                 var userId = _userService.UserId;
 
                 if (userId != service.UserId) return Forbid();
@@ -52,25 +52,25 @@ namespace MCServerManager.Pages.Service
 		}
 
 		/// <summary>
-		/// Обрабатывает Post запрос на изменение информации о сервера.
+		/// Обрабатывает Post запрос на изменение информации о сервисе.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public async Task<IActionResult> OnPostAsync(Guid id)
+		public async Task<IActionResult> OnPostAsync(Guid serviceId)
 		{
-			Id = id;
+			Id = serviceId;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var service = _service.GetServiceData(id);
+					var service = _service.GetServiceData(serviceId);
                     var userId = _userService.UserId;
 
                     if (userId != service.UserId) return Forbid();
 
-					service.UpdateData(Input.GetBackgroundServiceData(id, service.ServiceId));
-                    await _service.UpdateServiceAsync(id, service);
-					return RedirectToPage("/Service/Service", new { id });
+					service.UpdateData(this.Input.GetBackgroundServiceData(serviceId, service.ServerId));
+                    await _service.UpdateServiceAsync(serviceId, service);
+					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}
 			catch (Exception ex)

@@ -10,7 +10,7 @@ namespace MCServerManager.Pages.Service
     /// Взаимодействие с серверным приложением.
     /// </summary>
     [Authorize]
-    [Route("/Service/{id:guid}/[action]")]
+    [Route("/Service/{serviceId:guid}/[action]")]
 	public class ServiceController : Controller
 	{
 		private readonly GameServerService _serverService;
@@ -25,14 +25,14 @@ namespace MCServerManager.Pages.Service
         /// <summary>
         /// Получить информацию о сервисе.
         /// </summary>
-        /// <param name="id">Идентификатор сервиса.</param>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         [ServiceFilter(typeof(UserServiceAccessFilter))]
-        public object GetStatus(Guid id)
+        public object GetStatus(Guid serviceId)
 		{
 			try
 			{
-                var service = _serverService.GetService(id);
+                var service = _serverService.GetService(serviceId);
 
 				return new
 				{
@@ -49,14 +49,14 @@ namespace MCServerManager.Pages.Service
         /// <summary>
         /// Запустить сервис.
         /// </summary>
-        /// <param name="id">Идентификатор сервиса.</param>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         [ServiceFilter(typeof(UserServiceAccessFilter))]
-        public object Start(Guid id)
+        public object Start(Guid serviceId)
 		{
 			try
 			{
-                _serverService.StartService(id);
+                _serverService.StartService(serviceId);
 			}
 			catch (Exception ex)
 			{
@@ -64,20 +64,20 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
 		}
 
         /// <summary>
         /// Выключить сервис.
         /// </summary>
-        /// <param name="id">Идентификатор сервиса.</param>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         [ServiceFilter(typeof(UserServiceAccessFilter))]
-        public object Close(Guid id)
+        public object Close(Guid serviceId)
 		{
 			try
 			{
-				_serverService.CloseService(id);
+				_serverService.CloseService(serviceId);
 			}
 			catch (Exception ex)
 			{
@@ -85,19 +85,19 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
 		}
 
         /// <summary>
         /// Открыть страницу консоли приложения.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serviceId">Идентификатор сервера.</param>
         /// <returns>Страница консоли.</returns>
-        public IActionResult Console(Guid id)
+        public IActionResult Console(Guid serviceId)
 		{
 			try
 			{
-                var service = _serverService.GetService(id);
+                var service = _serverService.GetService(serviceId);
 
                 if (_userService.UserId is null || _userService.UserId != service.Data.UserId)
 					return Forbid();
@@ -114,16 +114,16 @@ namespace MCServerManager.Pages.Service
 		/// <summary>
 		/// Получить буфер вывода приложения.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <param name="bufferId">Версия буфера.</param>
 		/// <returns>Буфер вывода приложения.</returns>
-		[Route("/Service/{id:guid}/[action]/{bufferId:guid}")]
+		[Route("/Service/{serviceId:guid}/[action]/{bufferId:guid}")]
         [ServiceFilter(typeof(UserServiceAccessFilter))]
-        public object Console(Guid id, Guid bufferId)
+        public object Console(Guid serviceId, Guid bufferId)
 		{
 			try
 			{
-				var service = _serverService.GetService(id);
+				var service = _serverService.GetService(serviceId);
 
 				return new
 				{
@@ -141,16 +141,16 @@ namespace MCServerManager.Pages.Service
 		/// <summary>
 		/// Отправить сообщение в сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <param name="message">Сообщение.</param>
 		/// <returns>Информация о сервисе.</returns>
 		[HttpPost]
         [ServiceFilter(typeof(UserServiceAccessFilter))]
-        public object Console(Guid id, string message = "")
+        public object Console(Guid serviceId, string message = "")
 		{
 			try
 			{
-				_serverService.SendServiceAppMessage(id, message);
+				_serverService.SendServiceAppMessage(serviceId, message);
 			}
 			catch (Exception ex)
 			{
@@ -158,7 +158,7 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
         }
     }
 }
