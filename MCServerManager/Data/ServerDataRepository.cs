@@ -40,9 +40,6 @@ namespace MCServerManager.Data
             using (IServiceScope scope = _provider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                //var server = await context.Servers.FindAsync(serviceData.ServerId);
-
-                //if (server == null) throw new Exception("Сервер не найден.");
 
                 context.Services.Add(serviceData);
                 await context.SaveChangesAsync();
@@ -52,15 +49,15 @@ namespace MCServerManager.Data
         /// <summary>
 		/// Удалить сервер.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-        public async Task DeleteServerAsycn(Guid id)
+		/// <param name="serverID">Идентификатор сервера.</param>
+        public async Task DeleteServerAsycn(Guid serverID)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var server = await context.Servers
                     .Include(server => server.Services)
-                    .Where(server => server.ServerId == id)
+                    .Where(server => server.ServerId == serverID)
                     .FirstOrDefaultAsync();
 
                 if (server == null) throw new Exception("Сервер не найден.");
@@ -73,18 +70,13 @@ namespace MCServerManager.Data
         /// <summary>
 		/// Удалить сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервис.</param>
-        public async Task DeleteServiceAsycn(Guid id)
+		/// <param name="serviceId">Идентификатор сервис.</param>
+        public async Task DeleteServiceAsycn(Guid serviceId)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var item = await context.Services.FindAsync(id);
-                //var element = await context.Servers
-                //    .Select(server => server.Services
-                //        .Where(service => service.ServiceId == id)
-                //        .FirstOrDefault())
-                //    .FirstOrDefaultAsync();
+                var item = await context.Services.FindAsync(serviceId);
 
                 if (item == null) throw new Exception("Сервис не найден.");
 
@@ -134,14 +126,7 @@ namespace MCServerManager.Data
             using (IServiceScope scope = _provider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-                var servise = await context.Services.FindAsync(serviceData.ServerId);
-
-                //var element = await context.Servers
-                //    .Select(server => server.Services
-                //        .Where(service => service.ServiceId == serviceData.ServiceId)
-                //        .FirstOrDefault())
-                //    .FirstOrDefaultAsync();
+                var servise = await context.Services.FindAsync(serviceData.ServiceId);
 
                 if (servise == null) throw new Exception("Сервис не найден.");
 
