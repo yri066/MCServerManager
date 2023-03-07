@@ -1,4 +1,4 @@
-﻿@page "/Service/Edit/{id:guid}"
+﻿@page "/Service/Edit/{serviceId:guid}"
 @using MCServerManager.Models
 @model MCServerManager.Pages.Service.EditServiceModel
 @{
@@ -15,7 +15,7 @@
     </div>
 </form>
 <br />
-<a asp-page="/Service/Service" asp-route-Id="@Model.Id"><К сервису</a>
+<a asp-page="/Service/Service" asp-route-serviceId="@Model.Id"><К сервису</a>
 
 
 @section Scripts {

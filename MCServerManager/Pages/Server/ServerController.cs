@@ -9,7 +9,7 @@ namespace MCServerManager.Pages.Server
     /// Взаимодействие с серверным приложением.
     /// </summary>
 	[Authorize]
-    [Route("/Server/{id:guid}/[action]")]
+    [Route("/Server/{serverId:guid}/[action]")]
     public class ServerController : Controller
 	{
 		private readonly GameServerService _serverService;
@@ -25,14 +25,14 @@ namespace MCServerManager.Pages.Server
         /// <summary>
         /// Получить информацию о сервере.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object GetStatus(Guid id)
+        public object GetStatus(Guid serverId)
 		{
 			try
 			{
-				var server = _serverService.GetServer(id);
+				var server = _serverService.GetServer(serverId);
 
 				return new
 				{
@@ -51,14 +51,14 @@ namespace MCServerManager.Pages.Server
         /// <summary>
         /// Запустить сервер.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Start(Guid id)
+        public object Start(Guid serverId)
 		{
 			try
 			{
-                _serverService.StartServer(id);
+                _serverService.StartServer(serverId);
 			}
 			catch (Exception ex)
 			{
@@ -66,20 +66,20 @@ namespace MCServerManager.Pages.Server
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serverId);
 		}
 
         /// <summary>
         /// Перезапустить сервер.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Restart(Guid id)
+        public object Restart(Guid serverId)
 		{
 			try
 			{
-                _serverService.Restart(id);
+                _serverService.Restart(serverId);
 			}
 			catch (Exception ex)
 			{
@@ -87,20 +87,20 @@ namespace MCServerManager.Pages.Server
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serverId);
 		}
 
         /// <summary>
         /// Остановить сервер.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Stop(Guid id)
+        public object Stop(Guid serverId)
 		{
 			try
 			{
-                _serverService.StopServer(id);
+                _serverService.StopServer(serverId);
 			}
 			catch (Exception ex)
 			{
@@ -108,20 +108,20 @@ namespace MCServerManager.Pages.Server
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serverId);
 		}
 
         /// <summary>
         /// Выключить сервер.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Close(Guid id)
+        public object Close(Guid serverId)
 		{
 			try
 			{
-                _serverService.CloseServer(id);
+                _serverService.CloseServer(serverId);
 			}
 			catch (Exception ex)
 			{
@@ -129,20 +129,20 @@ namespace MCServerManager.Pages.Server
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serverId);
 		}
 
         /// <summary>
         /// Получить список пользователей.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Список пользователей.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object GetUserList(Guid id)
+        public object GetUserList(Guid serverId)
 		{
 			try
 			{
-                return _serverService.GetServer(id).UserList;
+                return _serverService.GetServer(serverId).UserList;
 			}
 			catch (Exception ex)
 			{
@@ -154,13 +154,13 @@ namespace MCServerManager.Pages.Server
         /// <summary>
         /// Открыть страницу консоли приложения.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
+        /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Страница консоли.</returns>
-        public IActionResult Console(Guid id)
+        public IActionResult Console(Guid serverId)
 		{
 			try
 			{
-				var server = _serverService.GetServer(id);
+				var server = _serverService.GetServer(serverId);
 
                 if (_userService.UserId is null || _userService.UserId != server.Data.UserId)
 					return Forbid();
@@ -177,16 +177,16 @@ namespace MCServerManager.Pages.Server
 		/// <summary>
 		/// Получить буфер вывода приложения.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <param name="bufferId">Версия буфера.</param>
 		/// <returns>Буфер вывода приложения.</returns>
-		[Route("/Server/{id:guid}/[action]/{version:guid}")]
+		[Route("/Server/{serverId:guid}/[action]/{version:guid}")]
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Console(Guid id, Guid version)
+        public object Console(Guid serverId, Guid version)
 		{
 			try
 			{
-                var server = _serverService.GetServer(id);
+                var server = _serverService.GetServer(serverId);
 
 				return new {
 					Console = server.ConsoleBuffer.GetConsoleBuffer(version),
@@ -203,16 +203,16 @@ namespace MCServerManager.Pages.Server
 		/// <summary>
 		/// Отправить сообщение на сервер.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <param name="message">Сообщение.</param>
 		/// <returns>Информация о сервере.</returns>
 		[HttpPost]
         [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Console(Guid id, string message = "")
+        public object Console(Guid serverId, string message = "")
 		{
 			try
 			{
-                _serverService.SendServerAppMessage(id, message);
+                _serverService.SendServerAppMessage(serverId, message);
 			}
 			catch (Exception ex)
 			{
@@ -220,7 +220,7 @@ namespace MCServerManager.Pages.Server
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serverId);
 		}
 	}
 }

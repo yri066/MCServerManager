@@ -25,14 +25,14 @@ namespace MCServerManager.Pages.Server
 		/// <summary>
 		/// Обрабатывает Get запрос.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public IActionResult OnGet(Guid id)
+		public IActionResult OnGet(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			try
 			{
-				var server = _service.GetServerData(id);
+				var server = _service.GetServerData(serverId);
                 var userId = _userService.UserId;
 
                 if (userId != server.UserId) return Forbid();
@@ -59,22 +59,22 @@ namespace MCServerManager.Pages.Server
 		/// <summary>
 		/// Обрабатывает Post запрос на изменение информации о сервере.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public async Task<IActionResult> OnPostAsync(Guid id)
+		public async Task<IActionResult> OnPostAsync(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-                    var server = _service.GetServerData(id);
+                    var server = _service.GetServerData(serverId);
                     var userId = _userService.UserId;
 
                     if (userId != server.UserId) return Forbid();
 
-                    await _service.UpdateServerAsync(id, Input.GetServerData(id));
-					return RedirectToPage("Server", new { id });
+                    await _service.UpdateServerAsync(serverId, Input.GetServerData(serverId));
+					return RedirectToPage("Server", new { serverId });
 				}
 			}
 			catch (Exception ex)

@@ -1,8 +1,6 @@
-﻿using MCServerManager.Data;
-using MCServerManager.Library.Actions;
+﻿using MCServerManager.Library.Actions;
 using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace MCServerManager.Service
 {
@@ -116,14 +114,14 @@ namespace MCServerManager.Service
 		/// <param name="address">Адрес сервера.</param>
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
-		public async Task<Guid> CreateServiceAsync(Guid id, string name, bool autoStart, string workDirectory, string program,
+		public async Task<Guid> CreateServiceAsync(Guid serverId, string name, bool autoStart, string workDirectory, string program,
 			string? arguments, string? address, int? port, string userId)
 		{
 			var serviceId = Guid.NewGuid();
 			var servise = new Library.Data.Models.Service()
 			{
 				ServiceId = serviceId,
-				ServerId = id,
+				ServerId = serverId,
 				Name = name,
 				AutoStart = autoStart,
 				WorkDirectory = workDirectory,
@@ -163,17 +161,17 @@ namespace MCServerManager.Service
             CheckFreeDirectory(service.WorkDirectory);
             CheckFreePort(service.Port, service.Address, service.Id);
 
-            var exemplar = GetServer((Guid)service.ServerId!);
+            var exemplar = GetServer(service.ServerId);
             exemplar.AddService(new Library.Actions.BackgroundService(service, _configuration));
         }
 
         /// <summary>
         /// Удалить указанный сервер.
         /// </summary>
-        /// <param name="id">Идентификатор сервера.</param>
-        public async Task DeleteServerAsync(Guid id)
+        /// <param name="serverId">Идентификатор сервера.</param>
+        public async Task DeleteServerAsync(Guid serverId)
 		{
-			var exemplar = GetServer(id);
+			var exemplar = GetServer(serverId);
 			
 			if(exemplar.State != GameServer.Status.Off && exemplar.State != GameServer.Status.Error)
 			{
@@ -182,30 +180,30 @@ namespace MCServerManager.Service
 			}
 
 			_servers.Remove(exemplar);
-            await _context.DeleteServerAsycn(id);
+            await _context.DeleteServerAsycn(serverId);
 		}
 
 		/// <summary>
 		/// Удалить указанный сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <param name="serviceId">Идентификатор сервиса.</param>
-		public async Task DeleteServiceAsync(Guid id, Guid serviceId)
+		public async Task DeleteServiceAsync(Guid serverId, Guid serviceId)
 		{
-			GetServer(id).DeleteService(serviceId);
+			GetServer(serverId).DeleteService(serviceId);
             await _context.DeleteServiceAsycn(serviceId);
 		}
 
 		/// <summary>
 		/// Обновить информацию указанного сервера.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <param name="serverData">Информация о сервере.</param>
-		public async Task UpdateServerAsync(Guid id, Server serverData)
+		public async Task UpdateServerAsync(Guid serverId, Server serverData)
 		{
-			CheckData(id, serverData, serverData.Port, serverData.Address);
+			CheckData(serverId, serverData, serverData.Port, serverData.Address);
 
-			var exemplar = GetServer(id);
+			var exemplar = GetServer(serverId);
 			exemplar.UpdateData(serverData);
             await _context.UpdateServerAsycn(serverData);
 		}
@@ -213,14 +211,14 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Обновить информацию указанного сервиса.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <param name="serverData">Информация о сервисе.</param>
 		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
-		public async Task UpdateServiceAsync(Guid id, Library.Data.Models.Service serviceData)
+		public async Task UpdateServiceAsync(Guid serviceId, Library.Data.Models.Service serviceData)
 		{
-			CheckData(id, serviceData, serviceData.Port, serviceData.Address);
+			CheckData(serviceId, serviceData, serviceData.Port, serviceData.Address);
 
-			var exemplar = GetService(id);
+			var exemplar = GetService(serviceId);
 
 			exemplar.UpdateData(serviceData);
             await _context.UpdateServiceAsycn(exemplar.Data);
@@ -229,66 +227,66 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Запустить указанный сервер.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public void StartServer(Guid id)
+		/// <param name="serverId">Идентификатор сервера.</param>
+		public void StartServer(Guid serverId)
 		{
-			GetServer(id).Start();
+			GetServer(serverId).Start();
 		}
 
 		/// <summary>
 		/// Остановить указанный сервер.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public void StopServer(Guid id)
+		/// <param name="serverId">Идентификатор сервера.</param>
+		public void StopServer(Guid serverId)
 		{
-			GetServer(id).Stop();
+			GetServer(serverId).Stop();
 		}
 
 		/// <summary>
 		/// Выключает указанный сервер, не дожидаясь сохранения данных.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public void CloseServer(Guid id)
+		/// <param name="serverId">Идентификатор сервера.</param>
+		public void CloseServer(Guid serverId)
 		{
-			GetServer(id).Close();
+			GetServer(serverId).Close();
 		}
 
 		/// <summary>
 		/// Перезагружает указанный сервер.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		public void Restart(Guid id)
+		/// <param name="serverId">Идентификатор сервера.</param>
+		public void Restart(Guid serverId)
 		{
-			GetServer(id).Restart();
+			GetServer(serverId).Restart();
 		}
 
 		/// <summary>
 		/// Запустить указанный сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		public void StartService(Guid id)
+		/// <param name="serviceId">Идентификатор сервиса.</param>
+		public void StartService(Guid serviceId)
 		{
-			GetService(id).Start();
+			GetService(serviceId).Start();
 		}
 
 		/// <summary>
 		/// Выключает указанный сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		public void CloseService(Guid id)
+		/// <param name="serviceId">Идентификатор сервиса.</param>
+		public void CloseService(Guid serviceId)
 		{
-			GetService(id).Close();
+			GetService(serviceId).Close();
 		}
 
 		/// <summary>
 		/// Получить экземпляр класса сервера по идентификатору.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <returns>Экземпляр класса.</returns>
 		/// <exception cref="Exception">Указанный сервер не найден.</exception>
-		public GameServer GetServer(Guid id)
+		public GameServer GetServer(Guid serverId)
 		{
-			var exemplar = _servers.FirstOrDefault(x => x.ServerId == id);
+			var exemplar = _servers.FirstOrDefault(x => x.ServerId == serverId);
 
 			if (exemplar == null)
 			{
@@ -322,11 +320,11 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Получить настройки серверного приложения по идентификатору.
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <returns>Настройки серверного приложения.</returns>
-		public Server GetServerData(Guid id)
+		public Server GetServerData(Guid serverId)
 		{
-			return GetServer(id).Data;
+			return GetServer(serverId).Data;
 		}
 
 		/// <summary>
@@ -342,21 +340,21 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Отправляет сообщение в серверное приложение
 		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
+		/// <param name="serverId">Идентификатор сервера.</param>
 		/// <param name="text">Сообщение.</param>
-		public void SendServerAppMessage(Guid id, string message = "")
+		public void SendServerAppMessage(Guid serverId, string message = "")
 		{
-			GetServer(id).SendAppMessage(message);
+			GetServer(serverId).SendAppMessage(message);
 		}
 
 		/// <summary>
 		/// Отправляет сообщение в сервис.
 		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
+		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <param name="text">Сообщение.</param>
-		public void SendServiceAppMessage(Guid id, string message = "")
+		public void SendServiceAppMessage(Guid serviceId, string message = "")
 		{
-			GetService(id).SendAppMessage(message);
+			GetService(serviceId).SendAppMessage(message);
 		}
 
 		/// <summary>
