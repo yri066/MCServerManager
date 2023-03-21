@@ -45,6 +45,10 @@ namespace MCServerManager.Library.Data.Data
                 list.Add(server);
                 await SaveServerDataAsycn(list);
             }
+            else
+            {
+                throw new Exception("Идентификатор использует другой сервер.");
+            }
         }
 
         /// <summary>
@@ -57,13 +61,15 @@ namespace MCServerManager.Library.Data.Data
             var list = await LoadServerDataAsycn();
             var item = GetServer(list, service.ServerId);
 
-            if (item is not null)
+            if (item is null)
             {
-                if (GetService(list, service.Id) is null)
-                {
-                    item.Services.Add(service);
-                    await SaveServerDataAsycn(list);
-                }
+                throw new Exception("Сервер не найден.");
+            }
+
+            if (GetService(list, service.Id) is null)
+            {
+                item.Services.Add(service);
+                await SaveServerDataAsycn(list);
             }
         }
 
@@ -130,11 +136,13 @@ namespace MCServerManager.Library.Data.Data
             var list = await LoadServerDataAsycn();
             var item = GetServer(list, server.Id);
 
-            if (item is not null)
+            if (item is null)
             {
-                server.UpdateServerData(item);
-                await SaveServerDataAsycn(list);
+                throw new Exception("Сервер не найден.");
             }
+
+            item.UpdateData(server);
+            await SaveServerDataAsycn(list);
         }
 
         /// <summary>
@@ -147,11 +155,13 @@ namespace MCServerManager.Library.Data.Data
             var list = await LoadServerDataAsycn();
             var item = GetService(list, service.Id);
 
-            if (item is not null)
+            if (item is null)
             {
-                service.UpdateServiceData(item);
-                await SaveServerDataAsycn(list);
+                throw new Exception("Сервис не найден.");
             }
+
+            item.UpdateData(service);
+            await SaveServerDataAsycn(list);
         }
 
         /// <summary>

@@ -80,5 +80,17 @@ namespace MCServerManager.Library.Data.Models
             service.Address = Address;
             service.Port = Port;
         }
+
+        public void UpdateData(Service service)
+        {
+            Name = service.Name;
+            AutoStart = service.AutoStart;
+            AutoClose = service.AutoClose;
+            WorkDirectory = service.WorkDirectory;
+            StartProgram = service.StartProgram;
+            Arguments = service.Arguments;
+            Address = service.Address;
+            Port = service.Port;
+        }
     }
 }
