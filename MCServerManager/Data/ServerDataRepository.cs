@@ -112,7 +112,7 @@ namespace MCServerManager.Data
 
                 if (server == null) throw new Exception("Сервер не найден.");
 
-                serverData.UpdateServerData(server);
+                server.UpdateData(serverData);
                 await context.SaveChangesAsync();
             }
         }
@@ -130,7 +130,7 @@ namespace MCServerManager.Data
 
                 if (servise == null) throw new Exception("Сервис не найден.");
 
-                serviceData.UpdateServiceData(servise);
+                servise.UpdateData(serviceData);
                 await context.SaveChangesAsync();
             }
         }

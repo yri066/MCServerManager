@@ -5,30 +5,33 @@ using System.Text.RegularExpressions;
 
 namespace MCServerManager.Library.Actions
 {
-	/// <summary>
-	/// Работа с сервером.
-	/// </summary>
-	public class GameServer : Application
-	{
-		/// <summary>
-		/// Состояния сервера.
-		/// </summary>
-		public new enum Status
-		{
-			Run,
-			Off,
-			Launch,
-			Shutdown,
-			Reboot,
-			Error
-		}
+    /// <summary>
+    /// Серверное приложение.
+    /// </summary>
+    public class GameServer : Application
+    {
+        /// <summary>
+        /// Состояния сервера.
+        /// </summary>
+        public new enum Status
+        {
+            Run,
+            Off,
+            Launch,
+            Shutdown,
+            Reboot,
+            Error
+        }
 
-		/// <summary>
-		/// Информация о серверном приложении.
-		/// </summary>
-		[JsonIgnore]
-		public new Server Data { get; private set; }
+        /// <summary>
+        /// Информация о серверном приложении.
+        /// </summary>
+        [JsonIgnore]
+        public new Server Data { get; private set; }
 
+        /// <summary>
+        /// Идентификатор сервера.
+        /// </summary>
         public Guid ServerId { get { return Data.Id; } }
 
         /// <summary>
@@ -36,37 +39,37 @@ namespace MCServerManager.Library.Actions
         /// </summary>
         public string Address { get { return Data.Address; } }
 
-		/// <summary>
-		/// Используемый порт.
-		/// </summary>
-		public int? Port { get { return Data.Port; } }
+        /// <summary>
+        /// Используемый порт.
+        /// </summary>
+        public int? Port { get { return Data.Port; } }
 
-		/// <summary>
-		/// Список сервисов.
-		/// </summary>
-		private List<BackgroundService> _services = new();
+        /// <summary>
+        /// Список сервисов.
+        /// </summary>
+        private List<BackgroundService> _services = new();
 
-		/// <summary>
-		/// Список сервисов.
-		/// </summary>
-		public IEnumerable<BackgroundService> Services { get { return _services; } }
+        /// <summary>
+        /// Список сервисов.
+        /// </summary>
+        public IEnumerable<BackgroundService> Services { get { return _services; } }
 
-		/// <summary>
-		/// Состояние сервера.
-		/// </summary>
-		[JsonIgnore]
-		public new Status State { get; private set; }
+        /// <summary>
+        /// Состояние сервера.
+        /// </summary>
+        [JsonIgnore]
+        public new Status State { get; private set; }
 
-		/// <summary>
-		/// Список игроков на сервере.
-		/// </summary>
-		private UsersListServer<string> _userList = new();
+        /// <summary>
+        /// Список игроков на сервере.
+        /// </summary>
+        private UsersListServer<string> _userList = new();
 
-		/// <summary>
-		/// Список игроков на сервере.
-		/// </summary>
-		[JsonIgnore]
-		public IUsersListServer<string> UserList { get { return _userList; } }
+        /// <summary>
+        /// Список игроков на сервере.
+        /// </summary>
+        [JsonIgnore]
+        public IUsersListServer<string> UserList { get { return _userList; } }
 
         /// <summary>
         /// Событие завершения работы серверного приложения.
@@ -83,353 +86,371 @@ namespace MCServerManager.Library.Actions
         /// </summary>
         delegate void ServerOffEventHandler();
 
-		/// <summary>
-		/// Событие завершения работы серверного приложения при перезагрузке.
-		/// </summary>
-		event ServerOffEventHandler ServerOff;
+        /// <summary>
+        /// Событие завершения работы серверного приложения при перезагрузке.
+        /// </summary>
+        event ServerOffEventHandler ServerOff;
 
-		/// <summary>
-		/// Конструктор с параметром
-		/// </summary>
-		/// <param name="data">Информация о серверном приложении.</param>
-		public GameServer(Server data, IConfiguration configuration) : base(data, configuration)
-		{
-			CheckServerData(data);
+        /// <summary>
+        /// Конструктор с параметром
+        /// </summary>
+        /// <param name="data">Информация о серверном приложении.</param>
+        public GameServer(Server data, IConfiguration configuration) : base(data, configuration)
+        {
+            CheckServerData(data);
 
-			Data = data;
-			State = Status.Off;
+            Data = data;
+            State = Status.Off;
 
-			if (Data.Services != null)
-			{
-				foreach (var service in Data.Services)
-				{
-					_services.Add(new BackgroundService(service, configuration));
-				}
-			}
+            if (Data.Services != null)
+            {
+                foreach (var service in Data.Services)
+                {
+                    _services.Add(new BackgroundService(service, configuration));
+                }
+            }
 
-			Started += (id) => AutoStartBackgroundService();
-			ServerOff += () => CloseBackgroundService();
-		}
+            Started += (id) => AutoStartBackgroundService();
+            ServerOff += () => CloseBackgroundService();
+        }
 
-		/// <summary>
-		/// Обновляет настройки серверного приложения.
-		/// </summary>
-		/// <param name="data">Информация о серверном приложении.</param>
-		public void UpdateData(Server data)
-		{
-			base.UpdateData(data);
+        /// <summary>
+        /// Обновляет настройки серверного приложения.
+        /// </summary>
+        /// <param name="data">Информация о серверном приложении.</param>
+        public void UpdateData(Server data)
+        {
+            if (ServerId != data.Id)
+            {
+                throw new Exception("Идентификаторы не совпадают");
+            }
 
-			if (ServerId != data.Id)
-			{
-				throw new Exception("Идентификаторы не совпадают");
-			}
+            CheckServerData(data);
 
-			CheckServerData(data);
-			data.UpdateServerData(Data);
-		}
+            base.UpdateData(data);
+            Data.UpdateData(data);
+        }
 
-		/// <summary>
-		/// Обновляет информацию о сервисе.
-		/// </summary>
-		/// <param name="serviceData">Информация о сервисе.</param>
-		public void UpdateServiceData(Service serviceData)
-		{
-			var service = GetService(serviceData.Id);
-			service.UpdateData(Data);
+        /// <summary>
+        /// Обновляет информацию о сервисе.
+        /// </summary>
+        /// <param name="serviceData">Информация о сервисе.</param>
+        public void UpdateServiceData(Service serviceData)
+        {
+            var service = GetService(serviceData.Id);
+            service.UpdateData(serviceData);
 
-			var item = Data.Services.FirstOrDefault(x => x.Id == serviceData.Id);
+            var item = Data.Services.FirstOrDefault(x => x.Id == serviceData.Id);
 
-			if (item != null)
-			{
-				Data.Services.Remove(item);
-				Data.Services.Add(serviceData);
-			}
-		}
+            if (item != null)
+            {
+                item.UpdateData(serviceData);
+            }
+        }
 
-		public void AddService(BackgroundService service)
-		{
-			if (ServerId != service.GameServerId)
-			{
-				throw new Exception("Сервис предназначен для использования с другим сервером.");
-			}
+        /// <summary>
+        /// Добавить сервис.
+        /// </summary>
+        /// <param name="service">Сервис.</param>
+        public void AddService(BackgroundService service)
+        {
+            if (ServerId != service.GameServerId)
+            {
+                throw new Exception("Сервис предназначен для использования с другим сервером.");
+            }
 
-			if(_services.FirstOrDefault(x=> x.ServiceId == service.ServiceId) != null)
-			{
-				throw new Exception("Сервис с таким же id уже существует.");
-			}
+            if (_services.FirstOrDefault(x => x.ServiceId == service.ServiceId) != null)
+            {
+                throw new Exception("Сервис с таким же id уже существует.");
+            }
 
-			_services.Add(service);
-		}
+            _services.Add(service);
+            Data.Services.Add(service.Data);
+        }
 
-		public BackgroundService GetService(Guid serviceId)
-		{
-			var service = _services.FirstOrDefault(x => x.ServiceId == serviceId);
+        /// <summary>
+        /// Получить сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <returns>Сервис.</returns>
+        /// <exception cref="Exception">Сервис не найден.</exception>
+        public BackgroundService GetService(Guid serviceId)
+        {
+            var service = _services.FirstOrDefault(x => x.ServiceId == serviceId);
 
-			if (service == null)
-			{
-				throw new Exception("Сервис не найден.");
-			}
+            if (service == null)
+            {
+                throw new Exception("Сервис не найден.");
+            }
 
-			return service;
-		}
+            return service;
+        }
 
-		public void DeleteService(Guid serviceId)
-		{
-			var service = _services.FirstOrDefault(x => x.ServiceId == serviceId);
+        /// <summary>
+        /// Удалить сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        public void DeleteService(Guid serviceId)
+        {
+            var service = GetService(serviceId);
 
-			if (service == null)
-			{
-				throw new Exception("Сервис с таким id отсутствует.");
-			}
+            if (service.State == Application.Status.Run)
+            {
+                service.Close();
+            }
 
-			if(service.State == Actions.Application.Status.Run)
-			{
-				service.Close();
-			}
+            _services.Remove(service);
 
-			_services.Remove(service);
-		}
+            var item = Data.Services.FirstOrDefault(x => x.Id == serviceId);
 
-		/// <summary>
-		/// Запускает серверное приложение.
-		/// </summary>
-		public new void Start()
-		{
-			if (State != Status.Off && State != Status.Error && State != Status.Reboot)
-			{
-				return;
-			}
+            if (item != null)
+            {
+                Data.Services.Remove(item);
+            }
+        }
 
-			if (State != Status.Reboot)
-			{
-				State = Status.Launch;
-			}
+        /// <summary>
+        /// Запускает серверное приложение.
+        /// </summary>
+        public new void Start()
+        {
+            if (State != Status.Off && State != Status.Error && State != Status.Reboot)
+            {
+                return;
+            }
 
-			StartServer(new EventHandler((sender, e) =>
-			{
-				ProcessClosed();
-				ServerOff?.Invoke();
-			}));
-		}
+            if (State != Status.Reboot)
+            {
+                State = Status.Launch;
+            }
 
-		/// <summary>
-		/// Завершает работу серверного приложения.
-		/// </summary>
-		public void Stop()
-		{
-			if (State != Status.Run && State != Status.Reboot)
-			{
-				return;
-			}
+            StartServer(new EventHandler((sender, e) =>
+            {
+                ProcessClosed();
+                ServerOff?.Invoke();
+            }));
+        }
 
-			var stopCommand = "stop";
-			SendAppMessage(stopCommand);
+        /// <summary>
+        /// Завершает работу серверного приложения.
+        /// </summary>
+        public void Stop()
+        {
+            if (State != Status.Run && State != Status.Reboot)
+            {
+                return;
+            }
 
-			if (State != Status.Reboot)
-			{
-				State = Status.Shutdown;
-			}
-		}
+            var stopCommand = "stop";
+            SendAppMessage(stopCommand);
 
-		/// <summary>
-		/// Очищает ресурсы процесса после завершения работы.
-		/// </summary>
-		private new void ProcessClosed()
-		{
-			_process.Dispose();
+            if (State != Status.Reboot)
+            {
+                State = Status.Shutdown;
+            }
+        }
 
-			if (State == Status.Launch)
-			{
-				State = Status.Error;
-				return;
-			}
+        /// <summary>
+        /// Очищает ресурсы процесса после завершения работы.
+        /// </summary>
+        private new void ProcessClosed()
+        {
+            _process.Dispose();
 
-			if (State != Status.Reboot)
-			{
-				State = Status.Off;
-				// Вызывается событие отключения серверного приложения
-				Closed?.Invoke(ServerId);
-			}
-		}
+            if (State == Status.Launch)
+            {
+                State = Status.Error;
+                return;
+            }
 
-		/// <summary>
-		/// Перезапустить серверное приложение.
-		/// </summary>
-		public void Restart()
-		{
-			if (State != Status.Run)
-			{
-				return;
-			}
+            if (State != Status.Reboot)
+            {
+                State = Status.Off;
+                // Вызывается событие отключения серверного приложения
+                Closed?.Invoke(ServerId);
+            }
+        }
 
-			ServerOff += RunOffServer;
-			Stop();
-			State = Status.Reboot;
-		}
+        /// <summary>
+        /// Перезапустить серверное приложение.
+        /// </summary>
+        public void Restart()
+        {
+            if (State != Status.Run)
+            {
+                return;
+            }
 
-		/// <summary>
-		/// Запускает серверное приложение после завершения работы при перезапуске.
-		/// </summary>
-		private void RunOffServer()
-		{
-			ServerOff -= RunOffServer;
-			Start();
-		}
+            ServerOff += RunOffServer;
+            Stop();
+            State = Status.Reboot;
+        }
 
-		/// <summary>
-		/// Отключает серверное приложение не дожидаясь завершения работы.
-		/// </summary>
-		public new void Close()
-		{
-			if (State == Status.Off || State == Status.Error)
-			{
-				return;
-			}
+        /// <summary>
+        /// Запускает серверное приложение после завершения работы при перезапуске.
+        /// </summary>
+        private void RunOffServer()
+        {
+            ServerOff -= RunOffServer;
+            Start();
+        }
 
-			if (State == Status.Reboot)
-			{
-				ServerOff -= RunOffServer;
-			}
+        /// <summary>
+        /// Отключает серверное приложение не дожидаясь завершения работы.
+        /// </summary>
+        public new void Close()
+        {
+            if (State == Status.Off || State == Status.Error)
+            {
+                return;
+            }
 
-			State = Status.Off;
-			_process.Kill();
-		}
+            if (State == Status.Reboot)
+            {
+                ServerOff -= RunOffServer;
+            }
 
-		/// <summary>
-		/// Отключает все сервисы.
-		/// </summary>
-		public void CloseAllServices()
-		{
-			_services.ForEach(x => x.Close());
-		}
+            State = Status.Off;
+            _process.Kill();
+        }
 
-		/// <summary>
-		/// Выводит сообщение от серверного приложения.
-		/// </summary>
-		/// <param name="message">Текст сообщения.</param>
-		protected override void GetAppMessage(string message = "")
-		{
-			base.GetAppMessage(message);
+        /// <summary>
+        /// Отключает все сервисы.
+        /// </summary>
+        public void CloseAllServices()
+        {
+            _services.ForEach(x => x.Close());
+        }
 
-			DetectingCompletionStartupServer(message);
-			DetectingUser(message);
-		}
+        /// <summary>
+        /// Выводит сообщение от серверного приложения.
+        /// </summary>
+        /// <param name="message">Текст сообщения.</param>
+        protected override void GetAppMessage(string message = "")
+        {
+            base.GetAppMessage(message);
 
-		/// <summary>
-		/// Отправляет команду в серверное приложение.
-		/// </summary>
-		/// <param name="message">Команда для серверного приложения.</param>
-		public override void SendAppMessage(string message = "")
-		{
-			if (State != Status.Run)
-			{
-				return;
-			}
+            DetectingCompletionStartupServer(message);
+            DetectingUser(message);
+        }
 
-			base.SendAppMessage(message);
-		}
+        /// <summary>
+        /// Отправляет команду в серверное приложение.
+        /// </summary>
+        /// <param name="message">Команда для серверного приложения.</param>
+        public override void SendAppMessage(string message = "")
+        {
+            if (State != Status.Run)
+            {
+                return;
+            }
 
-		/// <summary>
-		/// Проверяет данные серверного приложения.
-		/// </summary>
-		/// <param name="data">Информация о серверном приложении.</param>
-		public void CheckServerData(Server data)
-		{
-			CheckApplicationData(data);
+            base.SendAppMessage(message);
+        }
 
-			if (data.Port != null)
-			{
-				if (data.Port <= 1023 || data.Port >= 65535)
-				{
-					throw new ArgumentOutOfRangeException(nameof(data.Port), "Значения порта задано вне допустимого диапазона 1024 - 65535");
-				}
-			}
-		}
+        /// <summary>
+        /// Проверяет данные серверного приложения.
+        /// </summary>
+        /// <param name="data">Информация о серверном приложении.</param>
+        public void CheckServerData(Server data)
+        {
+            CheckApplicationData(data);
 
-		private void AutoStartBackgroundService()
-		{
-			_services.ForEach(service => {
-				if (service.AutoStart &&
-					service.State == Actions.Application.Status.Off)
-				{
-					service.Start();
-				}
-			});
-		}
+            if (data.Port != null)
+            {
+                if (data.Port <= 1023 || data.Port >= 65535)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(data.Port), "Значения порта задано вне допустимого диапазона 1024 - 65535");
+                }
+            }
+        }
 
-		private void CloseBackgroundService()
-		{
-			_services.ForEach(service => {
-				if (service.AutoClose &&
-					service.State == Actions.Application.Status.Run)
-				{
-					service.Close();
-				}
-			});
-		}
+        private void AutoStartBackgroundService()
+        {
+            _services.ForEach(service =>
+            {
+                if (service.AutoStart &&
+                    service.State == Actions.Application.Status.Off)
+                {
+                    service.Start();
+                }
+            });
+        }
 
-		/// <summary>
-		/// Определение полной загрузки сервера.
-		/// </summary>
-		/// <param name="message">Текст сообщения от сервера.</param>
-		private void DetectingCompletionStartupServer(string message)
-		{
-			if (string.IsNullOrEmpty(message))
-			{
-				return;
-			}
+        private void CloseBackgroundService()
+        {
+            _services.ForEach(service =>
+            {
+                if (service.AutoClose &&
+                    service.State == Actions.Application.Status.Run)
+                {
+                    service.Close();
+                }
+            });
+        }
 
-			if (State != Status.Launch && State != Status.Reboot)
-			{
-				return;
-			}
+        /// <summary>
+        /// Определение полной загрузки сервера.
+        /// </summary>
+        /// <param name="message">Текст сообщения от сервера.</param>
+        private void DetectingCompletionStartupServer(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
 
-			var MessageServerStarted = "Done";
+            if (State != Status.Launch && State != Status.Reboot)
+            {
+                return;
+            }
 
-			if (message.Contains(MessageServerStarted))
-			{
-				State = Status.Run;
-				base.State = Actions.Application.Status.Run;
-				Started?.Invoke(ServerId);
-			}
-		}
+            var MessageServerStarted = "Done";
 
-		/// <summary>
-		/// Определение подключения/отключения пользователя.
-		/// </summary>
-		/// <param name="message">Текст сообщения от сервера.</param>
-		private void DetectingUser(string message)
-		{
-			if(string.IsNullOrEmpty(message))
-			{
-				return;
-			}
+            if (message.Contains(MessageServerStarted))
+            {
+                State = Status.Run;
+                base.State = Actions.Application.Status.Run;
+                Started?.Invoke(ServerId);
+            }
+        }
 
-			if (State == Status.Off || State == Status.Error || State == Status.Launch)
-			{
-				return;
-			}
+        /// <summary>
+        /// Определение подключения/отключения пользователя.
+        /// </summary>
+        /// <param name="message">Текст сообщения от сервера.</param>
+        private void DetectingUser(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
 
-			//Регулярное выражение для определения подключения пользователя.
-			const string patternUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
+            if (State == Status.Off || State == Status.Error || State == Status.Launch)
+            {
+                return;
+            }
 
-			//Регулярное выражение для определения отключения пользователя.
-			const string patternUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
+            //Регулярное выражение для определения подключения пользователя.
+            const string patternUserConnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sjoined\sthe\sgame$";
+
+            //Регулярное выражение для определения отключения пользователя.
+            const string patternUserDisconnected = @"\[.*\]:\s([^\<\>\[\]\s]*)\sleft\sthe\sgame$";
 
 
-			int groupLogin = 1; // Расположение логина в группе.
+            int groupLogin = 1; // Расположение логина в группе.
 
-			// Определение подключения пользователя к серверу.
-			if (Regex.Match(message, patternUserConnected).Success)
-			{
-				_userList.Add(Regex.Match(message, patternUserConnected).Groups[groupLogin].Value);
-			}
+            // Определение подключения пользователя к серверу.
+            if (Regex.Match(message, patternUserConnected).Success)
+            {
+                _userList.Add(Regex.Match(message, patternUserConnected).Groups[groupLogin].Value);
+            }
 
-			// Определение отключения пользователя от сервера.
-			if (Regex.Match(message, patternUserDisconnected).Success)
-			{
-				_userList.Remove(Regex.Match(message, patternUserDisconnected).Groups[groupLogin].Value);
-			}
-		}
-	}
+            // Определение отключения пользователя от сервера.
+            if (Regex.Match(message, patternUserDisconnected).Success)
+            {
+                _userList.Remove(Regex.Match(message, patternUserDisconnected).Groups[groupLogin].Value);
+            }
+        }
+    }
 }

@@ -4,12 +4,26 @@ using Newtonsoft.Json;
 
 namespace MCServerManager.Library.Actions
 {
+	/// <summary>
+	/// Фоновый сервис.
+	/// </summary>
 	public class BackgroundService : Application
 	{
-		[JsonIgnore]
+        /// <summary>
+        /// Информация о сервисном приложении.
+        /// </summary>
+        [JsonIgnore]
 		public new Service Data { get; private set; }
 
+        /// <summary>
+        /// Идентификатор сервиса.
+        /// </summary>
         public Guid ServiceId { get { return Data.Id; } }
+
+        /// <summary>
+        /// Идентификатор сервера.
+        /// </summary>
+        public Guid? GameServerId { get { return Data.ServerId; } }
 
         /// <summary>
         /// Адрес сервера/ip.
@@ -26,7 +40,6 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public bool AutoClose { get { return Data.AutoClose; } }
 
-		public Guid? GameServerId { get { return Data.ServerId; } }
 
 		public BackgroundService(Service data, IConfiguration configuration) : base(data, configuration)
 		{
@@ -40,12 +53,10 @@ namespace MCServerManager.Library.Actions
 		/// <param name="data">Информация о серверном приложении.</param>
 		public void UpdateData(Service data)
 		{
-			base.UpdateData(data);
-
-			if (ServiceId != data.Id)
-			{
-				throw new Exception("Идентификаторы не совпадают");
-			}
+            if (ServiceId != data.Id)
+            {
+                throw new Exception("Идентификаторы не совпадают");
+            }
 
             if (Data.UserId != data.UserId)
             {
@@ -53,7 +64,9 @@ namespace MCServerManager.Library.Actions
             }
 
             CheckServiceData(data);
-			Data = data;
+
+            base.UpdateData(data);
+			Data.UpdateData(data);
 		}
 
 		/// <summary>

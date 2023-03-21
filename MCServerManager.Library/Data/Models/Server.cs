@@ -76,5 +76,16 @@ namespace MCServerManager.Library.Data.Models
 			server.Address = Address;
 			server.Port = Port;
 		}
-	}
+
+        public void UpdateData(Server server)
+        {
+            Name = server.Name;
+            AutoStart = server.AutoStart;
+            WorkDirectory = server.WorkDirectory;
+            StartProgram = server.StartProgram;
+            Arguments = server.Arguments;
+            Address = server.Address;
+            Port = server.Port;
+        }
+    }
 }

@@ -132,7 +132,7 @@ namespace MCServerManager.Library.Data.Data
 
             if (item is not null)
             {
-                server.UpdateServerData(item);
+                item.UpdateData(server);
                 await SaveServerDataAsycn(list);
             }
         }
@@ -149,7 +149,7 @@ namespace MCServerManager.Library.Data.Data
 
             if (item is not null)
             {
-                service.UpdateServiceData(item);
+                item.UpdateData(service);
                 await SaveServerDataAsycn(list);
             }
         }
