@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 
 namespace MCServerManager.Library.Data.Models
 {
-	/// <summary>
-	/// Данные о сервисе.
-	/// </summary>
-	public class Service : IApplication
-	{
+    /// <summary>
+    /// Данные о сервисе.
+    /// </summary>
+    public class Service : IApplication
+    {
         /// <summary>
         /// Идентификатор сервиса
         /// </summary>
@@ -35,10 +35,10 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public bool AutoStart { get; set; }
 
-		/// <summary>
-		/// Выключение вместе с сервером
-		/// </summary>
-		public bool AutoClose { get; set; }
+        /// <summary>
+        /// Выключение вместе с сервером
+        /// </summary>
+        public bool AutoClose { get; set; }
 
         /// <summary>
         /// Расположение приложения
@@ -60,10 +60,10 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public string Address { get; set; }
 
-		/// <summary>
-		/// Используемый порт
-		/// </summary>
-		public int? Port { get; set; }
+        /// <summary>
+        /// Используемый порт
+        /// </summary>
+        public int? Port { get; set; }
 
         /// <summary>
         /// Идентификатор пользователя.
