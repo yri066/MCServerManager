@@ -60,7 +60,10 @@ namespace MCServerManager.Data
                     .Where(server => server.ServerId == serverID)
                     .FirstOrDefaultAsync();
 
-                if (server == null) throw new Exception("Сервер не найден.");
+                if (server == null)
+                {
+                    return;
+                }
 
                 context.Servers.Remove(server);
                 await context.SaveChangesAsync();
@@ -78,7 +81,10 @@ namespace MCServerManager.Data
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var item = await context.Services.FindAsync(serviceId);
 
-                if (item == null) throw new Exception("Сервис не найден.");
+                if (item == null)
+                {
+                    return;
+                }
 
                 context.Remove(item);
                 await context.SaveChangesAsync();
