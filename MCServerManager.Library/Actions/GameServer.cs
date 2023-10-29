@@ -18,9 +18,11 @@ namespace MCServerManager.Library.Actions
             Run,
             Off,
             Launch,
+            Upgrade,
+            Error,
             Shutdown,
             Reboot,
-            Error
+            Deleting
         }
 
         /// <summary>

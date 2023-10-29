@@ -17,8 +17,11 @@ namespace MCServerManager.Library.Actions
 		public enum Status
 		{
 			Run,
-			Off
-		}
+            Off,
+            Launch,
+            Upgrade,
+            Error
+        }
 
 		/// <summary>
 		/// Информация о серверном приложении.
@@ -144,9 +147,12 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		protected void StartServer(EventHandler eventExited = null)
 		{
-			_process = new Process();
+            Console.WriteLine(File.Exists(WorkDirectory + "\\" + StartProgram));
+            _process = new Process();
+            Console.WriteLine(WorkDirectory);
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
-			_process.StartInfo.FileName = StartProgram;
+            Console.WriteLine(StartProgram);
+            _process.StartInfo.FileName = StartProgram;
 			_process.StartInfo.Arguments = Arguments;
 			_process.StartInfo.UseShellExecute = false;
 			_process.StartInfo.RedirectStandardInput = true;
