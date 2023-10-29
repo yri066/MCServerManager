@@ -21,9 +21,9 @@ namespace MCServerManager.Pages.Service
             _userService = userService;
         }
 
-		public void OnGet(Guid id)
+		public void OnGet(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			Input = new();
 
 		}
