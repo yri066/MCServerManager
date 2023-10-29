@@ -6,19 +6,41 @@
 
 <script defer type="text/javascript" src="~/js/Service/ControlService.js" asp-append-version="true"></script>
 
-<h4 class="card-title">
-    @Model.Service.Name
-</h4>
+<div class="mb-3">
+    <div class="row">
+        <div class="col">
+            <h4 class="card-title">
+                @Model.Service.Name
+            </h4>
+        </div>
+        <div class="col-auto text-end">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+                    </svg>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" asp-page="/Service/Edit" asp-route-serviceId="@Model.Service.ServiceId">Редактировать</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal">Удалить</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
-    <div class="col-sm-6">
-        <div id="ChangeServerStatus">
-            <div class="row">
-                <div class="col">
-                    <button type="button" class="btn btn-success" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Service.State.ToString()}"];">Включить</button>
-                    <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Service.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
-                </div>
-                <div class="col-auto text-end">
-                    <a asp-controller="Service" asp-action="Console" asp-route-serviceId="@Model.Service.ServiceId" class="btn btn-dark" role="button">Консоль</a>
+    <div class="col-sm">
+        <div class="mb-1">
+            <div id="ChangeServerStatus">
+                <div class="row">
+                    <div class="col">
+                        <button type="button" class="btn btn-success mb-1" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Service.State.ToString()}"];">Включить</button>
+                        <button type="button" class="btn btn-secondary mb-1" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Service.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
+                    </div>
+                    <div class="col-auto text-end">
+                        <a asp-controller="Service" asp-action="Console" asp-route-serviceId="@Model.Service.ServiceId" class="btn btn-dark" role="button">Консоль</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -26,15 +48,15 @@
             <li class="list-group-item" id="StatusService">Состояние сервиса: @Model.Service.State</li>
             <li class="list-group-item">Автозапуск: @Model.Service.AutoStart</li>
             <li class="list-group-item">Автовыключение: @Model.Service.AutoClose</li>
-            <li class="list-group-item">Расположение сервиса: @Model.Service.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Service.StartProgram</li>
+            <li class="list-group-item text-break">Расположение сервиса: @Model.Service.WorkDirectory</li>
+            <li class="list-group-item text-break">Программа для запуска: @Model.Service.StartProgram</li>
             @if (@Model.Service.Arguments != null)
             {
-                <li class="list-group-item">Аргументы запуска: @Model.Service.Arguments</li>
+                <li class="list-group-item text-break">Аргументы запуска: @Model.Service.Arguments</li>
             }
             @if (@Model.Service.Address != null)
             {
-                <li class="list-group-item">Адрес сервера: @Model.Service.Address</li>
+                <li class="list-group-item text-break">Адрес сервера: @Model.Service.Address</li>
             }
             @if (@Model.Service.Port != null)
             {
@@ -42,15 +64,8 @@
             }
         </ul>
         <br />
-        <a asp-page="/Service/Edit" asp-route-serviceId="@Model.Service.ServiceId" class="btn btn-primary" role="button">Редактировать</a>
-
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-            Удалить
-        </button>
         <br />
-        <br />
-        <a asp-page="/Server/Server" asp-route-serverId="@Model.Service.GameServerId">@("<К серверу")</a>
+        <a asp-page="/Server/Server" asp-route-serverId="@Model.Service.GameServerId"><К серверу</a>
     </div>
 </div>
 
@@ -66,7 +81,7 @@
                 Вы действительно хотите удалить данный сервис? Это действие нельзя отменить.
             </div>
             <div class="modal-footer">
-                <a asp-page-handler="Delete" class="btn btn-secondary" role="button">Удалить</a>
+                <a asp-page-handler="Delete" class="btn btn-danger" role="button">Удалить</a>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
             </div>
         </div>
