@@ -7,51 +7,65 @@
 
 <script defer type="text/javascript" src="~/js/Server/ControlGameServer.js" asp-append-version="true"></script>
 
-<h4 class="card-title">
-    @Model.Exemplar.Name
-</h4>
-
+<div class="mb-3">
+    <div class="row">
+        <div class="col">
+            <h4 class="card-title">
+                @Model.Exemplar.Name
+            </h4>
+        </div>
+        <div class="col-auto text-end">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+                    </svg>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" asp-page="/Server/Edit" asp-route-serverId="@Model.Exemplar.ServerId">Редактировать</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal">Удалить</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-sm-6">
-        <div id="ChangeServerStatus">
-            <div class="row">
-                <div class="col">
-                    <button type="button" class="btn btn-success" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Exemplar.State.ToString()}"];">Включить</button>
-                    <button type="button" class="btn btn-warning" id="RebootServer" style="display: @Model.ButtonStyle[$"RebootButton:{@Model.Exemplar.State.ToString()}"];">Перезагрузить</button>
-                    <button type="button" class="btn btn-danger" id="StopServer" style="display: @Model.ButtonStyle[$"StopButton:{@Model.Exemplar.State.ToString()}"];">Выключить</button>
-                    <button type="button" class="btn btn-secondary" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Exemplar.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
-                </div>
-                <div class="col-auto text-end">
-                    <a asp-controller="Server" asp-action="Console" asp-route-id="@Model.Exemplar.ServerId" class="btn btn-dark" role="button">Консоль</a>
+        <div class="mb-1">
+            <div id="ChangeServerStatus">
+                <div class="row">
+                    <div class="col">
+                        <button type="button" class="btn btn-success mb-1" id="StartServer" style="display: @Model.ButtonStyle[$"StartButton:{@Model.Exemplar.State.ToString()}"];">Включить</button>
+                        <button type="button" class="btn btn-warning mb-1" id="RebootServer" style="display: @Model.ButtonStyle[$"RebootButton:{@Model.Exemplar.State.ToString()}"];">Перезагрузить</button>
+                        <button type="button" class="btn btn-danger mb-1" id="StopServer" style="display: @Model.ButtonStyle[$"StopButton:{@Model.Exemplar.State.ToString()}"];">Выключить</button>
+                        <button type="button" class="btn btn-secondary mb-1" id="CloseServer" style="display: @Model.ButtonStyle[$"CloseButton:{@Model.Exemplar.State.ToString()}"];" title="Отключить не дожидаясь сохранения данных.">Отключить</button>
+                    </div>
+                    <div class="col-auto text-end">
+                        <a asp-controller="Server" asp-action="Console" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-dark mb-1" role="button">Консоль</a>
+                    </div>
                 </div>
             </div>
-		</div>
+        </div>
         <br />
         <ul class="list-group list-group-flush">
             <li class="list-group-item" id="StatusServer">Состояние сервера: @Model.Exemplar.State</li>
             <li class="list-group-item">Автозапуск: @Model.Exemplar.AutoStart</li>
-            <li class="list-group-item">Расположение сервера: @Model.Exemplar.WorkDirectory</li>
-            <li class="list-group-item">Программа для запуска: @Model.Exemplar.StartProgram</li>
+            <li class="list-group-item text-break">Расположение сервера: @Model.Exemplar.WorkDirectory</li>
+            <li class="list-group-item text-break">Программа для запуска: @Model.Exemplar.StartProgram</li>
             @if (@Model.Exemplar.Arguments != null)
             {
-                <li class="list-group-item">Аргументы запуска: @Model.Exemplar.Arguments</li>
+                <li class="list-group-item text-break">Аргументы запуска: @Model.Exemplar.Arguments</li>
             }
             @if (@Model.Exemplar.Address != null)
             {
-                <li class="list-group-item">Адрес сервера: @Model.Exemplar.Address</li>
+                <li class="list-group-item text-break">Адрес сервера: @Model.Exemplar.Address</li>
             }
             @if (@Model.Exemplar.Port != null)
             {
                 <li class="list-group-item"> Порт: @Model.Exemplar.Port</li>
             }
         </ul>
-        <br />
-        <a asp-page="/Server/Edit" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Редактировать</a>
-
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-            Удалить
-        </button>
         <br />
         <br />
         <div class="row">
@@ -71,7 +85,7 @@
                         <div class="col">
                             <p class="card-text">@item.Name</p>
                         </div>
-                        <div class="col" >
+                        <div class="col">
                             <div class="card-text" style="display:inline;">Состояние: </div><div class="card-text" style="display:inline;"> @item.State.ToString()</div>
                         </div>
                         <div class="col-auto text-end">
@@ -80,9 +94,9 @@
                     </div>
                 </div>
             </div>
-            
+
         }
-        
+
     </div>
     <div class="col-sm-6">
         <div class="card mb-3">
@@ -98,11 +112,14 @@
             </div>
         </div>
         <div id="user-list">
-            <div class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            @if (Model.Exemplar.UserList.Count > 0)
+            {
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </div>
@@ -119,7 +136,7 @@
                 Вы действительно хотите удалить данный сервер? Это действие нельзя отменить.
             </div>
             <div class="modal-footer">
-                <a asp-page-handler="Delete" class="btn btn-secondary" role="button">Удалить</a>
+                <a asp-page-handler="Delete" class="btn btn-danger" role="button">Удалить</a>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
             </div>
         </div>
