@@ -20,7 +20,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Server/List">Список серверов</a>
+                            <a class="nav-link text-dark" asp-page="/Server/List" asp-route-PageIndex="">Список серверов</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -36,7 +36,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - MCServerManager - <a asp-area="" asp-page="/Privacy">Конфиденциальность</a>
+            &copy; 2022-@DateTime.Now.Year - MCServerManager - <a asp-area="" asp-page="/Privacy">Конфиденциальность</a>
         </div>
     </footer>
 
