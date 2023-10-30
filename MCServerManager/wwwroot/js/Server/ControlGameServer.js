@@ -35,8 +35,12 @@ function loadJson(url) {
 
 		xmlhttprequest.onload = function () {
 			let status = xmlhttprequest.status;
-
+			
 			if (status == 200) {
+				if (xmlhttprequest.response == null) { //Перенаправление
+					location.assign(xmlhttprequest.responseURL.split('%2F').slice(0, -1).join('%2F'));
+				}
+				
 				resolve(xmlhttprequest.response);
 			} else {
 				reject(xmlhttprequest.response.errorText);
@@ -132,7 +136,7 @@ function checkUserList(element) {
 		for (let x = 0; x < usersInfo.count; x++) {
 			list += `
 			<div class="card">
-				<div class="row">
+				<div class="row align-items-center">
 					<div class="col">
 						<div class="card-body">
 							${usersInfo.userList[x]}
