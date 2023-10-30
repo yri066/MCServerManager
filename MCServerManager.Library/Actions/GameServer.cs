@@ -207,16 +207,16 @@ namespace MCServerManager.Library.Actions
                 return;
             }
 
-            if (State != Status.Reboot)
-            {
-                State = Status.Launch;
-            }
-
             StartServer(new EventHandler((sender, e) =>
             {
                 ProcessClosed();
                 ServerOff?.Invoke();
             }));
+
+            if (State != Status.Reboot)
+            {
+                State = Status.Launch;
+            }
         }
 
         /// <summary>
