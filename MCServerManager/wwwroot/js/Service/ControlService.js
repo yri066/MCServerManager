@@ -35,8 +35,12 @@ function loadJson(url) {
 
 		xmlhttprequest.onload = function () {
 			let status = xmlhttprequest.status;
-
+			
 			if (status == 200) {
+				if (xmlhttprequest.response == null) { //Перенаправление
+					location.assign(xmlhttprequest.responseURL.split('%2F').slice(0, -1).join('%2F'));
+				}
+				
 				resolve(xmlhttprequest.response);
 			} else {
 				reject(xmlhttprequest.response.errorText);
@@ -45,6 +49,8 @@ function loadJson(url) {
 
 		xmlhttprequest.onerror = () => reject(`Не удалось загрузить данные.`);
 		xmlhttprequest.send();
+	});
+};	xmlhttprequest.send();
 	});
 };
 
