@@ -1,3 +1,4 @@
+using MCServerManager.Library.Data.Models;
 using MCServerManager.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +35,9 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-					var id = await _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
+					var serverId = await _service.CreateServer(Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
 						Input.Arguments, Input.Address, Input.Port);
-					return RedirectToPage("Server", new { id });
+					return RedirectToPage("Server", new { serverId });
 				}
 			}
 			catch (Exception ex)
