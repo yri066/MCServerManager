@@ -1,19 +1,10 @@
-using MCServerManager.Data;
 using MCServerManager.Service.HostedService;
 using MCServerManager.Service;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using MCServerManager.Library.Data.Data;
 using MCServerManager.Library.Data.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Configuration.AddJsonFile("Settings.json");
 builder.Configuration.AddJsonFile("StyleSettings.json");
@@ -22,8 +13,6 @@ builder.Services.AddSingleton<IGameServerDataContext, GameServerDataFileReposito
 builder.Services.AddSingleton<GameServerService>();
 builder.Services.AddHostedService<RunGameServersHostedService>();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-	.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
@@ -52,9 +41,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
