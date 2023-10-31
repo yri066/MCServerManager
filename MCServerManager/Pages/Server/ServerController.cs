@@ -1,7 +1,5 @@
 ﻿using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System;
 
 namespace MCServerManager.Pages.Server
 {

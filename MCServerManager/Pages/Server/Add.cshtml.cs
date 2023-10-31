@@ -1,4 +1,3 @@
-using MCServerManager.Library.Data.Models;
 using MCServerManager.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
