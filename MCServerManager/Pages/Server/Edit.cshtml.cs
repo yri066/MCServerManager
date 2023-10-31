@@ -18,17 +18,17 @@ namespace MCServerManager.Pages.Server
 			_service = serverService;
 		}
 
-		/// <summary>
-		/// Обрабатывает Get запрос.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Перенаправление на страницу.</returns>
-		public IActionResult OnGet(Guid id)
+        /// <summary>
+        /// Обрабатывает Get запрос.
+        /// </summary>
+        /// <param name="serverId">Идентификатор сервера.</param>
+        /// <returns>Перенаправление на страницу.</returns>
+        public IActionResult OnGet(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			try
 			{
-				var server = _service.GetServerData(id);
+				var server = _service.GetServerData(serverId);
 				Input = new ServerDetail
 				{
 					Name = server.Name,
@@ -53,15 +53,15 @@ namespace MCServerManager.Pages.Server
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
 		/// <returns>Перенаправление на страницу.</returns>
-		public async Task<IActionResult> OnPostAsync(Guid id)
+		public async Task<IActionResult> OnPostAsync(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					await _service.UpdateServerAsync(id, Input.GetServerData(id));
-					return RedirectToPage("Server", new { id });
+					await _service.UpdateServerAsync(serverId, Input.GetServerData(serverId));
+					return RedirectToPage("Server", new { serverId });
 				}
 			}
 			catch (Exception ex)

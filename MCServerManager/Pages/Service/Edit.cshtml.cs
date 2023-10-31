@@ -16,12 +16,13 @@ namespace MCServerManager.Pages.Service
 		{
 			_service = serverService;
 		}
-		public IActionResult OnGet(Guid id)
+
+		public IActionResult OnGet(Guid serviceId)
 		{
-			Id = id;
+			Id = serviceId;
 			try
 			{
-				var server = _service.GetServiceData(id);
+				var server = _service.GetServiceData(serviceId);
 				Input = new BackgroundServiceDetail
 				{
 					Name = server.Name,
@@ -42,21 +43,21 @@ namespace MCServerManager.Pages.Service
 			return Page();
 		}
 
-		/// <summary>
-		/// Обрабатывает Post запрос на изменение информации о сервера.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Перенаправление на страницу.</returns>
-		public async Task<IActionResult> OnPostAsync(Guid id)
+        /// <summary>
+        /// Обрабатывает Post запрос на изменение информации о сервера.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервера.</param>
+        /// <returns>Перенаправление на страницу.</returns>
+        public async Task<IActionResult> OnPostAsync(Guid serviceId)
 		{
-			Id = id;
+			Id = serviceId;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var serverId = _service.GetServiceData(id).ServerId;
-					await _service.UpdateServiceAsync(id, Input.GetBackgroundServiceData(id, (Guid)serverId!));
-					return RedirectToPage("/Service/Service", new { id });
+					var serverId = _service.GetServiceData(serviceId).ServerId;
+					await _service.UpdateServiceAsync(serviceId, Input.GetBackgroundServiceData(serviceId, (Guid)serverId!));
+					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}
 			catch (Exception ex)

@@ -18,23 +18,23 @@ namespace MCServerManager.Pages.Service
 		}
 
 
-		public void OnGet(Guid id)
+		public void OnGet(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			Input = new();
 
 		}
 
-		public async Task<IActionResult> OnPost(Guid id)
+		public async Task<IActionResult> OnPost(Guid serverId)
 		{
-			Id = id;
+			Id = serverId;
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var serviceId = await _service.CreateServiceAsync(id, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
+					var serviceId = await _service.CreateServiceAsync(serverId, Input.Name, Input.AutoStart, Input.WorkDirectory, Input.StartProgram,
 						Input.Arguments, Input.Address, Input.Port);
-					return RedirectToPage("/Service/Service", new { id = serviceId });
+					return RedirectToPage("/Service/Service", new { serviceId = serviceId });
 				}
 			}
 			catch (Exception ex)

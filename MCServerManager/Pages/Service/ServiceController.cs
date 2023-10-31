@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MCServerManager.Pages.Service
 {
-	[Route("/Service/{id:guid}/[action]")]
+	[Route("/Service/{serviceId:guid}/[action]")]
 	public class ServiceController : Controller
 	{
 		private readonly GameServerService _serverService;
@@ -13,16 +13,16 @@ namespace MCServerManager.Pages.Service
 			_serverService = serverService;
 		}
 
-		/// <summary>
-		/// Получить информацию о сервисе.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <returns>Информация о сервисе.</returns>
-		public object GetStatus(Guid id)
+        /// <summary>
+        /// Получить информацию о сервисе.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <returns>Информация о сервисе.</returns>
+        public object GetStatus(Guid serviceId)
 		{
 			try
 			{
-				var service = _serverService.GetService(id);
+				var service = _serverService.GetService(serviceId);
 
 				return new
 				{
@@ -36,16 +36,16 @@ namespace MCServerManager.Pages.Service
 			}
 		}
 
-		/// <summary>
-		/// Запустить сервис.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <returns>Информация о сервисе.</returns>
-		public object Start(Guid id)
+        /// <summary>
+        /// Запустить сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <returns>Информация о сервисе.</returns>
+        public object Start(Guid serviceId)
 		{
 			try
 			{
-				_serverService.StartService(id);
+				_serverService.StartService(serviceId);
 			}
 			catch (Exception ex)
 			{
@@ -53,19 +53,19 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
 		}
 
-		/// <summary>
-		/// Выключить сервис.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <returns>Информация о сервисе.</returns>
-		public object Close(Guid id)
+        /// <summary>
+        /// Выключить сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <returns>Информация о сервисе.</returns>
+        public object Close(Guid serviceId)
 		{
 			try
 			{
-				_serverService.CloseService(id);
+				_serverService.CloseService(serviceId);
 			}
 			catch (Exception ex)
 			{
@@ -73,19 +73,19 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
 		}
 
-		/// <summary>
-		/// Открыть страницу консоли приложения.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <returns>Страница консоли.</returns>
-		public IActionResult Console(Guid id)
+        /// <summary>
+        /// Открыть страницу консоли приложения.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервера.</param>
+        /// <returns>Страница консоли.</returns>
+        public IActionResult Console(Guid serviceId)
 		{
 			try
 			{
-				ViewData["Name"] = _serverService.GetService(id).Name;
+				ViewData["Name"] = _serverService.GetService(serviceId).Name;
 				return View("/Pages/Application/Console.cshtml");
 			}
 			catch (Exception)
@@ -94,18 +94,18 @@ namespace MCServerManager.Pages.Service
 			}
 		}
 
-		/// <summary>
-		/// Получить буфер вывода приложения.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <param name="bufferId">Версия буфера.</param>
-		/// <returns>Буфер вывода приложения.</returns>
-		[Route("/Service/{id:guid}/[action]/{bufferId:guid}")]
-		public object Console(Guid id, Guid bufferId)
+        /// <summary>
+        /// Получить буфер вывода приложения.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <param name="bufferId">Версия буфера.</param>
+        /// <returns>Буфер вывода приложения.</returns>
+        [Route("/Service/{serviceId:guid}/[action]/{bufferId:guid}")]
+		public object Console(Guid serviceId, Guid bufferId)
 		{
 			try
 			{
-				var service = _serverService.GetService(id);
+				var service = _serverService.GetService(serviceId);
 
 				return new
 				{
@@ -120,18 +120,18 @@ namespace MCServerManager.Pages.Service
 			}
 		}
 
-		/// <summary>
-		/// Отправить сообщение в сервис.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <param name="message">Сообщение.</param>
-		/// <returns>Информация о сервисе.</returns>
-		[HttpPost]
-		public object Console(Guid id, string message = "")
+        /// <summary>
+        /// Отправить сообщение в сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <param name="message">Сообщение.</param>
+        /// <returns>Информация о сервисе.</returns>
+        [HttpPost]
+		public object Console(Guid serviceId, string message = "")
 		{
 			try
 			{
-				_serverService.SendServiceAppMessage(id, message);
+				_serverService.SendServiceAppMessage(serviceId, message);
 			}
 			catch (Exception ex)
 			{
@@ -139,7 +139,7 @@ namespace MCServerManager.Pages.Service
 				return new { errorText = ex.Message };
 			}
 
-			return GetStatus(id);
+			return GetStatus(serviceId);
 		}
 	}
 }

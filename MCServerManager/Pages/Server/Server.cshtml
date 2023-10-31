@@ -1,4 +1,4 @@
-﻿@page "/Server/{id:guid}"
+﻿@page "/Server/{serverId:guid}"
 @using MCServerManager.Library.Data.Models
 @model MCServerManager.Pages.Server.ServerModel
 @{
@@ -46,7 +46,7 @@
             }
         </ul>
         <br />
-        <a asp-page="/Server/Edit" asp-route-id="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Редактировать</a>
+        <a asp-page="/Server/Edit" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Редактировать</a>
 
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -59,7 +59,7 @@
                 <p class="card-text">Сервисы</p>
             </div>
             <div class="col-auto text-end">
-                <a asp-page="/Service/Add" asp-route-id="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Добавить</a>
+                <a asp-page="/Service/Add" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Добавить</a>
             </div>
         </div>
         <br />
@@ -75,7 +75,7 @@
                             <div class="card-text" style="display:inline;">Состояние: </div><div class="card-text" style="display:inline;"> @item.State.ToString()</div>
                         </div>
                         <div class="col-auto text-end">
-                            <a asp-page="/Service/Service" asp-route-id="@item.ServiceId" class="btn btn-info" role="button">Подробнее</a>
+                            <a asp-page="/Service/Service" asp-route-serviceId="@item.ServiceId" class="btn btn-info" role="button">Подробнее</a>
                         </div>
                     </div>
                 </div>

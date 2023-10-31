@@ -1,4 +1,4 @@
-﻿@page "/Service/{id:guid}"
+﻿@page "/Service/{serviceId:guid}"
 @model MCServerManager.Pages.Service.ServiceModel
 @{
     ViewData["Title"] = Model.Service.Name;
@@ -42,7 +42,7 @@
             }
         </ul>
         <br />
-        <a asp-page="/Service/Edit" asp-route-id="@Model.Service.ServiceId" class="btn btn-primary" role="button">Редактировать</a>
+        <a asp-page="/Service/Edit" asp-route-serviceId="@Model.Service.ServiceId" class="btn btn-primary" role="button">Редактировать</a>
 
         <!-- Button trigger modal -->
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -50,7 +50,7 @@
         </button>
         <br />
         <br />
-        <a asp-page="/Server/Server" asp-route-Id="@Model.Service.GameServerId">@("<К серверу")</a>
+        <a asp-page="/Server/Server" asp-route-serverId="@Model.Service.GameServerId">@("<К серверу")</a>
     </div>
 </div>
 

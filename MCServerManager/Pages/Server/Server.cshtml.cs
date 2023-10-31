@@ -21,11 +21,11 @@ namespace MCServerManager.Pages.Server
 			ButtonStyle = configuration.GetSection("Action:GameServer");
 		}
 
-		public IActionResult OnGet(Guid id)
+		public IActionResult OnGet(Guid serverId)
 		{
 			try
 			{
-				Exemplar = _serverService.GetServer(id);
+				Exemplar = _serverService.GetServer(serverId);
 			}
 			catch
 			{
@@ -35,11 +35,11 @@ namespace MCServerManager.Pages.Server
 			return Page();
 		}
 
-		public async Task<IActionResult> OnGetDeleteAsync(Guid id)
+		public async Task<IActionResult> OnGetDeleteAsync(Guid serverId)
 		{
 			try
 			{
-				await _serverService.DeleteServerAsync(id);
+				await _serverService.DeleteServerAsync(serverId);
 			}
 			catch
 			{}
