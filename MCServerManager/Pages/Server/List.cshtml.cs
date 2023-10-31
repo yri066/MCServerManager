@@ -18,11 +18,6 @@ namespace MCServerManager.Pages.Server
         public List<GameServer> Servers { get; private set; }
 
         /// <summary>
-        /// Идентификатор пользователя.
-        /// </summary>
-        public readonly string? UserId;
-
-        /// <summary>
         /// Номер текущей страницы.
         /// </summary>
         public int PageIndex { get; private set; }
@@ -32,12 +27,11 @@ namespace MCServerManager.Pages.Server
         /// </summary>
         public readonly int PageCount;
 
-        public ListModel(GameServerService service, UserService userService)
+        public ListModel(GameServerService service)
         {
             Servers = service.Servers
                       .Where(list => list.State != GameServer.Status.Deleting)
                       .ToList();
-            UserId = userService.UserId;
             PageCount = (int)Math.Ceiling((decimal)Servers.Count / DefaultPageSize);
         }
 
@@ -48,6 +42,13 @@ namespace MCServerManager.Pages.Server
                 return NotFound();
             }
 
+            try
+            {
+                return SetPageList(PageIndex);
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex);
+            }
             return SetPageList(PageIndex);
         }
 
@@ -57,16 +58,16 @@ namespace MCServerManager.Pages.Server
         /// <param name="PageIndex">Номер текущей страницы.</param>
         private IActionResult SetPageList(int PageIndex)
         {
-            if(PageIndex > PageCount)
+            this.PageIndex = PageIndex--;
+
+            if (PageIndex > PageCount)
             {
                 return NotFound();
             }
 
-            this.PageIndex = PageIndex;
-
-            if ((PageIndex - 1) != 0)
+            if (PageIndex != 0)
             {
-                Servers = Servers.Skip((PageIndex - 1) * DefaultPageSize).ToList();
+                Servers = Servers.Skip(PageIndex * DefaultPageSize).ToList();
             }
 
             Servers = Servers.Take(DefaultPageSize).ToList();

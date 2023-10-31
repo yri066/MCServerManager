@@ -1,6 +1,5 @@
 ﻿using MCServerManager.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Newtonsoft.Json;
 using System;
 
