@@ -97,7 +97,7 @@ namespace MCServerManager.Service
 				Arguments = arguments,
 				Address = address,
 				Port = port,
-				Services = new List<Library.Data.Models.Service>()
+				Services = new List<MCService>()
 			};
 
             AddServer(server);
@@ -121,7 +121,7 @@ namespace MCServerManager.Service
 			string? arguments, string? address, int? port)
 		{
 			var serviceId = Guid.NewGuid();
-			var servise = new Library.Data.Models.Service()
+			var servise = new MCService()
 			{
 				ServiceId = serviceId,
 				ServerId = id,
@@ -216,7 +216,7 @@ namespace MCServerManager.Service
 		/// <param name="id">Идентификатор сервиса.</param>
 		/// <param name="serverData">Информация о сервисе.</param>
 		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
-		public async Task UpdateServiceAsync(Guid id, Library.Data.Models.Service serviceData)
+		public async Task UpdateServiceAsync(Guid id, MCService serviceData)
 		{
 			CheckData(id, serviceData, serviceData.Port, serviceData.Address);
 
