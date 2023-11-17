@@ -57,16 +57,16 @@ namespace MCServerManager.Pages.Server
         /// <param name="PageIndex">Номер текущей страницы.</param>
         private IActionResult SetPageList(int PageIndex)
         {
-            if(PageIndex > PageCount)
+            this.PageIndex = PageIndex--;
+
+            if (PageIndex > PageCount)
             {
                 return NotFound();
             }
 
-            this.PageIndex = PageIndex;
-
-            if ((PageIndex - 1) != 0)
+            if (PageIndex != 0)
             {
-                Servers = Servers.Skip((PageIndex - 1) * DefaultPageSize).ToList();
+                Servers = Servers.Skip(PageIndex * DefaultPageSize).ToList();
             }
 
             Servers = Servers.Take(DefaultPageSize).ToList();
