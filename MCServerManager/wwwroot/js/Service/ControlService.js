@@ -74,12 +74,12 @@ function queryHandling(url, resolve) {
 		.then(data => {
 			resolve(data);
 		})
-		.catch(error => {
-			if (status == error) {
-				return;
-			}
+		.catch (error => {
+		if (status == error) {
+			return;
+		}
 
-			status = error;
+		status = error;
 
 		$(".toast-container-extra").html(`
 			<div class="toast align-items-center text-white bg-danger w-100 p-3 show" role="alert" aria-live="assertive" aria-atomic="true">
@@ -125,6 +125,7 @@ function changeState(element) {
 			$("#CloseServer").hide();
 			break;
 		case "Run":
+		case "Launch":
 			$("#StartServer").hide();
 			$("#CloseServer").show();
 			break;
