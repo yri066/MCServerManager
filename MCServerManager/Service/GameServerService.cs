@@ -253,7 +253,7 @@ namespace MCServerManager.Service
 		/// Перезагружает указанный сервер.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		public void Restart(Guid id)
+		public void RestartServer(Guid id)
 		{
 			GetServer(id).Restart();
 		}
