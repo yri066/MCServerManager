@@ -1,6 +1,10 @@
 ﻿using MCServerManager.Library.Actions;
 using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
+using static MCServerManager.Library.Actions.Application;
+using MCBackgroundService = MCServerManager.Library.Actions.BackgroundService;
+using MCService = MCServerManager.Library.Data.Models.Service;
+
 
 namespace MCServerManager.Service
 {
@@ -31,7 +35,7 @@ namespace MCServerManager.Service
 			_context = context;
 
             LoadServers();
-			AutoRun();
+            AutoRun();
 		}
 
 		/// <summary>
@@ -49,7 +53,7 @@ namespace MCServerManager.Service
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine(ex.Message);
+					Console.WriteLine(ex.ToString());
 				}
 			}
 		}
@@ -61,25 +65,30 @@ namespace MCServerManager.Service
 		{
 			foreach (var server in _servers)
 			{
-				if (server.AutoStart)
-				{
-					server.Start();
-				}
+                if (server.AutoStart)
+                {
+                    server.Start();
+                }
 			}
 		}
 
-		/// <summary>
-		/// Создает новый сервер.
-		/// </summary>
-		/// <param name="name">Название.</param>
-		/// <param name="autoStart">Автозапуск.</param>
-		/// <param name="workDirectory">Расположение сервера.</param>
-		/// <param name="program">Программа для запуска.</param>
-		/// <param name="arguments">Аргументы запуска.</param>
-		/// <param name="address">Адрес сервера.</param>
-		/// <param name="port">Используемый порт.</param>
-		/// <returns>Идентификатор сервера.</returns>
-		public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
+        private void Server_Closed(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Создает новый сервер.
+        /// </summary>
+        /// <param name="name">Название.</param>
+        /// <param name="autoStart">Автозапуск.</param>
+        /// <param name="workDirectory">Расположение сервера.</param>
+        /// <param name="program">Программа для запуска.</param>
+        /// <param name="arguments">Аргументы запуска.</param>
+        /// <param name="address">Адрес сервера.</param>
+        /// <param name="port">Используемый порт.</param>
+        /// <returns>Идентификатор сервера.</returns>
+        public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
 			string? arguments, string? address, int? port, string userId)
 		{
 			var id = Guid.NewGuid();
@@ -156,13 +165,13 @@ namespace MCServerManager.Service
         /// </summary>
         /// <param name="service">Информация о сервисе.</param>
         /// <exception cref="Exception">Директория или порт используются другим сервером или сервисом.</exception>
-        private void AddService(Library.Data.Models.Service service)
+        private void AddService(MCService service)
         {
             CheckFreeDirectory(service.WorkDirectory);
             CheckFreePort(service.Port, service.Address, service.Id);
 
             var exemplar = GetServer(service.ServerId);
-            exemplar.AddService(new Library.Actions.BackgroundService(service, _configuration));
+            exemplar.AddService(new MCBackgroundService(service, _configuration));
         }
 
         /// <summary>
@@ -173,7 +182,7 @@ namespace MCServerManager.Service
 		{
 			var exemplar = GetServer(serverId);
 			
-			if(exemplar.State != GameServer.Status.Off && exemplar.State != GameServer.Status.Error)
+			if(exemplar.State != Status.Off && exemplar.State != Status.Error)
 			{
 				exemplar.Close();
 				exemplar.CloseAllServices();
@@ -255,7 +264,7 @@ namespace MCServerManager.Service
 		/// Перезагружает указанный сервер.
 		/// </summary>
 		/// <param name="serverId">Идентификатор сервера.</param>
-		public void Restart(Guid serverId)
+		public void RestartServer(Guid serverId)
 		{
 			GetServer(serverId).Restart();
 		}
@@ -302,7 +311,7 @@ namespace MCServerManager.Service
 		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <returns>Экземпляр класса.</returns>
 		/// <exception cref="Exception">Указанный сервис не найден.</exception>
-		public Library.Actions.BackgroundService GetService(Guid serviceId)
+		public MCBackgroundService GetService(Guid serviceId)
 		{
 			var exemplar = (from server in _servers
 							from service in server.Services
@@ -332,7 +341,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <returns>Настройки сервисного приложения.</returns>
-		public Library.Data.Models.Service GetServiceData(Guid serviceId)
+		public MCService GetServiceData(Guid serviceId)
 		{
 			return GetService(serviceId).Data;
 		}
