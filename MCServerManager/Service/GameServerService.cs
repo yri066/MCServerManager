@@ -1,6 +1,10 @@
 ﻿using MCServerManager.Library.Actions;
 using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
+using static MCServerManager.Library.Actions.Application;
+using MCBackgroundService = MCServerManager.Library.Actions.BackgroundService;
+using MCService = MCServerManager.Library.Data.Models.Service;
+
 
 namespace MCServerManager.Service
 {
@@ -30,7 +34,7 @@ namespace MCServerManager.Service
 			_configuration = configuration;
 			_context = context;
 
-			LoadServers();
+            LoadServers();
 			AutoRun();
 		}
 
@@ -49,7 +53,7 @@ namespace MCServerManager.Service
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine(ex.Message);
+					Console.WriteLine(ex.ToString());
 				}
 			}
 		}
@@ -61,10 +65,10 @@ namespace MCServerManager.Service
 		{
 			foreach (var server in _servers)
 			{
-				if (server.AutoStart)
-				{
-					server.Start();
-				}
+                if (server.AutoStart)
+                {
+                    server.Start();
+                }
 			}
 		}
 
@@ -154,13 +158,13 @@ namespace MCServerManager.Service
         /// </summary>
         /// <param name="service">Информация о сервисе.</param>
         /// <exception cref="Exception">Директория или порт используются другим сервером или сервисом.</exception>
-        private void AddService(Library.Data.Models.Service service)
+        private void AddService(MCService service)
         {
             CheckFreeDirectory(service.WorkDirectory);
             CheckFreePort(service.Port, service.Address, service.Id);
 
-            var exemplar = GetServer((Guid)service.ServerId!);
-            exemplar.AddService(new Library.Actions.BackgroundService(service, _configuration));
+            var exemplar = GetServer(service.ServerId);
+            exemplar.AddService(new MCBackgroundService(service, _configuration));
         }
 
         /// <summary>
@@ -171,7 +175,7 @@ namespace MCServerManager.Service
 		{
 			var exemplar = GetServer(id);
 			
-			if(exemplar.State != GameServer.Status.Off && exemplar.State != GameServer.Status.Error)
+			if(exemplar.State != Status.Off && exemplar.State != Status.Error)
 			{
 				exemplar.Close();
 				exemplar.CloseAllServices();
@@ -300,7 +304,7 @@ namespace MCServerManager.Service
 		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <returns>Экземпляр класса.</returns>
 		/// <exception cref="Exception">Указанный сервис не найден.</exception>
-		public Library.Actions.BackgroundService GetService(Guid serviceId)
+		public MCBackgroundService GetService(Guid serviceId)
 		{
 			var exemplar = (from server in _servers
 							from service in server.Services
@@ -330,7 +334,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		/// <param name="serviceId">Идентификатор сервиса.</param>
 		/// <returns>Настройки сервисного приложения.</returns>
-		public Library.Data.Models.Service GetServiceData(Guid serviceId)
+		public MCService GetServiceData(Guid serviceId)
 		{
 			return GetService(serviceId).Data;
 		}

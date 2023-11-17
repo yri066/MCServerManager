@@ -22,7 +22,7 @@ namespace MCServerManager.Library.Data.Models
         /// <summary>
         /// Идентификатор сервера
         /// </summary>
-        public Guid? ServerId { get; set; }
+        public Guid ServerId { get; set; }
 
 		/// <summary>
 		/// Идентификатор приложения
