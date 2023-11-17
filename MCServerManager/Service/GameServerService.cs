@@ -61,16 +61,40 @@ namespace MCServerManager.Service
 		/// <summary>
 		/// Запускает серверные приложения
 		/// </summary>
-		private void AutoRun()
+		private async void AutoRun()
 		{
 			foreach (var server in _servers)
 			{
                 if (server.AutoStart)
                 {
-                    server.Start();
+                    try
+                    {
+                        await RunAsync(server);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
 			}
 		}
+
+        private Task RunAsync(GameServer server)
+        {
+            var tcs = new TaskCompletionSource();
+            server.FullServiceStarted += (id) =>
+            {
+                tcs.TrySetResult();
+            };
+            server.Closed += (id) =>
+            {
+                tcs.TrySetCanceled();
+            };
+
+            server.Start();
+
+            return tcs.Task;
+        }
 
         private void Server_Closed(Guid id)
         {
