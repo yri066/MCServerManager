@@ -1,10 +1,10 @@
 ﻿@page "/Server/{serverId:guid}"
-@using MCServerManager.Library.Data.Models
 @model MCServerManager.Pages.Server.ServerModel
 @{
     ViewData["Title"] = Model.Exemplar.Name;
 }
 
+<script defer type="text/javascript" src="~/js/Application/ControlApp.js" asp-append-version="true"></script>
 <script defer type="text/javascript" src="~/js/Server/ControlGameServer.js" asp-append-version="true"></script>
 
 <div class="mb-3">
