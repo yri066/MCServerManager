@@ -65,7 +65,7 @@ namespace MCServerManager.Service
 		{
 			foreach (var server in _servers)
 			{
-                if (server.AutoStart)
+                if (server.AutoStart && server.State == Status.Off)
                 {
                     try
                     {
