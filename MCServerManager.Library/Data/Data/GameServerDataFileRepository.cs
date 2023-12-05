@@ -36,14 +36,14 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="server">Сервер.</param>
         /// <returns></returns>
-        public async Task CreateServerAsycn(Server server)
+        public async Task CreateServerAsync(Server server)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
 
             if (GetServer(list, server.Id) is null)
             {
                 list.Add(server);
-                await SaveServerDataAsycn(list);
+                await SaveServerDataAsync(list);
             }
         }
 
@@ -52,9 +52,9 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="service">Сервис.</param>
         /// <returns></returns>
-        public async Task CreateServiceAsycn(Service service)
+        public async Task CreateServiceAsync(Service service)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
             var item = GetServer(list, service.ServerId);
 
             if (item is not null)
@@ -62,7 +62,7 @@ namespace MCServerManager.Library.Data.Data
                 if (GetService(list, service.Id) is null)
                 {
                     item.Services.Add(service);
-                    await SaveServerDataAsycn(list);
+                    await SaveServerDataAsync(list);
                 }
             }
         }
@@ -72,15 +72,15 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns></returns>
-        public async Task DeleteServerAsycn(Guid serverId)
+        public async Task DeleteServerAsync(Guid serverId)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
             var item = GetServer(list, serverId);
 
             if (item is not null)
             {
                 list.Remove(item);
-                await SaveServerDataAsycn(list);
+                await SaveServerDataAsync(list);
             }
         }
 
@@ -89,15 +89,15 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns></returns>
-        public async Task DeleteServiceAsycn(Guid serviceId)
+        public async Task DeleteServiceAsync(Guid serviceId)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
             var item = GetService(list, serviceId);
 
             if (item is not null)
             {
                 GetServer(list, item.ServerId).Services.Remove(item);
-                await SaveServerDataAsycn(list);
+                await SaveServerDataAsync(list);
             }
         }
 
@@ -105,7 +105,7 @@ namespace MCServerManager.Library.Data.Data
         /// Загружает список серверов.
         /// </summary>
         /// <returns>Список серверов.</returns>
-        public async Task<List<Server>> LoadServerDataAsycn()
+        public async Task<List<Server>> LoadServerDataAsync()
         {
             return await JsonTool.LoadJsonDataFromFile<List<Server>>(_pathFileSettings);
         }
@@ -115,7 +115,7 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="gameServers">Список серверов.</param>
         /// <returns></returns>
-        public async Task SaveServerDataAsycn(List<Server> gameServers)
+        public async Task SaveServerDataAsync(List<Server> gameServers)
         {
             await JsonTool.SaveJsonDataToFile(_pathFileSettings, gameServers);
         }
@@ -125,15 +125,15 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="server">Сервер.</param>
         /// <returns></returns>
-        public async Task UpdateServerAsycn(Server server)
+        public async Task UpdateServerAsync(Server server)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
             var item = GetServer(list, server.Id);
 
             if (item is not null)
             {
                 item.UpdateData(server);
-                await SaveServerDataAsycn(list);
+                await SaveServerDataAsync(list);
             }
         }
 
@@ -142,15 +142,15 @@ namespace MCServerManager.Library.Data.Data
         /// </summary>
         /// <param name="service">Сервис.</param>
         /// <returns></returns>
-        public async Task UpdateServiceAsycn(Service service)
+        public async Task UpdateServiceAsync(Service service)
         {
-            var list = await LoadServerDataAsycn();
+            var list = await LoadServerDataAsync();
             var item = GetService(list, service.Id);
 
             if (item is not null)
             {
                 item.UpdateData(service);
-                await SaveServerDataAsycn(list);
+                await SaveServerDataAsync(list);
             }
         }
 

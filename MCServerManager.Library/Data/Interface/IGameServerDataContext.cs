@@ -8,42 +8,42 @@ namespace MCServerManager.Library.Data.Interface
 		/// Загружает информацию о серверах.
 		/// </summary>
 		/// <returns>Список данных о серверах.</returns>
-		public Task<List<Server>> LoadServerDataAsycn();
+		public Task<List<Server>> LoadServerDataAsync();
 
 		/// <summary>
 		/// Добавить новый сервер.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
-		public Task CreateServerAsycn(Server gameServerData);
+		public Task CreateServerAsync(Server gameServerData);
 
 		/// <summary>
 		/// Добавить новый сервис.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-		public Task CreateServiceAsycn(Service serviceData);
+		public Task CreateServiceAsync(Service serviceData);
 
 		/// <summary>
 		/// Обновить информацию о сервере.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
-		public Task UpdateServerAsycn(Server serverData);
+		public Task UpdateServerAsync(Server serverData);
 
 		/// <summary>
 		/// Обновить информацию о сервисе.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-		public Task UpdateServiceAsycn(Service serviceData);
+		public Task UpdateServiceAsync(Service serviceData);
 
 		/// <summary>
 		/// Удалить сервер.
 		/// </summary>
 		/// <param name="id">Идентификатор сервера.</param>
-		public Task DeleteServerAsycn(Guid id);
+		public Task DeleteServerAsync(Guid id);
 
 		/// <summary>
 		/// Удалить сервис.
 		/// </summary>
 		/// <param name="id">Идентификатор сервис.</param>
-		public Task DeleteServiceAsycn(Guid id);
+		public Task DeleteServiceAsync(Guid id);
 	}
 }
