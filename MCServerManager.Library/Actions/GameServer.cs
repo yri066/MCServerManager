@@ -73,7 +73,7 @@ namespace MCServerManager.Library.Actions
         /// <summary>
         /// Запущено серверное приложение со всеми сервисами.
         /// </summary>
-        public event ServerStartedEventHandler FullServiceStarted;
+        public event ServerStartedEventHandler FullStarted;
 
         /// <summary>
         /// Делегат события завершения работы серверного приложения при перезагрузке.
@@ -104,7 +104,7 @@ namespace MCServerManager.Library.Actions
                 }
             }
 
-            Started += (id) => AutoStartBackgroundService();
+            Started += (id) => AutoStartBackgroundServiceAsync().Wait();
             ServerOff += () => CloseBackgroundService();
         }
 
@@ -218,16 +218,16 @@ namespace MCServerManager.Library.Actions
             }
 
             StartServer(new EventHandler((sender, e) =>
-            {
-                ProcessClosed();
-                ServerOff?.Invoke();
-            }),
-            new DataReceivedEventHandler((sender, e) =>
-            {
-                GetAppMessage(e.Data);
-                DetectingCompletionStartupServer(e.Data);
-                DetectingUser(e.Data);
-            })
+                {
+                    ProcessClosed();
+                    ServerOff?.Invoke();
+                }),
+                new DataReceivedEventHandler((sender, e) =>
+                {
+                    GetAppMessage(e.Data);
+                    DetectingCompletionStartupServer(e.Data);
+                    DetectingUser(e.Data);
+                })
             );
 
             if (State != Status.Reboot)
@@ -358,18 +358,41 @@ namespace MCServerManager.Library.Actions
             }
         }
 
-        private void AutoStartBackgroundService()
+        private async Task AutoStartBackgroundServiceAsync()
         {
-            _services.ForEach(service =>
+            foreach (var service in _services)
             {
-                if (service.AutoStart &&
-                    service.State == Status.Off)
+                if (service.AutoStart && service.State == Status.Off)
                 {
-                    service.Start();
+                    try
+                    {
+                        await RunAsync(service);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
-            });
+            }
 
-            FullServiceStarted?.Invoke(ServerId);
+            FullStarted?.Invoke(ServerId);
+        }
+
+        private Task RunAsync(BackgroundService server)
+        {
+            var tcs = new TaskCompletionSource();
+            server.Started += (id) =>
+            {
+                tcs.TrySetResult();
+            };
+            server.Closed += (id) =>
+            {
+                tcs.TrySetCanceled();
+            };
+
+            server.Start();
+
+            return tcs.Task;
         }
 
         private void CloseBackgroundService()

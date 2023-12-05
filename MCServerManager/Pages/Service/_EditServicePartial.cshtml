@@ -23,6 +23,12 @@
     </div>
 </div>
 <div class="mb-2">
+    <label asp-for="Delay" class="form-label"></label>
+    <input asp-for="Delay" class="form-control" min="0" max="7200" />
+    <span asp-validation-for="Delay" class="text-danger"></span>
+    <div class="form-text">Задержка перед полным запуском в секундах, максимум 2 часа (7200 секунд)</div>
+</div>
+<div class="mb-2">
     <label asp-for="WorkDirectory" class="form-label"></label>
     <input asp-for="WorkDirectory" class="form-control" />
     <span asp-validation-for="WorkDirectory" class="text-danger"></span>
