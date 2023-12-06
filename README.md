@@ -3,7 +3,7 @@
   
 [![forthebadge](https://forthebadge.com/images/badges/made-with-c-sharp.svg)](https://forthebadge.com)
 
-[![codebeat badge](https://codebeat.co/badges/da8e3d96-ffb3-40f5-ad75-202691102e5c)](https://codebeat.co/a/yri066/projects/github-com-yri066-mcservermanager-main)
+[![codebeat badge](https://codebeat.co/badges/36b09d4d-df6b-40dc-88ae-89807cc428c3)](https://codebeat.co/projects/github-com-yri066-mcservermanager-localnetwork)
   
 </p>
 
