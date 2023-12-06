@@ -20,7 +20,7 @@ namespace MCServerManager.Data
 		/// Добавить новый сервер.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
-        public async Task CreateServerAsync(Server gameServerData)
+        public async Task CreateServerAsycn(Server gameServerData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -35,7 +35,7 @@ namespace MCServerManager.Data
 		/// Добавить новый сервис.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-        public async Task CreateServiceAsync(Library.Data.Models.Service serviceData)
+        public async Task CreateServiceAsycn(Library.Data.Models.Service serviceData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -50,7 +50,7 @@ namespace MCServerManager.Data
 		/// Удалить сервер.
 		/// </summary>
 		/// <param name="serverID">Идентификатор сервера.</param>
-        public async Task DeleteServerAsync(Guid serverID)
+        public async Task DeleteServerAsycn(Guid serverID)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -74,7 +74,7 @@ namespace MCServerManager.Data
 		/// Удалить сервис.
 		/// </summary>
 		/// <param name="serviceId">Идентификатор сервис.</param>
-        public async Task DeleteServiceAsync(Guid serviceId)
+        public async Task DeleteServiceAsycn(Guid serviceId)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -95,7 +95,7 @@ namespace MCServerManager.Data
 		/// Загружает информацию о серверах.
 		/// </summary>
 		/// <returns>Список данных о серверах.</returns>
-        public async Task<List<Server>> LoadServerDataAsync()
+        public async Task<List<Server>> LoadServerDataAsycn()
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -109,7 +109,7 @@ namespace MCServerManager.Data
 		/// Обновить информацию о сервере.
 		/// </summary>
 		/// <param name="serverData">Информация о сервере.</param>
-        public async Task UpdateServerAsync(Server serverData)
+        public async Task UpdateServerAsycn(Server serverData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -127,7 +127,7 @@ namespace MCServerManager.Data
 		/// Обновить информацию о сервисе.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-        public async Task UpdateServiceAsync(Library.Data.Models.Service serviceData)
+        public async Task UpdateServiceAsycn(Library.Data.Models.Service serviceData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {

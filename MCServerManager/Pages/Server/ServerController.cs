@@ -79,7 +79,7 @@ namespace MCServerManager.Pages.Server
 		{
 			try
 			{
-                _serverService.RestartServer(serverId);
+                _serverService.Restart(serverId);
 			}
 			catch (Exception ex)
 			{

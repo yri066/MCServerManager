@@ -1,64 +1,48 @@
 {
 	"Action": {
 		"GameServer": {
-            "StartButton": {
-                "Off": "inline",
-                "Launch": "none",
-                "Run": "none",
-                "Shutdown": "none",
-                "Reboot": "none",
-                "Error": "inline",
-                "Upgrade": "none",
-                "Deleting": "none"
-            },
-            "RebootButton": {
-                "Off": "none",
-                "Launch": "none",
-                "Run": "inline",
-                "Shutdown": "none",
-                "Reboot": "none",
-                "Error": "none",
-                "Upgrade": "none",
-                "Deleting": "none"
-            },
-            "StopButton": {
-                "Off": "none",
-                "Launch": "none",
-                "Run": "inline",
-                "Shutdown": "none",
-                "Reboot": "none",
-                "Error": "none",
-                "Upgrade": "none",
-                "Deleting": "none"
-            },
-            "CloseButton": {
-                "Off": "none",
-                "Launch": "inline",
-                "Run": "inline",
-                "Shutdown": "inline",
-                "Reboot": "inline",
-                "Error": "none",
-                "Upgrade": "none",
-                "Deleting": "none"
-            }
+			"StartButton": {
+				"Off": "inline",
+				"Launch": "none",
+				"Run": "none",
+				"Shutdown": "none",
+				"Error": "inline",
+				"Reboot": "none"
+			},
+			"RebootButton": {
+				"Off": "none",
+				"Launch": "none",
+				"Run": "inline",
+				"Shutdown": "none",
+				"Error": "none",
+				"Reboot": "none"
+			},
+			"StopButton": {
+				"Off": "none",
+				"Launch": "none",
+				"Run": "inline",
+				"Shutdown": "none",
+				"Error": "none",
+				"Reboot": "none"
+			},
+			"CloseButton": {
+				"Off": "none",
+				"Launch": "inline",
+				"Run": "inline",
+				"Shutdown": "inline",
+				"Error": "none",
+				"Reboot": "inline"
+			}
 		},
 		"Application": {
-            "StartButton": {
-                "Off": "inline",
-                "Launch": "none",
-                "Run": "none",
-                "Error": "inline",
-                "Upgrade": "none",
-                "Deleting": "none"
-            },
-            "CloseButton": {
-                "Off": "none",
-                "Launch": "inline",
-                "Run": "inline",
-                "Error": "none",
-                "Upgrade": "none",
-                "Deleting": "none"
-            }
+			"StartButton": {
+				"Off": "inline",
+				"Run": "none"
+			},
+			"CloseButton": {
+				"Off": "none",
+				"Run": "inline"
+			}
 		}
 	}
 }

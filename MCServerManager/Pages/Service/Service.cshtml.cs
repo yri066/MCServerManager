@@ -58,6 +58,7 @@ namespace MCServerManager.Pages.Service
             }
             catch(Exception e)
             {
+                Console.WriteLine(e);
                 return NotFound();
             }
 

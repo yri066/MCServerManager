@@ -66,6 +66,17 @@ namespace MCServerManager.Library.Data.Models
         public string UserId { get; set; }
         public IdentityUser User { get; set; }
 
+        public void UpdateServerData(Server server)
+        {
+            server.Name = Name;
+            server.AutoStart = AutoStart;
+            server.WorkDirectory = WorkDirectory;
+            server.StartProgram = StartProgram;
+            server.Arguments = Arguments;
+            server.Address = Address;
+            server.Port = Port;
+        }
+
         public void UpdateData(Server server)
         {
             Name = server.Name;

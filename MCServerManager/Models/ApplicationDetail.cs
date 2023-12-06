@@ -12,7 +12,7 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Название приложения
 		/// </summary>
-		[Required, StringLength(100), DisplayName("Название приложения:")]
+		[Required, StringLength(100), DisplayName("Название приложения.")]
 		public string Name { get; set; }
 
 		/// <summary>
@@ -24,19 +24,19 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Расположение приложения
 		/// </summary>
-		[Required, DirectoryExists, DisplayName("Директория расположения сервера:")]
+		[Required, DirectoryExists, DisplayName("Директория расположения сервера.")]
 		public string WorkDirectory { get; set; }
 
 		/// <summary>
 		/// Программа для запуска
 		/// </summary>
-		[Required, StringLength(100), DisplayName("Программа для запуска:")]
+		[Required, StringLength(100), DisplayName("Программа для запуска.")]
 		public string StartProgram { get; set; }
 
 		/// <summary>
 		/// Аргументы запуска
 		/// </summary>
-		[StringLength(100), DisplayName("Аргументы для запуска:")]
+		[StringLength(100), DisplayName("Аргументы для запуска.")]
 		public string? Arguments { get; set; }
 	}
 }

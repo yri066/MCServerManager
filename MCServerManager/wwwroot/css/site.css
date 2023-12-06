@@ -16,7 +16,3 @@ html {
 body {
   margin-bottom: 60px;
 }
-
-.toast-container-extra {
-    z-index: 10000;
-}
