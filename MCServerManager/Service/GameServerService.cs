@@ -13,10 +13,15 @@ namespace MCServerManager.Service
 	/// </summary>
 	public class GameServerService
 	{
-		/// <summary>
-		/// Список серверов.
-		/// </summary>
-		private List<GameServer> _servers = new();
+        /// <summary>
+        /// Ключ времени ожидания запуска приложения.
+        /// </summary>
+        private const string _keyGetStartupWaitTime = "StartupWaitTime";
+
+        /// <summary>
+        /// Список серверов.
+        /// </summary>
+        private List<GameServer> _servers = new();
 
 		/// <summary>
 		/// Список серверов.
@@ -43,7 +48,7 @@ namespace MCServerManager.Service
 		/// </summary>
 		private void LoadServers()
 		{
-			var list = _context.LoadServerDataAsycn().Result;
+			var list = _context.LoadServerDataAsync().Result;
 
 			foreach (var server in list)
 			{
@@ -58,31 +63,56 @@ namespace MCServerManager.Service
 			}
 		}
 
-		/// <summary>
-		/// Запускает серверные приложения
-		/// </summary>
-		private async void AutoRun()
-		{
-			foreach (var server in _servers)
-			{
-                if (server.AutoStart && server.State == Status.Off)
+        /// <summary>
+        /// Поочередно запускает серверные приложения.
+        /// </summary>
+        private void AutoRun()
+        {
+            var startupWaitTime = 600;
+
+            if (!string.IsNullOrEmpty(_configuration[_keyGetStartupWaitTime]))
+            {
+                var count = _configuration.GetValue<int>(_keyGetStartupWaitTime);
+                var minWaitTime = 0;
+                var maxWaitTime = 7200;
+
+                if (count < minWaitTime || count > maxWaitTime)
                 {
-                    try
+                    throw new ArgumentOutOfRangeException(_keyGetStartupWaitTime, $"Значение задано вне допустимого диапазона {minWaitTime} - {maxWaitTime} в Settings.json");
+                }
+
+                startupWaitTime = count;
+            }
+
+            var task = Task.Run(() =>
+            {
+                foreach (var server in _servers)
+                {
+                    if (server.AutoStart && server.State == Status.Off)
                     {
-                        await RunAsync(server);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
+                        try
+                        {
+                            if (!RunServerAsync(server).Wait(TimeSpan.FromSeconds(startupWaitTime)))
+                            {
+                                Console.WriteLine($"Превышено время ожидания запуска сервера: {server.ServerId} - {server.Name}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
-			}
-		}
+            });
+        }
 
-        private Task RunAsync(GameServer server)
+        /// <summary>
+        /// Создает задачу, ожидающую запуск серверного приложения и его сервисов.
+        /// </summary>
+        private Task RunServerAsync(GameServer server)
         {
             var tcs = new TaskCompletionSource();
-            server.FullServiceStarted += (id) =>
+            server.FullStarted += (id) =>
             {
                 tcs.TrySetResult();
             };
@@ -92,22 +122,21 @@ namespace MCServerManager.Service
             };
 
             server.Start();
-
             return tcs.Task;
         }
 
-		/// <summary>
-		/// Создает новый сервер.
-		/// </summary>
-		/// <param name="name">Название.</param>
-		/// <param name="autoStart">Автозапуск.</param>
-		/// <param name="workDirectory">Расположение сервера.</param>
-		/// <param name="program">Программа для запуска.</param>
-		/// <param name="arguments">Аргументы запуска.</param>
-		/// <param name="address">Адрес сервера.</param>
-		/// <param name="port">Используемый порт.</param>
-		/// <returns>Идентификатор сервера.</returns>
-		public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
+        /// <summary>
+        /// Создает новый сервер.
+        /// </summary>
+        /// <param name="name">Название.</param>
+        /// <param name="autoStart">Автозапуск.</param>
+        /// <param name="workDirectory">Расположение сервера.</param>
+        /// <param name="program">Программа для запуска.</param>
+        /// <param name="arguments">Аргументы запуска.</param>
+        /// <param name="address">Адрес сервера.</param>
+        /// <param name="port">Используемый порт.</param>
+        /// <returns>Идентификатор сервера.</returns>
+        public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
 			string? arguments, string? address, int? port)
 		{
 			var id = Guid.NewGuid();
@@ -125,7 +154,7 @@ namespace MCServerManager.Service
 			};
 
             AddServer(server);
-            await _context.CreateServerAsycn(server);
+            await _context.CreateServerAsync(server);
 
             return id;
 		}
@@ -141,7 +170,7 @@ namespace MCServerManager.Service
 		/// <param name="address">Адрес сервера.</param>
 		/// <param name="port">Используемый порт.</param>
 		/// <returns>Идентификатор сервера.</returns>
-		public async Task<Guid> CreateServiceAsync(Guid id, string name, bool autoStart, string workDirectory, string program,
+		public async Task<Guid> CreateServiceAsync(Guid id, string name, bool autoStart, bool autoClose, int delay, string workDirectory, string program,
 			string? arguments, string? address, int? port)
 		{
 			var serviceId = Guid.NewGuid();
@@ -151,6 +180,8 @@ namespace MCServerManager.Service
 				ServerId = id,
 				Name = name,
 				AutoStart = autoStart,
+                AutoClose = autoClose,
+                Delay = delay,
 				WorkDirectory = workDirectory,
 				StartProgram = program,
 				Arguments = arguments,
@@ -159,7 +190,7 @@ namespace MCServerManager.Service
 			};
 
             AddService(servise);
-            await _context.CreateServiceAsycn(servise);
+            await _context.CreateServiceAsync(servise);
 
             return serviceId;
 		}
@@ -206,7 +237,7 @@ namespace MCServerManager.Service
 			}
 
 			_servers.Remove(exemplar);
-            await _context.DeleteServerAsycn(id);
+            await _context.DeleteServerAsync(id);
 		}
 
 		/// <summary>
@@ -217,7 +248,7 @@ namespace MCServerManager.Service
 		public async Task DeleteServiceAsync(Guid id, Guid serviceId)
 		{
 			GetServer(id).DeleteService(serviceId);
-            await _context.DeleteServiceAsycn(serviceId);
+            await _context.DeleteServiceAsync(serviceId);
 		}
 
 		/// <summary>
@@ -231,7 +262,7 @@ namespace MCServerManager.Service
 
 			var exemplar = GetServer(id);
 			exemplar.UpdateData(serverData);
-            await _context.UpdateServerAsycn(serverData);
+            await _context.UpdateServerAsync(serverData);
 		}
 
 		/// <summary>
@@ -247,7 +278,7 @@ namespace MCServerManager.Service
 			var exemplar = GetService(id);
 
 			exemplar.UpdateData(serviceData);
-            await _context.UpdateServiceAsycn(exemplar.Data);
+            await _context.UpdateServiceAsync(exemplar.Data);
 		}
 
 		/// <summary>
@@ -403,31 +434,36 @@ namespace MCServerManager.Service
 		}
 
 
-		/// <summary>
-		/// Проверяет порта на использование другими приложениями.
-		/// </summary>
-		/// <param name="port">Порт.</param>
-		/// <param name="id">Идентификатор приложения при обновлении данных.</param>
-		/// <exception cref="Exception">Данный порт используется другим приложением.</exception>
-		private void CheckFreePort(int? port, string address, Guid? id = null)
-		{
-			if (port != null)
-			{
-				if (_servers.Where(x => x.Port == port &&
-										x.Address == address &&
-										x.ServerId != id).Any())
-				{
-					throw new Exception($"Порт {port} занят другим сервером");
-				}
+        /// <summary>
+        /// Проверяет порта на использование другими приложениями.
+        /// </summary>
+        /// <param name="port">Порт.</param>
+        /// <param name="id">Идентификатор приложения при обновлении данных.</param>
+        /// <exception cref="Exception">Данный порт используется другим приложением.</exception>
+        private void CheckFreePort(int? port, string address, Guid? id = null)
+        {
+            if (port != null)
+            {
+                if (_servers.Where(x => x.Port == port &&
+                                        x.Address == address &&
+                                        x.ServerId != id
+                                  ).Any()
+                )
+                {
+                    throw new Exception($"Порт {port} занят другим сервером");
+                }
 
-				if (_servers.Where(x => x.Services.Where(y => y.Port == port &&
-																y.Address == address &&
-																y.ServiceId != id).Any()).Any())
-				{
-					throw new Exception($"Порт {port} занят другим сервисом");
-				}
-			}
-		}
+                if (_servers.Where(x => x.Services.Where(y => y.Port == port &&
+                                                              y.Address == address &&
+                                                              y.ServiceId != id
+                                                         ).Any()
+                                  ).Any()
+                )
+                {
+                    throw new Exception($"Порт {port} занят другим сервисом");
+                }
+            }
+        }
 
 		/// <summary>
 		/// Проверяет директорию на использование другими приложениями.

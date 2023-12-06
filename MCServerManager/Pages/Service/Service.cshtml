@@ -50,6 +50,7 @@
             <li class="list-group-item" id="StatusService">Состояние сервиса: @Model.Service.State</li>
             <li class="list-group-item">Автозапуск: @Model.Service.AutoStart</li>
             <li class="list-group-item">Автовыключение: @Model.Service.AutoClose</li>
+            <li class="list-group-item">Задержка: @Model.Service.Delay</li>
             <li class="list-group-item text-break">Расположение сервиса: @Model.Service.WorkDirectory</li>
             <li class="list-group-item text-break">Программа для запуска: @Model.Service.StartProgram</li>
             @if (@Model.Service.Arguments != null)

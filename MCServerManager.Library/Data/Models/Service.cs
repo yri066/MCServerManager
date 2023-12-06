@@ -34,10 +34,15 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public bool AutoStart { get; set; }
 
-		/// <summary>
-		/// Выключение вместе с сервером
-		/// </summary>
-		public bool AutoClose { get; set; }
+        /// <summary>
+        /// Выключение вместе с сервером
+        /// </summary>
+        public bool AutoClose { get; set; }
+
+        /// <summary>
+        /// Задержка до полного запуска.
+        /// </summary>
+        public int Delay { get; set; } = 10;
 
         /// <summary>
         /// Расположение приложения
@@ -69,6 +74,7 @@ namespace MCServerManager.Library.Data.Models
             Name = service.Name;
             AutoStart = service.AutoStart;
             AutoClose = service.AutoClose;
+            Delay = service.Delay;
             WorkDirectory = service.WorkDirectory;
             StartProgram = service.StartProgram;
             Arguments = service.Arguments;

@@ -1,4 +1,5 @@
 {
-	"GameServers": "Servers.json",
-	"ConsoleCapacity": 100
+    "GameServers": "Servers.json",
+    "ConsoleCapacity": 100,
+    "StartupWaitTime": 600
 }

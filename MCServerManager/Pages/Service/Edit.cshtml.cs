@@ -28,6 +28,7 @@ namespace MCServerManager.Pages.Service
 					Name = server.Name,
 					AutoStart = server.AutoStart,
 					AutoClose = server.AutoClose,
+                    Delay = server.Delay,
 					WorkDirectory = server.WorkDirectory,
 					StartProgram = server.StartProgram,
 					Arguments = server.Arguments,
@@ -56,7 +57,7 @@ namespace MCServerManager.Pages.Service
 				if (ModelState.IsValid)
 				{
 					var serverId = _service.GetServiceData(serviceId).ServerId;
-					await _service.UpdateServiceAsync(serviceId, Input.GetBackgroundServiceData(serviceId, (Guid)serverId!));
+					await _service.UpdateServiceAsync(serviceId, Input.GetBackgroundServiceData(serviceId, serverId));
 					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}

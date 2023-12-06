@@ -14,10 +14,16 @@ namespace MCServerManager.Models
 		[StringLength(100), DisplayName("Адрес сервера:")]
 		public string? Address { get; set; }
 
-		/// <summary>
-		/// Используемый порт
-		/// </summary>
-		[DisplayName("Используемый порт:")]
+        /// <summary>
+        /// Задержка до полного запуска
+        /// </summary>
+        [Required, Range(0, 7200), DisplayName("Задержка до полного запуска:")]
+        public int Delay { get; set; } = 10;
+
+        /// <summary>
+        /// Используемый порт
+        /// </summary>
+        [DisplayName("Используемый порт:")]
 		public int? Port { get; set; }
 
 		/// <summary>
@@ -35,6 +41,7 @@ namespace MCServerManager.Models
 				Name = Name,
 				AutoStart = AutoStart,
 				AutoClose = AutoClose,
+                Delay = Delay,
 				WorkDirectory = WorkDirectory,
                 StartProgram = StartProgram,
 				Arguments = Arguments,
