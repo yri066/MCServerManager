@@ -24,11 +24,6 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public Guid ServerId { get; set; }
 
-		/// <summary>
-		/// Идентификатор приложения
-		/// </summary>
-		//public Guid Id { get { return ServiceId; } }
-
         /// <summary>
         /// Название приложения
         /// </summary>
@@ -68,18 +63,6 @@ namespace MCServerManager.Library.Data.Models
 		/// Используемый порт
 		/// </summary>
 		public int? Port { get; set; }
-
-        public void UpdateServiceData(Service service)
-        {
-            service.Name = Name;
-            service.AutoStart = AutoStart;
-            service.AutoClose = AutoClose;
-            service.WorkDirectory = WorkDirectory;
-            service.StartProgram = StartProgram;
-            service.Arguments = Arguments;
-            service.Address = Address;
-            service.Port = Port;
-        }
 
         public void UpdateData(Service service)
         {

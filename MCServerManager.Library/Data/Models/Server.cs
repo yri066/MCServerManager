@@ -58,16 +58,6 @@ namespace MCServerManager.Library.Data.Models
 		/// Список сервисов.
 		/// </summary>
 		public ICollection<Service> Services { get; set; }
-        public void UpdateServerData(Server server)
-		{
-			server.Name = Name;
-			server.AutoStart = AutoStart;
-			server.WorkDirectory= WorkDirectory;
-			server.StartProgram = StartProgram;
-			server.Arguments= Arguments;
-			server.Address = Address;
-			server.Port = Port;
-		}
 
         public void UpdateData(Server server)
         {
