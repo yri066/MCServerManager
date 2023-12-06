@@ -1,6 +1,8 @@
-﻿using MCServerManager.Library.Data.Models;
+﻿using MCServerManager.Library.Data.Interface;
+using MCServerManager.Library.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace MCServerManager.Library.Actions
@@ -10,19 +12,6 @@ namespace MCServerManager.Library.Actions
     /// </summary>
     public class GameServer : Application
     {
-        /// <summary>
-        /// Состояния сервера.
-        /// </summary>
-        public new enum Status
-        {
-            Run,
-            Off,
-            Launch,
-            Shutdown,
-            Reboot,
-            Error
-        }
-
         /// <summary>
         /// Информация о серверном приложении.
         /// </summary>
@@ -72,14 +61,19 @@ namespace MCServerManager.Library.Actions
         public IUsersListServer<string> UserList { get { return _userList; } }
 
         /// <summary>
-        /// Событие завершения работы серверного приложения.
+        /// Остановлено серверное приложение.
         /// </summary>
         public new event ServerClosedEventHandler Closed;
 
         /// <summary>
-        /// Событие начала работы серверного приложения.
+        /// Запущено серверное приложение.
         /// </summary>
         public new event ServerStartedEventHandler Started;
+
+        /// <summary>
+        /// Запущено серверное приложение со всеми сервисами.
+        /// </summary>
+        public event ServerStartedEventHandler FullStarted;
 
         /// <summary>
         /// Делегат события завершения работы серверного приложения при перезагрузке.
@@ -110,7 +104,7 @@ namespace MCServerManager.Library.Actions
                 }
             }
 
-            Started += (id) => AutoStartBackgroundService();
+            Started += (id) => AutoStartBackgroundServiceAsync().Wait();
             ServerOff += () => CloseBackgroundService();
         }
 
@@ -194,7 +188,7 @@ namespace MCServerManager.Library.Actions
         {
             var service = GetService(serviceId);
 
-            if (service.State == Application.Status.Run)
+            if (service.State == Status.Run || service.State == Status.Launch)
             {
                 service.Close();
             }
@@ -212,6 +206,10 @@ namespace MCServerManager.Library.Actions
         /// <summary>
         /// Запускает серверное приложение.
         /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="System.ComponentModel.Win32Exception"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="PlatformNotSupportedException"></exception>
         public new void Start()
         {
             if (State != Status.Off && State != Status.Error && State != Status.Reboot)
@@ -219,16 +217,23 @@ namespace MCServerManager.Library.Actions
                 return;
             }
 
+            StartServer(new EventHandler((sender, e) =>
+                {
+                    ProcessClosed();
+                    ServerOff?.Invoke();
+                }),
+                new DataReceivedEventHandler((sender, e) =>
+                {
+                    GetAppMessage(e.Data);
+                    DetectingCompletionStartupServer(e.Data);
+                    DetectingUser(e.Data);
+                })
+            );
+
             if (State != Status.Reboot)
             {
                 State = Status.Launch;
             }
-
-            StartServer(new EventHandler((sender, e) =>
-            {
-                ProcessClosed();
-                ServerOff?.Invoke();
-            }));
         }
 
         /// <summary>
@@ -236,7 +241,7 @@ namespace MCServerManager.Library.Actions
         /// </summary>
         public void Stop()
         {
-            if (State != Status.Run && State != Status.Reboot)
+            if (State != Status.Run)
             {
                 return;
             }
@@ -323,18 +328,6 @@ namespace MCServerManager.Library.Actions
         }
 
         /// <summary>
-        /// Выводит сообщение от серверного приложения.
-        /// </summary>
-        /// <param name="message">Текст сообщения.</param>
-        protected override void GetAppMessage(string message = "")
-        {
-            base.GetAppMessage(message);
-
-            DetectingCompletionStartupServer(message);
-            DetectingUser(message);
-        }
-
-        /// <summary>
         /// Отправляет команду в серверное приложение.
         /// </summary>
         /// <param name="message">Команда для серверного приложения.</param>
@@ -365,16 +358,41 @@ namespace MCServerManager.Library.Actions
             }
         }
 
-        private void AutoStartBackgroundService()
+        private async Task AutoStartBackgroundServiceAsync()
         {
-            _services.ForEach(service =>
+            foreach (var service in _services)
             {
-                if (service.AutoStart &&
-                    service.State == Actions.Application.Status.Off)
+                if (service.AutoStart && service.State == Status.Off)
                 {
-                    service.Start();
+                    try
+                    {
+                        await RunAsync(service);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
-            });
+            }
+
+            FullStarted?.Invoke(ServerId);
+        }
+
+        private Task RunAsync(BackgroundService server)
+        {
+            var tcs = new TaskCompletionSource();
+            server.Started += (id) =>
+            {
+                tcs.TrySetResult();
+            };
+            server.Closed += (id) =>
+            {
+                tcs.TrySetCanceled();
+            };
+
+            server.Start();
+
+            return tcs.Task;
         }
 
         private void CloseBackgroundService()
@@ -382,7 +400,7 @@ namespace MCServerManager.Library.Actions
             _services.ForEach(service =>
             {
                 if (service.AutoClose &&
-                    service.State == Actions.Application.Status.Run)
+                    service.State == Status.Run)
                 {
                     service.Close();
                 }
@@ -410,7 +428,7 @@ namespace MCServerManager.Library.Actions
             if (message.Contains(MessageServerStarted))
             {
                 State = Status.Run;
-                base.State = Actions.Application.Status.Run;
+                base.State = Status.Run;
                 Started?.Invoke(ServerId);
             }
         }

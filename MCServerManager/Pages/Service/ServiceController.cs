@@ -1,5 +1,4 @@
 ﻿using MCServerManager.Data.FilterAttributes;
-using MCServerManager.Library.Data.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

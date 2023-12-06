@@ -26,6 +26,11 @@ namespace MCServerManager.Library.Actions
         public Guid? GameServerId { get { return Data.ServerId; } }
 
         /// <summary>
+        /// Задержка до полного запуска.
+        /// </summary>
+        public int Delay { get { return Data.Delay; } }
+
+        /// <summary>
         /// Адрес сервера/ip.
         /// </summary>
         public string Address { get { return Data.Address; } }
@@ -39,6 +44,16 @@ namespace MCServerManager.Library.Actions
         /// Автовыключение вместе с сервером.
         /// </summary>
         public bool AutoClose { get { return Data.AutoClose; } }
+
+        /// <summary>
+        /// Событие начала работы серверного приложения.
+        /// </summary>
+        public new event ServerStartedEventHandler Started;
+
+        /// <summary>
+        /// Таймер для задержки изменения состояния.
+        /// </summary>
+        protected Timer Timer;
 
 
         public BackgroundService(Service data, IConfiguration configuration) : base(data, configuration)
@@ -67,6 +82,46 @@ namespace MCServerManager.Library.Actions
 
             base.UpdateData(data);
             Data.UpdateData(data);
+        }
+
+        /// <summary>
+        /// Запускает серверное приложение.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="System.ComponentModel.Win32Exception"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="PlatformNotSupportedException"></exception>
+        public new void Start()
+        {
+            base.Start();
+            State = Status.Launch;
+            Timer = new Timer((state) => 
+                {
+                    State = Status.Run;
+                    Started?.Invoke(ServiceId);
+                    TimerDispose();
+                },
+                null,
+                TimeSpan.FromSeconds(Delay),
+                Timeout.InfiniteTimeSpan);
+        }
+
+        /// <summary>
+        /// Отключает серверное приложение не дожидаясь завершения работы.
+        /// </summary>
+        public new void Close()
+        {
+            base.Close();
+            TimerDispose();
+        }
+
+        protected void TimerDispose()
+        {
+            if (Timer != null)
+            {
+                Timer.Dispose();
+                Timer = null;
+            }
         }
 
         /// <summary>

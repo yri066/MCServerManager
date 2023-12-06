@@ -77,6 +77,9 @@ namespace MCServerManager.Data.Migrations
                     b.Property<bool>("AutoStart")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Delay")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -90,7 +93,7 @@ namespace MCServerManager.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WorkDirectory")
                         .HasColumnType("nvarchar(max)");
@@ -98,8 +101,6 @@ namespace MCServerManager.Data.Migrations
                     b.HasKey("ServiceId");
 
                     b.HasIndex("ServerId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Services");
                 });
@@ -322,12 +323,6 @@ namespace MCServerManager.Data.Migrations
                         .HasForeignKey("ServerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

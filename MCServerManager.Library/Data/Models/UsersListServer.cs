@@ -1,26 +1,7 @@
-﻿namespace MCServerManager.Library.Data.Models
+﻿using MCServerManager.Library.Data.Interface;
+
+namespace MCServerManager.Library.Data.Models
 {
-	/// <summary>
-	/// Список пользователей
-	/// </summary>
-	public interface IUsersListServer<T>
-	{
-		/// <summary>
-		/// Версия списка
-		/// </summary>
-		public Guid Version { get; }
-
-		/// <summary>
-		/// Список пользователей
-		/// </summary>
-		public IEnumerable<T> UserList { get; }
-
-		/// <summary>
-		/// Количество пользователей
-		/// </summary>
-		public int Count { get; }
-	}
-
 	/// <summary>
 	/// Список пользователей
 	/// </summary>

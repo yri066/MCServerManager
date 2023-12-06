@@ -30,7 +30,11 @@ namespace MCServerManager.Data.FilterAttributes
         {
             try
             {
-                context.ActionArguments.TryGetValue(Key, out object? value);
+                if (!context.ActionArguments.TryGetValue(Key, out object? value))
+                {
+                    return;
+                }
+
                 var userId = context.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var id = _serverService.GetServiceData((Guid)value!).UserId;
 

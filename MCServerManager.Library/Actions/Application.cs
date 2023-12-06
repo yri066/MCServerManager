@@ -9,16 +9,22 @@ namespace MCServerManager.Library.Actions
 	/// <summary>
 	/// Базовый класс для запуска приложения.
 	/// </summary>
-	public class Application
+	public abstract class Application
 	{
 		/// <summary>
 		/// Состояния приложения.
 		/// </summary>
 		public enum Status
 		{
-			Run,
-			Off
-		}
+            Off,
+            Launch,
+            Run,
+            Shutdown,
+            Reboot,
+            Error,
+            Upgrade,
+            Deleting
+        }
 
 		/// <summary>
 		/// Информация о серверном приложении.
@@ -119,10 +125,14 @@ namespace MCServerManager.Library.Actions
 			Data = data;
 		}
 
-		/// <summary>
-		/// Запускает серверное приложение.
-		/// </summary>
-		public void Start()
+        /// <summary>
+        /// Запускает серверное приложение.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="System.ComponentModel.Win32Exception"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="PlatformNotSupportedException"></exception>
+        public void Start()
 		{
 			if (State != Status.Off)
 			{
@@ -132,32 +142,36 @@ namespace MCServerManager.Library.Actions
 			StartServer(new EventHandler((sender, e) =>
 			{
 				ProcessClosed();
-			})
+			}),
+            new DataReceivedEventHandler((sender, e) =>
+            {
+                GetAppMessage(e.Data);
+            })
 			);
 
 			State = Status.Run;
             Started?.Invoke(Data.Id);
         }
 
-		/// <summary>
-		/// Запускает процесс, управляющий серверным приложением.
-		/// </summary>
-		protected void StartServer(EventHandler eventExited = null)
+        /// <summary>
+        /// Запускает процесс, управляющий серверным приложением.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="System.ComponentModel.Win32Exception"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="PlatformNotSupportedException"></exception>
+        protected void StartServer(EventHandler eventExited = null, DataReceivedEventHandler eventOutputData = null)
 		{
-			_process = new Process();
+            _process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
-			_process.StartInfo.FileName = StartProgram;
+            _process.StartInfo.FileName = StartProgram;
 			_process.StartInfo.Arguments = Arguments;
 			_process.StartInfo.UseShellExecute = false;
 			_process.StartInfo.RedirectStandardInput = true;
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.EnableRaisingEvents = true;
 
-			_process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
-			{
-				GetAppMessage(e.Data);
-			});
-
+            _process.OutputDataReceived += eventOutputData;
 			_process.Exited += eventExited;
 
 			_process.Start();
@@ -180,7 +194,7 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public void Close()
 		{
-			if (State == Status.Off)
+			if (State == Status.Off || State == Status.Upgrade || State == Status.Deleting)
 			{
 				return;
 			}

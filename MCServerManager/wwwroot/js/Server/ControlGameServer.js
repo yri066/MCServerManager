@@ -1,85 +1,4 @@
-﻿/**Url текущей страницы */
-let pathPage = new URL(window.location.origin + window.location.pathname);
-
-/**Текущее состояние сервера. */
-let status = "";
-
-/**Список пользователей на сервере */
-let usersInfo = {
-	version: "",
-	userList: [],
-	count: 0
-};
-
-/**Получение состояния сервера */
-let timer = setInterval(() => takeAction(`${pathPage}/GetStatus`), 1500);
-
-/**
- * Загрузка Json по ссылке.
- * @param {string} url Ссылка на Json.
- * @returns Promise с загруженными данными
- */
-function loadJson(url) {
-	if (typeof url !== "string") {
-		throw `Переменная должна быть типом String (${typeof str})`;
-	}
-
-	if (url == "" || url == null) {
-		throw `Строка не должна быть пустой`;
-	}
-
-	return new Promise(function (resolve, reject) {
-		let xmlhttprequest = new XMLHttpRequest();
-		xmlhttprequest.open('GET', url, true);
-		xmlhttprequest.responseType = 'json';
-
-		xmlhttprequest.onload = function () {
-			let status = xmlhttprequest.status;
-
-			if (status == 200) {
-				resolve(xmlhttprequest.response);
-			} else {
-				reject(xmlhttprequest.response.errorText);
-			}
-		};
-
-		xmlhttprequest.onerror = () => reject(`Не удалось загрузить данные.`);
-		xmlhttprequest.send();
-	});
-};
-
-/**
- * Выполняет запрос к Api.
- * @param {string} url Ссылка на Api.
- */
-function takeAction(url) {
-	queryHandling(url, data => {
-		changeState(data);
-	});
-}
-
-/**
- * Выполняет обработку запроса
- * @param {any} url Ссылка на Api.
- * @param {any} resolve Ответ от Api.
- */
-function queryHandling(url, resolve) {
-	loadJson(url)
-		.then(data => {
-			resolve(data);
-		})
-		.catch(error => {
-			if (status == error) {
-				return;
-			}
-
-			status = error;
-
-			$("#StatusServer").html(`Состояние сервера: ${error}`)
-		});
-}
-
-/**
+﻿/**
  * Действие на нажатие кнопки Старт.
  */
 $("#StartServer").click(function () {
@@ -124,7 +43,7 @@ function checkUserList(element) {
 		for (let x = 0; x < usersInfo.count; x++) {
 			list += `
 			<div class="card">
-				<div class="row">
+				<div class="row align-items-center">
 					<div class="col">
 						<div class="card-body">
 							${usersInfo.userList[x]}
@@ -165,12 +84,15 @@ function changeState(element) {
 
 	switch (status) {
 		case "Off":
+		case "Error":
 			$("#StartServer").show();
 			$("#RebootServer").hide();
 			$("#StopServer").hide();
 			$("#CloseServer").hide();
 			break;
 		case "Launch":
+		case "Shutdown":
+		case "Reboot":
 			$("#StartServer").hide();
 			$("#RebootServer").hide();
 			$("#StopServer").hide();
@@ -181,24 +103,6 @@ function changeState(element) {
 			$("#RebootServer").show();
 			$("#StopServer").show();
 			$("#CloseServer").show();
-			break;
-		case "Shutdown":
-			$("#StartServer").hide();
-			$("#RebootServer").hide();
-			$("#StopServer").hide();
-			$("#CloseServer").show();
-			break;
-		case "Reboot":
-			$("#StartServer").hide();
-			$("#RebootServer").hide();
-			$("#StopServer").hide();
-			$("#CloseServer").show();
-			break;
-		case "Error":
-			$("#StartServer").show();
-			$("#RebootServer").hide();
-			$("#StopServer").hide();
-			$("#CloseServer").hide();
 			break;
 		default:
 			$("#StartServer").hide();

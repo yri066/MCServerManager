@@ -12,13 +12,13 @@ namespace MCServerManager.Models
 		/// <summary>
 		/// Адрес сервера(ip)
 		/// </summary>
-		[StringLength(100), DisplayName("Адрес сервера.")]
+		[StringLength(100), DisplayName("Адрес сервера:")]
 		public string? Address { get; set; }
 
 		/// <summary>
 		/// Используемый порт
 		/// </summary>
-		[DisplayName("Используемый порт.")]
+		[DisplayName("Используемый порт:")]
 		public int? Port { get; set; }
 
 		public Server GetServerData(Guid id)

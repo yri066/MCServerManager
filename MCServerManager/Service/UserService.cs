@@ -22,7 +22,7 @@ namespace MCServerManager.Service
         {
             get
             {
-                return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                return _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             }
         }
 

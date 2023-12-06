@@ -1,29 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MCServerManager.Library.Data.Interface;
+using Microsoft.Extensions.Configuration;
 
 namespace MCServerManager.Library.Data.Models
 {
-	/// <summary>
-	/// Буфер вывода консольного приложения.
-	/// </summary>
-	public interface IConsoleBufferApp
-	{
-		/// <summary>
-		/// Версия буфера.
-		/// </summary>
-		public Guid Version { get; }
-		/// <summary>
-		/// Буфер вывода консольного приложения.
-		/// </summary>
-		public IEnumerable<string> ConsoleBuffer { get; }
-
-		/// <summary>
-		/// Получить новые сообщения из буфера.
-		/// </summary>
-		/// <param name="version">Версия буфера.</param>
-		/// <returns>Новые сообщения из буфера консольного приложения.</returns>
-		public IEnumerable<string> GetConsoleBuffer(Guid version);
-	}
-
 	/// <summary>
 	/// Хранение буфера вывода консольного приложения.
 	/// </summary>
@@ -32,7 +11,7 @@ namespace MCServerManager.Library.Data.Models
 		/// <summary>
 		/// Ключ количества элементов в буфере.
 		/// </summary>
-		private string _keyGetConsoleCountItems = "ConsoleCapacity";
+		private const string _keyGetConsoleCountItems = "ConsoleCapacity";
 
 		/// <summary>
 		/// Количество элементов в буфере.
