@@ -37,8 +37,7 @@ namespace MCServerManager.Pages.Service
 				{
                     var userId = _userService.UserId!;
 
-                    var serviceId = await _service.CreateServiceAsync(serverId, Input.Name, Input.AutoStart, Input.AutoClose, Input.Delay, Input.WorkDirectory, Input.StartProgram,
-						Input.Arguments, Input.Address, Input.Port, userId);
+                    var serviceId = await _service.CreateServiceAsync(Input.GetBackgroundServiceData(serverId, userId));
 					return RedirectToPage("Service", new { serviceId });
 				}
 			}

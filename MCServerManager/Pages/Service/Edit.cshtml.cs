@@ -31,17 +31,8 @@ namespace MCServerManager.Pages.Service
 
                 if (userId != service.UserId) return Forbid();
 
-                Input = new BackgroundServiceDetail
-				{
-					Name = service.Name,
-					AutoStart = service.AutoStart,
-					AutoClose = service.AutoClose,
-					WorkDirectory = service.WorkDirectory,
-					StartProgram = service.StartProgram,
-					Arguments = service.Arguments,
-					Address = service.Address,
-					Port = service.Port
-				};
+                Input = new BackgroundServiceDetail();
+                Input.UpdateData(service);
 			}
 			catch
 			{
@@ -68,8 +59,7 @@ namespace MCServerManager.Pages.Service
 
                     if (userId != service.UserId) return Forbid();
 
-					service.UpdateData(Input.GetBackgroundServiceData(serviceId, service.ServerId));
-                    await _service.UpdateServiceAsync(serviceId, service);
+                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(service.ServerId, serviceId));
 					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}

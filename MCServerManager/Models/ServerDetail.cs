@@ -21,11 +21,10 @@ namespace MCServerManager.Models
 		[DisplayName("Используемый порт:")]
 		public int? Port { get; set; }
 
-		public Server GetServerData(Guid id)
+		public Server GetServerData()
 		{
 			return new Server
 			{
-                ServerId = id,
 				Name = Name,
 				AutoStart = AutoStart,
 				WorkDirectory = WorkDirectory,
@@ -35,5 +34,30 @@ namespace MCServerManager.Models
 				Port = Port
 			};
 		}
-	}
+
+        public Server GetServerData(Guid id)
+        {
+            var server = GetServerData();
+            server.ServerId = id;
+            return server;
+        }
+
+        public Server GetServerData(string userId)
+        {
+            var server = GetServerData();
+            server.UserId = userId;
+            return server;
+        }
+
+        public void UpdateData(Server server)
+        {
+            Name = server.Name;
+            AutoStart = server.AutoStart;
+            WorkDirectory = server.WorkDirectory;
+            StartProgram = server.StartProgram;
+            Arguments = server.Arguments;
+            Address = server.Address;
+            Port = server.Port;
+        }
+    }
 }

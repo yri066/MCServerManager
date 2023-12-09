@@ -49,12 +49,12 @@ namespace MCServerManager.Pages.Service
         {
             try
             {
-                var service = _service.GetService(serviceId)!;
+                var service = _service.GetService(serviceId);
                 var userId = _userService.UserId;
 
                 if (userId != service.Data.UserId) return Forbid();
 
-                await _service.DeleteServiceAsync((Guid)service.GameServerId!, serviceId);
+                await _service.DeleteServiceAsync(serviceId);
             }
             catch(Exception e)
             {

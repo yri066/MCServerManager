@@ -37,16 +37,8 @@ namespace MCServerManager.Pages.Server
 
                 if (userId != server.UserId) return Forbid();
 
-                Input = new ServerDetail
-				{
-					Name = server.Name,
-					AutoStart = server.AutoStart,
-					WorkDirectory = server.WorkDirectory,
-					StartProgram = server.StartProgram,
-					Arguments = server.Arguments,
-					Address = server.Address,
-					Port = server.Port
-				};
+                Input = new ServerDetail();
+                Input.UpdateData(server);
 			}
 			catch
 			{
@@ -73,7 +65,7 @@ namespace MCServerManager.Pages.Server
 
                     if (userId != server.UserId) return Forbid();
 
-                    await _service.UpdateServerAsync(serverId, Input.GetServerData(serverId));
+                    await _service.UpdateServerAsync(Input.GetServerData(serverId));
 					return RedirectToPage("Server", new { serverId });
 				}
 			}
