@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MCServerManager.Pages.Service
 {
-	[Route("/Service/{serviceId:guid}/[action]")]
-	public class ServiceController : Controller
-	{
-		private readonly GameServerService _serverService;
+    [Route("/Service/{serviceId:guid}/[action]")]
+    public class ServiceController : Controller
+    {
+        private readonly GameServerService _serverService;
 
-		public ServiceController(GameServerService serverService)
-		{
-			_serverService = serverService;
-		}
+        public ServiceController(GameServerService serverService)
+        {
+            _serverService = serverService;
+        }
 
         /// <summary>
         /// Получить информацию о сервисе.
@@ -19,22 +19,21 @@ namespace MCServerManager.Pages.Service
         /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         public object GetStatus(Guid serviceId)
-		{
-			try
-			{
-				var service = _serverService.GetService(serviceId);
+        {
+            try
+            {
+                var service = _serverService.GetService(serviceId);
 
-				return new
-				{
-					Status = service.State.ToString()
-				};
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
-		}
+                return new
+                {
+                    Status = service.State.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
+        }
 
         /// <summary>
         /// Запустить сервис.
@@ -42,19 +41,18 @@ namespace MCServerManager.Pages.Service
         /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         public object Start(Guid serviceId)
-		{
-			try
-			{
-				_serverService.StartService(serviceId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+        {
+            try
+            {
+                _serverService.StartService(serviceId);
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serviceId);
-		}
+            return GetStatus(serviceId);
+        }
 
         /// <summary>
         /// Выключить сервис.
@@ -62,19 +60,18 @@ namespace MCServerManager.Pages.Service
         /// <param name="serviceId">Идентификатор сервиса.</param>
         /// <returns>Информация о сервисе.</returns>
         public object Close(Guid serviceId)
-		{
-			try
-			{
-				_serverService.CloseService(serviceId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+        {
+            try
+            {
+                _serverService.CloseService(serviceId);
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serviceId);
-		}
+            return GetStatus(serviceId);
+        }
 
         /// <summary>
         /// Открыть страницу консоли приложения.
@@ -82,17 +79,17 @@ namespace MCServerManager.Pages.Service
         /// <param name="serviceId">Идентификатор сервера.</param>
         /// <returns>Страница консоли.</returns>
         public IActionResult Console(Guid serviceId)
-		{
-			try
-			{
-				ViewData["Name"] = _serverService.GetService(serviceId).Name;
-				return View("/Pages/Application/Console.cshtml");
-			}
-			catch (Exception)
-			{
-				return Redirect("/List");
-			}
-		}
+        {
+            try
+            {
+                ViewData["Name"] = _serverService.GetService(serviceId).Name;
+                return View("/Pages/Application/Console.cshtml");
+            }
+            catch (Exception)
+            {
+                return Redirect("/List");
+            }
+        }
 
         /// <summary>
         /// Получить буфер вывода приложения.
@@ -101,24 +98,23 @@ namespace MCServerManager.Pages.Service
         /// <param name="bufferId">Версия буфера.</param>
         /// <returns>Буфер вывода приложения.</returns>
         [Route("/Service/{serviceId:guid}/[action]/{bufferId:guid}")]
-		public object Console(Guid serviceId, Guid bufferId)
-		{
-			try
-			{
-				var service = _serverService.GetService(serviceId);
+        public object Console(Guid serviceId, Guid bufferId)
+        {
+            try
+            {
+                var service = _serverService.GetService(serviceId);
 
-				return new
-				{
-					Console = service.ConsoleBuffer.GetConsoleBuffer(bufferId),
-					service.ConsoleBuffer.Version
-				};
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
-		}
+                return new
+                {
+                    Console = service.ConsoleBuffer.GetConsoleBuffer(bufferId),
+                    service.ConsoleBuffer.Version
+                };
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
+        }
 
         /// <summary>
         /// Отправить сообщение в сервис.
@@ -127,19 +123,24 @@ namespace MCServerManager.Pages.Service
         /// <param name="message">Сообщение.</param>
         /// <returns>Информация о сервисе.</returns>
         [HttpPost]
-		public object Console(Guid serviceId, string message = "")
-		{
-			try
-			{
-				_serverService.SendServiceAppMessage(serviceId, message);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+        public object Console(Guid serviceId, string message = "")
+        {
+            try
+            {
+                _serverService.SendServiceAppMessage(serviceId, message);
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serviceId);
-		}
-	}
+            return GetStatus(serviceId);
+        }
+
+        private object SetErrorMessage(int statusCode, string message)
+        {
+            HttpContext.Response.StatusCode = statusCode;
+            return new { errorText = message };
+        }
+    }
 }
