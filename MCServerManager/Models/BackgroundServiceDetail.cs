@@ -1,18 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using MCService = MCServerManager.Library.Data.Models.Service;
+using MCServerManager.Library.Data.Models;
 
 namespace MCServerManager.Models
 {
-	/// <summary>
-	/// Данные о сервисе
-	/// </summary>
-	public class BackgroundServiceDetail : ApplicationDetail
-	{
-		/// <summary>
-		/// Адрес сервера(ip)
-		/// </summary>
-		[StringLength(100), DisplayName("Адрес сервера:")]
-		public string? Address { get; set; }
+    /// <summary>
+    /// Данные о сервисе
+    /// </summary>
+    public class BackgroundServiceDetail : ApplicationDetail
+    {
+        /// <summary>
+        /// Адрес сервера(ip)
+        /// </summary>
+        [StringLength(100), DisplayName("Адрес сервера:")]
+        public string? Address { get; set; }
 
         /// <summary>
         /// Задержка до полного запуска
@@ -24,30 +26,58 @@ namespace MCServerManager.Models
         /// Используемый порт
         /// </summary>
         [DisplayName("Используемый порт:")]
-		public int? Port { get; set; }
+        public int? Port { get; set; }
 
-		/// <summary>
-		/// Автовыключение вместе с сервером.
-		/// </summary>
-		[Required, DisplayName("Автовыключение вместе с сервером:")]
-		public bool AutoClose { get; set; }
+        /// <summary>
+        /// Автовыключение вместе с сервером.
+        /// </summary>
+        [Required, DisplayName("Автовыключение вместе с сервером:")]
+        public bool AutoClose { get; set; }
 
-		public Library.Data.Models.Service GetBackgroundServiceData(Guid id, Guid serverId)
-		{
-			return new Library.Data.Models.Service
-			{
-				ServiceId = id,
-				ServerId = serverId,
-				Name = Name,
-				AutoStart = AutoStart,
-				AutoClose = AutoClose,
+        public MCService GetBackgroundServiceData()
+        {
+            return new MCService
+            {
+                Name = Name,
+                AutoStart = AutoStart,
+                AutoClose = AutoClose,
                 Delay = Delay,
 				WorkDirectory = WorkDirectory,
                 StartProgram = StartProgram,
-				Arguments = Arguments,
-				Address = Address,
-				Port = Port
-			};
-		}
-	}
+                Arguments = Arguments,
+                Address = Address,
+                Port = Port
+            };
+        }
+
+        public MCService GetBackgroundServiceData(Guid serverId, Guid serviceId)
+        {
+            var service = GetBackgroundServiceData();
+            service.ServerId = serverId;
+            service.ServiceId = serviceId;
+
+            return service;
+        }
+
+        public MCService GetBackgroundServiceData(Guid serverId)
+        {
+            var service = GetBackgroundServiceData();
+            service.ServerId = serverId;
+
+            return service;
+        }
+
+        public void UpdateData(MCService service)
+        {
+            Name = service.Name;
+            AutoStart = service.AutoStart;
+            AutoClose = service.AutoClose;
+            Delay = service.Delay;
+            WorkDirectory = service.WorkDirectory;
+            StartProgram = service.StartProgram;
+            Arguments = service.Arguments;
+            Address = service.Address;
+            Port = service.Port;
+        }
+    }
 }

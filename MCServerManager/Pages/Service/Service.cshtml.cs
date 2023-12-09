@@ -25,15 +25,16 @@ namespace MCServerManager.Pages.Service
 			Service = _service.GetService(serviceId);
 		}
 
-		public async Task<IActionResult> OnGetDeleteAsync(Guid serviceId)
-		{
-			try
-			{
-				var serverId = _service.GetServiceData(serviceId).ServerId;
-				await _service.DeleteServiceAsync((Guid)serverId!, serviceId);
-			}
-			catch
-			{}
+        public async Task<IActionResult> OnGetDeleteAsync(Guid serviceId)
+        {
+            try
+            {
+                await _service.DeleteServiceAsync(serviceId);
+            }
+            catch(Exception e)
+            {
+                return NotFound();
+            }
 
 			return RedirectToPage("/Server/List");
 		}

@@ -22,19 +22,9 @@ namespace MCServerManager.Pages.Service
 			Id = serviceId;
 			try
 			{
-				var server = _service.GetServiceData(serviceId);
-				Input = new BackgroundServiceDetail
-				{
-					Name = server.Name,
-					AutoStart = server.AutoStart,
-					AutoClose = server.AutoClose,
-                    Delay = server.Delay,
-					WorkDirectory = server.WorkDirectory,
-					StartProgram = server.StartProgram,
-					Arguments = server.Arguments,
-					Address = server.Address,
-					Port = server.Port
-				};
+				var service = _service.GetServiceData(serviceId);
+                Input = new BackgroundServiceDetail();
+                Input.UpdateData(service);
 			}
 			catch
 			{
@@ -56,8 +46,8 @@ namespace MCServerManager.Pages.Service
 			{
 				if (ModelState.IsValid)
 				{
-					var serverId = _service.GetServiceData(serviceId).ServerId;
-					await _service.UpdateServiceAsync(serviceId, Input.GetBackgroundServiceData(serviceId, serverId));
+                    var serverId = _service.GetServiceData(serviceId).ServerId;
+                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(serverId, serviceId));
 					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}

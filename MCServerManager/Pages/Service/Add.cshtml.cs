@@ -32,9 +32,8 @@ namespace MCServerManager.Pages.Service
 			{
 				if (ModelState.IsValid)
 				{
-					var serviceId = await _service.CreateServiceAsync(serverId, Input.Name, Input.AutoStart, Input.AutoClose, Input.Delay, Input.WorkDirectory, Input.StartProgram,
-						Input.Arguments, Input.Address, Input.Port);
-					return RedirectToPage("/Service/Service", new { serviceId = serviceId });
+                    var serviceId = await _service.CreateServiceAsync(Input.GetBackgroundServiceData(serverId));
+					return RedirectToPage("Service", new { serviceId });
 				}
 			}
 			catch (Exception ex)
