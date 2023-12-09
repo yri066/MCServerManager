@@ -20,7 +20,7 @@ namespace MCServerManager.Library.Actions
         /// <summary>
         /// Идентификатор сервера.
         /// </summary>
-        public Guid? GameServerId { get { return Data.ServerId; } }
+        public Guid GameServerId { get { return Data.ServerId; } }
 
         /// <summary>
         /// Задержка до полного запуска.
@@ -57,6 +57,8 @@ namespace MCServerManager.Library.Actions
         {
             CheckServiceData(data);
             Data = data;
+
+            Closed += (id) => { TimerDispose(); };
         }
 
         /// <summary>
@@ -84,6 +86,11 @@ namespace MCServerManager.Library.Actions
         /// <exception cref="PlatformNotSupportedException"></exception>
         public new void Start()
         {
+            if (State != Status.Off)
+            {
+                return;
+            }
+
             base.Start();
             State = Status.Launch;
             Timer = new Timer((state) =>
@@ -95,15 +102,6 @@ namespace MCServerManager.Library.Actions
                 null,
                 TimeSpan.FromSeconds(Delay),
                 Timeout.InfiniteTimeSpan);
-        }
-
-        /// <summary>
-        /// Отключает серверное приложение не дожидаясь завершения работы.
-        /// </summary>
-        public new void Close()
-        {
-            base.Close();
-            TimerDispose();
         }
 
         protected void TimerDispose()

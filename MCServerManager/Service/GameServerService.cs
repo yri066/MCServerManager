@@ -88,19 +88,21 @@ namespace MCServerManager.Service
             {
                 foreach (var server in _servers)
                 {
-                    if (server.AutoStart && server.State == Status.Off)
+                    if (!server.AutoStart || server.State != Status.Off)
                     {
-                        try
+                        continue;
+                    }
+
+                    try
+                    {
+                        if (!RunServerAsync(server).Wait(TimeSpan.FromSeconds(startupWaitTime)))
                         {
-                            if (!RunServerAsync(server).Wait(TimeSpan.FromSeconds(startupWaitTime)))
-                            {
-                                Console.WriteLine($"Превышено время ожидания запуска сервера: {server.ServerId} - {server.Name}");
-                            }
+                            Console.WriteLine($"Превышено время ожидания запуска сервера: {server.ServerId} - {server.Name}");
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
                     }
                 }
             });
@@ -128,30 +130,13 @@ namespace MCServerManager.Service
         /// <summary>
         /// Создает новый сервер.
         /// </summary>
-        /// <param name="name">Название.</param>
-        /// <param name="autoStart">Автозапуск.</param>
-        /// <param name="workDirectory">Расположение сервера.</param>
-        /// <param name="program">Программа для запуска.</param>
-        /// <param name="arguments">Аргументы запуска.</param>
-        /// <param name="address">Адрес сервера.</param>
-        /// <param name="port">Используемый порт.</param>
+        /// <param name="server">Информация о сервере.</param>
         /// <returns>Идентификатор сервера.</returns>
-        public async Task<Guid> CreateServer(string name, bool autoStart, string workDirectory, string program,
-			string? arguments, string? address, int? port)
-		{
-			var id = Guid.NewGuid();
-			var server = new Server()
-			{
-				ServerId = id,
-				Name = name,
-				AutoStart = autoStart,
-				WorkDirectory = workDirectory,
-				StartProgram = program,
-				Arguments = arguments,
-				Address = address,
-				Port = port,
-				Services = new List<MCService>()
-			};
+        public async Task<Guid> CreateServer(Server server)
+        {
+            var id = Guid.NewGuid();
+            server.ServerId = id;
+            server.Services = new List<MCService>();
 
             AddServer(server);
             await _context.CreateServerAsync(server);
@@ -159,38 +144,20 @@ namespace MCServerManager.Service
             return id;
 		}
 
-		/// <summary>
-		/// Создает новый сервер.
-		/// </summary>
-		/// <param name="name">Название.</param>
-		/// <param name="autoStart">Автозапуск.</param>
-		/// <param name="workDirectory">Расположение сервера.</param>
-		/// <param name="program">Программа для запуска.</param>
-		/// <param name="arguments">Аргументы запуска.</param>
-		/// <param name="address">Адрес сервера.</param>
-		/// <param name="port">Используемый порт.</param>
-		/// <returns>Идентификатор сервера.</returns>
-		public async Task<Guid> CreateServiceAsync(Guid id, string name, bool autoStart, bool autoClose, int delay, string workDirectory, string program,
-			string? arguments, string? address, int? port)
-		{
-			var serviceId = Guid.NewGuid();
-			var servise = new MCService()
-			{
-				ServiceId = serviceId,
-				ServerId = id,
-				Name = name,
-				AutoStart = autoStart,
-                AutoClose = autoClose,
-                Delay = delay,
-				WorkDirectory = workDirectory,
-				StartProgram = program,
-				Arguments = arguments,
-				Address = address,
-				Port = port
-			};
+        /// <summary>
+        /// Создает новый сервер.
+        /// </summary>
+        /// <param name="service">Информация о сервисе.</param>
+        /// <returns>Идентификатор сервера.</returns>
+        public async Task<Guid> CreateServiceAsync(MCService service)
+        {
+            GetServer(service.ServerId);
 
-            AddService(servise);
-            await _context.CreateServiceAsync(servise);
+            var serviceId = Guid.NewGuid();
+            service.ServiceId = serviceId;
+
+            AddService(service);
+            await _context.CreateServiceAsync(service);
 
             return serviceId;
 		}
@@ -218,8 +185,7 @@ namespace MCServerManager.Service
             CheckFreeDirectory(service.WorkDirectory);
             CheckFreePort(service.Port, service.Address, service.Id);
 
-            var exemplar = GetServer(service.ServerId);
-            exemplar.AddService(new MCBackgroundService(service, _configuration));
+            GetServer(service.ServerId).AddService(new MCBackgroundService(service, _configuration));
         }
 
         /// <summary>
@@ -240,44 +206,42 @@ namespace MCServerManager.Service
             await _context.DeleteServerAsync(id);
 		}
 
-		/// <summary>
-		/// Удалить указанный сервис.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <param name="serviceId">Идентификатор сервиса.</param>
-		public async Task DeleteServiceAsync(Guid id, Guid serviceId)
-		{
-			GetServer(id).DeleteService(serviceId);
+        /// <summary>
+        /// Удалить указанный сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        public async Task DeleteServiceAsync(Guid serviceId)
+        {
+            var service = GetService(serviceId);
+            GetServer(service.GameServerId).DeleteService(serviceId);
+
             await _context.DeleteServiceAsync(serviceId);
 		}
 
-		/// <summary>
-		/// Обновить информацию указанного сервера.
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <param name="serverData">Информация о сервере.</param>
-		public async Task UpdateServerAsync(Guid id, Server serverData)
-		{
-			CheckData(id, serverData, serverData.Port, serverData.Address);
+        /// <summary>
+        /// Обновить информацию указанного сервера.
+        /// </summary>
+        /// <param name="serverData">Информация о сервере.</param>
+        public async Task UpdateServerAsync(Server serverData)
+        {
+            CheckData(serverData, serverData.Port, serverData.Address);
 
-			var exemplar = GetServer(id);
-			exemplar.UpdateData(serverData);
+            var exemplar = GetServer(serverData.ServerId);
+            exemplar.UpdateData(serverData);
             await _context.UpdateServerAsync(serverData);
 		}
 
-		/// <summary>
-		/// Обновить информацию указанного сервиса.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <param name="serverData">Информация о сервисе.</param>
-		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
-		public async Task UpdateServiceAsync(Guid id, MCService serviceData)
-		{
-			CheckData(id, serviceData, serviceData.Port, serviceData.Address);
+        /// <summary>
+        /// Обновить информацию указанного сервиса.
+        /// </summary>
+        /// <param name="serviceData">Информация о сервисе.</param>
+        /// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
+        public async Task UpdateServiceAsync(MCService serviceData)
+        {
+            CheckData(serviceData, serviceData.Port, serviceData.Address);
 
-			var exemplar = GetService(id);
-
-			exemplar.UpdateData(serviceData);
+            var exemplar = GetService(serviceData.ServiceId);
+            exemplar.UpdateData(serviceData);
             await _context.UpdateServiceAsync(exemplar.Data);
 		}
 
@@ -394,44 +358,34 @@ namespace MCServerManager.Service
 			return GetService(serviceId).Data;
 		}
 
-		/// <summary>
-		/// Отправляет сообщение в серверное приложение
-		/// </summary>
-		/// <param name="id">Идентификатор сервера.</param>
-		/// <param name="text">Сообщение.</param>
-		public void SendServerAppMessage(Guid id, string message = "")
-		{
-			GetServer(id).SendAppMessage(message);
-		}
+        /// <summary>
+        /// Отправляет сообщение в серверное приложение
+        /// </summary>
+        /// <param name="serverId">Идентификатор сервера.</param>
+        /// <param name="message">Сообщение.</param>
+        public void SendServerAppMessage(Guid serverId, string message = "")
+        {
+            GetServer(serverId).SendAppMessage(message);
+        }
 
-		/// <summary>
-		/// Отправляет сообщение в сервис.
-		/// </summary>
-		/// <param name="id">Идентификатор сервиса.</param>
-		/// <param name="text">Сообщение.</param>
-		public void SendServiceAppMessage(Guid id, string message = "")
-		{
-			GetService(id).SendAppMessage(message);
-		}
+        /// <summary>
+        /// Отправляет сообщение в сервис.
+        /// </summary>
+        /// <param name="serviceId">Идентификатор сервиса.</param>
+        /// <param name="message">Сообщение.</param>
+        public void SendServiceAppMessage(Guid serviceId, string message = "")
+        {
+            GetService(serviceId).SendAppMessage(message);
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="id"></param>
-		/// <param name="data"></param>
-		/// <param name="Port"></param>
-		/// <param name="Address"></param>
-		/// <exception cref="ArgumentException">Идентификаторы не совпадают.</exception>
-		private void CheckData(Guid id, IApplication data, int? Port, string Address)
-		{
-			if (id != data.Id)
-			{
-				throw new ArgumentException("Ошибка, идентификаторы не совпадают.");
-			}
-
-			CheckFreeDirectory(data.WorkDirectory, data.Id);
-			CheckFreePort(Port, Address, data.Id);
-		}
+        /// <summary>
+        /// Проверка данных приложения.
+        /// </summary>
+        private void CheckData(IApplication data, int? Port, string Address)
+        {
+            CheckFreeDirectory(data.WorkDirectory, data.Id);
+            CheckFreePort(Port, Address, data.Id);
+        }
 
 
         /// <summary>
@@ -446,9 +400,8 @@ namespace MCServerManager.Service
             {
                 if (_servers.Where(x => x.Port == port &&
                                         x.Address == address &&
-                                        x.ServerId != id
-                                  ).Any()
-                )
+                                        x.ServerId != id)
+                            .Any())
                 {
                     throw new Exception($"Порт {port} занят другим сервером");
                 }
@@ -456,9 +409,9 @@ namespace MCServerManager.Service
                 if (_servers.Where(x => x.Services.Where(y => y.Port == port &&
                                                               y.Address == address &&
                                                               y.ServiceId != id
-                                                         ).Any()
-                                  ).Any()
-                )
+                                                         )
+                                                  .Any())
+                            .Any())
                 {
                     throw new Exception($"Порт {port} занят другим сервисом");
                 }

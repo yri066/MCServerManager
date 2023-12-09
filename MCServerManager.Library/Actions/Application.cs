@@ -154,13 +154,15 @@ namespace MCServerManager.Library.Actions
         }
 
         /// <summary>
-        /// Запускает процесс, управляющий серверным приложением.
+        /// Запускает процесс серверного приложения.
         /// </summary>
+        /// <param name="eventExited">Обработчик событий, обрабатывающий завершение процесса.</param>
+        /// <param name="eventOutputDataReceived">Обработчик событий, обрабатывающий текстовый вывод из приложения.</param>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="System.ComponentModel.Win32Exception"></exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="PlatformNotSupportedException"></exception>
-        protected void StartServer(EventHandler eventExited = null, DataReceivedEventHandler eventOutputData = null)
+        protected void StartServer(EventHandler eventExited = null, DataReceivedEventHandler eventOutputDataReceived = null)
 		{
             _process = new Process();
 			_process.StartInfo.WorkingDirectory = WorkDirectory;
@@ -171,7 +173,7 @@ namespace MCServerManager.Library.Actions
 			_process.StartInfo.RedirectStandardOutput = true;
 			_process.EnableRaisingEvents = true;
 
-            _process.OutputDataReceived += eventOutputData;
+            _process.OutputDataReceived += eventOutputDataReceived;
 			_process.Exited += eventExited;
 
 			_process.Start();

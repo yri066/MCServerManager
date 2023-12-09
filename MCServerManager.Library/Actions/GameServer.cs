@@ -348,16 +348,18 @@ namespace MCServerManager.Library.Actions
         {
             foreach (var service in _services)
             {
-                if (service.AutoStart && service.State == Status.Off)
+                if (!service.AutoStart || service.State != Status.Off)
                 {
-                    try
-                    {
-                        await RunAsync(service);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
+                    continue;
+                }
+
+                try
+                {
+                    await RunAsync(service);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
                 }
             }
 
