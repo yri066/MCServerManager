@@ -11,13 +11,13 @@ namespace MCServerManager.Pages.Server
 	[Authorize]
     [Route("/Server/{serverId:guid}/[action]")]
     public class ServerController : Controller
-	{
-		private readonly GameServerService _serverService;
+    {
+        private readonly GameServerService _serverService;
         private readonly UserService _userService;
 
         public ServerController(GameServerService serverService, UserService userService)
-		{
-			_serverService = serverService;
+        {
+            _serverService = serverService;
             _userService = userService;
 
         }
@@ -29,24 +29,23 @@ namespace MCServerManager.Pages.Server
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object GetStatus(Guid serverId)
-		{
-			try
-			{
-				var server = _serverService.GetServer(serverId);
+        {
+            try
+            {
+                var server = _serverService.GetServer(serverId);
 
-				return new
-				{
-					Status = server.State.ToString(),
-					UserListVersion = server.UserList.Version,
-					ConsoleVersion = server.ConsoleBuffer.Version
-				};
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
-		}
+                return new
+                {
+                    Status = server.State.ToString(),
+                    UserListVersion = server.UserList.Version,
+                    ConsoleVersion = server.ConsoleBuffer.Version
+                };
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
+        }
 
         /// <summary>
         /// Запустить сервер.
@@ -55,19 +54,18 @@ namespace MCServerManager.Pages.Server
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object Start(Guid serverId)
-		{
-			try
-			{
+        {
+            try
+            {
                 _serverService.StartServer(serverId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serverId);
-		}
+            return GetStatus(serverId);
+        }
 
         /// <summary>
         /// Перезапустить сервер.
@@ -76,19 +74,18 @@ namespace MCServerManager.Pages.Server
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object Restart(Guid serverId)
-		{
-			try
-			{
+        {
+            try
+            {
                 _serverService.RestartServer(serverId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serverId);
-		}
+            return GetStatus(serverId);
+        }
 
         /// <summary>
         /// Остановить сервер.
@@ -97,19 +94,18 @@ namespace MCServerManager.Pages.Server
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object Stop(Guid serverId)
-		{
-			try
-			{
+        {
+            try
+            {
                 _serverService.StopServer(serverId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serverId);
-		}
+            return GetStatus(serverId);
+        }
 
         /// <summary>
         /// Выключить сервер.
@@ -118,19 +114,18 @@ namespace MCServerManager.Pages.Server
         /// <returns>Информация о сервере.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object Close(Guid serverId)
-		{
-			try
-			{
+        {
+            try
+            {
                 _serverService.CloseServer(serverId);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serverId);
-		}
+            return GetStatus(serverId);
+        }
 
         /// <summary>
         /// Получить список пользователей.
@@ -139,17 +134,16 @@ namespace MCServerManager.Pages.Server
         /// <returns>Список пользователей.</returns>
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object GetUserList(Guid serverId)
-		{
-			try
-			{
+        {
+            try
+            {
                 return _serverService.GetServer(serverId).UserList;
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
+        }
 
         /// <summary>
         /// Открыть страницу консоли приложения.
@@ -157,70 +151,75 @@ namespace MCServerManager.Pages.Server
         /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Страница консоли.</returns>
         public IActionResult Console(Guid serverId)
-		{
-			try
-			{
-				var server = _serverService.GetServer(serverId);
-
-                if (_userService.UserId is null || _userService.UserId != server.Data.UserId)
-					return Forbid();
-
-				ViewData["Name"] = server.Name;
-				return View("/Pages/Application/Console.cshtml");
-			}
-			catch (Exception)
-			{
-				return Redirect("/List");
-			}
-		}
-
-		/// <summary>
-		/// Получить буфер вывода приложения.
-		/// </summary>
-		/// <param name="serverId">Идентификатор сервера.</param>
-		/// <param name="bufferId">Версия буфера.</param>
-		/// <returns>Буфер вывода приложения.</returns>
-		[Route("/Server/{serverId:guid}/[action]/{version:guid}")]
-        [ServiceFilter(typeof(UserServerAccessFilter))]
-        public object Console(Guid serverId, Guid version)
-		{
-			try
-			{
+        {
+            try
+            {
                 var server = _serverService.GetServer(serverId);
 
-				return new {
-					Console = server.ConsoleBuffer.GetConsoleBuffer(version),
-					server.ConsoleBuffer.Version
-				};
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
-		}
+                if (_userService.UserId is null || _userService.UserId != server.Data.UserId)
+                    return Forbid();
 
-		/// <summary>
-		/// Отправить сообщение на сервер.
-		/// </summary>
-		/// <param name="serverId">Идентификатор сервера.</param>
-		/// <param name="message">Сообщение.</param>
-		/// <returns>Информация о сервере.</returns>
-		[HttpPost]
+                ViewData["Name"] = server.Name;
+                return View("/Pages/Application/Console.cshtml");
+            }
+            catch (Exception)
+            {
+                return Redirect("/List");
+            }
+        }
+
+        /// <summary>
+        /// Получить буфер вывода приложения.
+        /// </summary>
+        /// <param name="serverId">Идентификатор сервера.</param>
+        /// <param name="bufferId">Версия буфера.</param>
+        /// <returns>Буфер вывода приложения.</returns>
+        [Route("/Server/{serverId:guid}/[action]/{version:guid}")]
+        [ServiceFilter(typeof(UserServerAccessFilter))]
+        public object Console(Guid serverId, Guid version)
+        {
+            try
+            {
+                var server = _serverService.GetServer(serverId);
+
+                return new
+                {
+                    Console = server.ConsoleBuffer.GetConsoleBuffer(version),
+                    server.ConsoleBuffer.Version
+                };
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Отправить сообщение на сервер.
+        /// </summary>
+        /// <param name="serverId">Идентификатор сервера.</param>
+        /// <param name="message">Сообщение.</param>
+        /// <returns>Информация о сервере.</returns>
+        [HttpPost]
         [ServiceFilter(typeof(UserServerAccessFilter))]
         public object Console(Guid serverId, string message = "")
-		{
-			try
-			{
+        {
+            try
+            {
                 _serverService.SendServerAppMessage(serverId, message);
-			}
-			catch (Exception ex)
-			{
-				HttpContext.Response.StatusCode = 404;
-				return new { errorText = ex.Message };
-			}
+            }
+            catch (Exception ex)
+            {
+                return SetErrorMessage(404, ex.Message);
+            }
 
-			return GetStatus(serverId);
-		}
-	}
+            return GetStatus(serverId);
+        }
+
+        private object SetErrorMessage(int statusCode, string message)
+        {
+            HttpContext.Response.StatusCode = statusCode;
+            return new { errorText = message };
+        }
+    }
 }
