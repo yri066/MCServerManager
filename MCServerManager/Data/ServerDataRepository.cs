@@ -1,6 +1,7 @@
 ﻿using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using MCService = MCServerManager.Library.Data.Models.Service;
 
 namespace MCServerManager.Data
 {
@@ -35,7 +36,7 @@ namespace MCServerManager.Data
 		/// Добавить новый сервис.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-        public async Task CreateServiceAsync(Library.Data.Models.Service serviceData)
+        public async Task CreateServiceAsync(MCService serviceData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {
@@ -127,7 +128,7 @@ namespace MCServerManager.Data
 		/// Обновить информацию о сервисе.
 		/// </summary>
 		/// <param name="serverData">Информация о сервисе.</param>
-        public async Task UpdateServiceAsync(Library.Data.Models.Service serviceData)
+        public async Task UpdateServiceAsync(MCService serviceData)
         {
             using (IServiceScope scope = _provider.CreateScope())
             {

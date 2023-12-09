@@ -1,6 +1,7 @@
 ﻿using MCServerManager.Library.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MCService = MCServerManager.Library.Data.Models.Service;
 
 namespace MCServerManager.Data
 {
@@ -12,6 +13,6 @@ namespace MCServerManager.Data
 		}
 
 		public DbSet<Server> Servers { get; set; }
-        public DbSet<Library.Data.Models.Service> Services { get; set; }
+        public DbSet<MCService> Services { get; set; }
     }
 }
