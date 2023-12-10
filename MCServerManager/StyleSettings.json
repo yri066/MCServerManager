@@ -37,10 +37,12 @@
 		"Application": {
 			"StartButton": {
 				"Off": "inline",
+				"Launch": "none",
 				"Run": "none"
 			},
 			"CloseButton": {
 				"Off": "none",
+				"Launch": "inline",
 				"Run": "inline"
 			}
 		}
