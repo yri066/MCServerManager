@@ -1,4 +1,5 @@
-﻿@*
+﻿@model MCServerManager.Library.Data.Interface.IConsoleBufferApp
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -7,38 +8,67 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script defer type="text/javascript" src="~/js/Application/Console.js" asp-append-version="true"></script>
 
-
+@if (Model.ConsoleBuffer.Count() > 0)
+{
+    <script>
+        /**Версия вывода консоли. */
+        let consoleVersion = "@Model.Version";
+    </script>
+}
+else
+{
+    <script>
+        /**Версия вывода консоли. */
+        let consoleVersion = "00000000-0000-0000-0000-000000000000";
+    </script>
+}
 <style>
     .console {
         text-indent: 1.2ch;
         margin-bottom: 0px;
-		-webkit-transform: rotateX(180deg);
+        -webkit-transform: rotateX(180deg);
     }
 
-	#consoleView::-webkit-scrollbar {
-		display: none;
-	}
+    #consoleView::-webkit-scrollbar {
+        display: none;
+    }
 
-	#consoleView{
-		height: 65vh;
-		overflow-x: hidden;
-		overflow-y: scroll;
-		overflow-wrap: break-word;
-		-webkit-transform: rotateX(180deg);
-		flex-direction: row-reverse;
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
+    #consoleView {
+        height: 65vh;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        overflow-wrap: break-word;
+        -webkit-transform: rotateX(180deg);
+        flex-direction: row-reverse;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
 </style>
 
 <h1>@ViewData["Name"]</h1>
 
 <div class="w-100 bg-light" id="consoleView">
-	<div class="text-center" style="height: 50%; transform: translate(0,100%)">
-		<div class="spinner-border " role="status" >
-			<span class="visually-hidden">Loading...</span>
-		</div>
-	</div>
+    @if (Model.ConsoleBuffer.Count() > 0)
+    {
+        foreach (var item in Model.ConsoleBuffer.Reverse())
+        {
+            if (String.IsNullOrEmpty(item))
+            {
+                <div class="console">&nbsp;</div>
+                continue;
+            }
+            <div class="console">@item</div>
+        }
+
+    }
+    else
+    {
+        <div class="text-center" style="height: 50%; transform: translate(0,100%)">
+            <div class="spinner-border " role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
 </div>
 
 <br />
@@ -49,6 +79,6 @@
     </div>
 </div>
 @{
-	var backApp = $"{Context.Request.Path}".Replace("/Console", "", true, null);
+    var backApp = $"{Context.Request.Path}".Replace("/Console", "", true, null);
 }
 <a id="back" href="@backApp">@("<Назад")</a>

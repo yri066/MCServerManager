@@ -1,6 +1,8 @@
 ﻿using MCServerManager.Data.FilterAttributes;
+using MCServerManager.Models;
 using MCServerManager.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MCServerManager.Pages.Server
@@ -150,6 +152,7 @@ namespace MCServerManager.Pages.Server
         /// </summary>
         /// <param name="serverId">Идентификатор сервера.</param>
         /// <returns>Страница консоли.</returns>
+        [ServiceFilter(typeof(UserServerAccessFilter))]
         public IActionResult Console(Guid serverId)
         {
             try
@@ -160,7 +163,7 @@ namespace MCServerManager.Pages.Server
                     return Forbid();
 
                 ViewData["Name"] = server.Name;
-                return View("/Pages/Application/Console.cshtml");
+                return View("/Pages/Application/Console.cshtml", server.ConsoleBuffer);
             }
             catch (Exception)
             {

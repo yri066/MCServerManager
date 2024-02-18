@@ -1,9 +1,7 @@
 ﻿/**Url текущей страницы. */
-let pathPage = new URL(window.location.origin + window.location.pathname);
+let pathPage = window.location.href;
 /**Url получения состояния приложения. */
 let getStatusUrl = new URL('GetStatus', pathPage);
-/**Версия вывода консоли. */
-let consoleVersion = "00000000-0000-0000-0000-000000000000";
 
 /**Получение состояния. */
 let timer = setInterval(() => {
@@ -88,7 +86,7 @@ function checkConsole(element) {
 
         $("#consoleView").prepend(list);
 
-        while ($("#consoleView p").length > 1000) {
+        while ($("#consoleView p").length > 5000) {
             $("#consoleView").find("p:last").remove();
         }
     });

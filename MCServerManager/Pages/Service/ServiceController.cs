@@ -100,7 +100,7 @@ namespace MCServerManager.Pages.Service
                     return Forbid();
 
                 ViewData["Name"] = service.Name;
-                return View("/Pages/Application/Console.cshtml");
+                return View("/Pages/Application/Console.cshtml", service.ConsoleBuffer);
             }
             catch (Exception)
             {
