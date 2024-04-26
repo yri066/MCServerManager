@@ -74,6 +74,11 @@ namespace MCServerManager.Library.Data.Models
         /// </summary>
         public string UserId { get; set; }
 
+        /// <summary>
+        /// Позиция в рейтинге.
+        /// </summary>
+        public int RatingNumber { get; set; } = 0;
+
         public void UpdateData(Service service)
         {
             Name = service.Name;
@@ -85,6 +90,7 @@ namespace MCServerManager.Library.Data.Models
             Arguments = service.Arguments;
             Address = service.Address;
             Port = service.Port;
+            RatingNumber = service.RatingNumber;
         }
     }
 }

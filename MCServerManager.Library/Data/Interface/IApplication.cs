@@ -38,5 +38,10 @@ namespace MCServerManager.Library.Data.Interface
         /// Идентификатор пользователя.
         /// </summary>
         public string UserId { get; set; }
+
+        /// <summary>
+        /// Позиция в рейтинге.
+        /// </summary>
+        public int RatingNumber { get; set; }
     }
 }

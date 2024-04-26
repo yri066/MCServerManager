@@ -50,11 +50,12 @@ namespace MCServerManager.Models
             };
         }
 
-        public MCService GetBackgroundServiceData(Guid serverId, Guid serviceId)
+        public MCService GetBackgroundServiceData(MCService service)
         {
-            var service = GetBackgroundServiceData();
-            service.ServerId = serverId;
-            service.ServiceId = serviceId;
+            var exemplar = GetBackgroundServiceData();
+            exemplar.ServerId = service.ServerId;
+            exemplar.ServiceId = service.ServiceId;
+            exemplar.RatingNumber = service.RatingNumber;
 
             return service;
         }

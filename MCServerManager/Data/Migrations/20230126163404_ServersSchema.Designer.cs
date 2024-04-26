@@ -45,6 +45,9 @@ namespace MCServerManager.Data.Migrations
                     b.Property<int?>("Port")
                         .HasColumnType("int");
 
+                    b.Property<int>("RatingNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("StartProgram")
                         .HasColumnType("nvarchar(max)");
 
@@ -86,6 +89,9 @@ namespace MCServerManager.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RatingNumber")
                         .HasColumnType("int");
 
                     b.Property<Guid>("ServerId")

@@ -65,7 +65,7 @@ namespace MCServerManager.Pages.Server
 
                     if (userId != server.UserId) return Forbid();
 
-                    await _service.UpdateServerAsync(Input.GetServerData(serverId));
+                    await _service.UpdateServerAsync(Input.GetServerData(server));
 					return RedirectToPage("Server", new { serverId });
 				}
 			}

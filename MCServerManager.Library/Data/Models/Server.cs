@@ -66,6 +66,11 @@ namespace MCServerManager.Library.Data.Models
         public string UserId { get; set; }
         public IdentityUser User { get; set; }
 
+        /// <summary>
+        /// Позиция в рейтинге.
+        /// </summary>
+        public int RatingNumber { get; set; } = 0;
+
         public void UpdateData(Server server)
         {
             Name = server.Name;
@@ -75,6 +80,7 @@ namespace MCServerManager.Library.Data.Models
             Arguments = server.Arguments;
             Address = server.Address;
             Port = server.Port;
+            RatingNumber = server.RatingNumber;
         }
     }
 }

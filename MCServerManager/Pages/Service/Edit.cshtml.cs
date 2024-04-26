@@ -59,7 +59,7 @@ namespace MCServerManager.Pages.Service
 
                     if (userId != service.UserId) return Forbid();
 
-                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(service.ServerId, serviceId));
+                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(service));
 					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}

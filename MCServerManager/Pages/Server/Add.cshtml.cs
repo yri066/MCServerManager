@@ -34,7 +34,7 @@ namespace MCServerManager.Pages.Server
 				{
                     var userId = _userService.UserId!;
 
-                    var serverId = await _service.CreateServer(Input.GetServerData(userId));
+                    var serverId = await _service.CreateServerAsync(Input.GetServerData(userId));
 					return RedirectToPage("Server", new { serverId });
 				}
 			}

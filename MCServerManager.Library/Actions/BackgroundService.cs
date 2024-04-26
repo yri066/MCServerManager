@@ -70,14 +70,14 @@ namespace MCServerManager.Library.Actions
         /// <param name="data">Информация о серверном приложении.</param>
         public void UpdateData(Service data)
         {
-            if (ServiceId != data.Id)
+            if (ServiceId != data.ServiceId)
             {
-                throw new Exception("Идентификаторы не совпадают");
+                throw new Exception("Идентификаторы сервиса не совпадают");
             }
 
             if (Data.UserId != data.UserId)
             {
-                throw new Exception("Идентификаторы не совпадают");
+                throw new Exception($"Идентификаторы владельца не совпадают {Data.UserId} - {data.UserId}");
             }
 
             CheckServiceData(data);

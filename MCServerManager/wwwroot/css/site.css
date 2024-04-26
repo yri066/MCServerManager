@@ -20,3 +20,10 @@ body {
 .toast-container-extra {
     z-index: 10000;
 }
+
+.item-list.dragging {
+  opacity: 0.5;
+}
+.item-list.dragging :where(.details, i) {
+  opacity: 0;
+}
