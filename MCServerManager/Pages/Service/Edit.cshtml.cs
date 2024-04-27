@@ -46,8 +46,9 @@ namespace MCServerManager.Pages.Service
 			{
 				if (ModelState.IsValid)
 				{
-                    var serverId = _service.GetServiceData(serviceId).ServerId;
-                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(serverId, serviceId));
+					var service = _service.GetServiceData(serviceId);
+
+                    await _service.UpdateServiceAsync(Input.GetBackgroundServiceData(service));
 					return RedirectToPage("/Service/Service", new { serviceId });
 				}
 			}

@@ -145,7 +145,7 @@ namespace MCServerManager.Pages.Server
                 var server = _serverService.GetServer(serverId);
 
                 ViewData["Name"] = server.Name;
-                return View("/Pages/Application/Console.cshtml");
+                return View("/Pages/Application/Console.cshtml", server.ConsoleBuffer);
             }
             catch (Exception)
             {
@@ -203,6 +203,21 @@ namespace MCServerManager.Pages.Server
         {
             HttpContext.Response.StatusCode = statusCode;
             return new { errorText = message };
+        }
+
+        [HttpPost]
+        public void UpdateRateServices(Guid serverId, string content)
+        {
+            try
+            {
+                var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, int>>(content);
+                _serverService.UpdateRateServices(serverId, dict);
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Response.StatusCode = 500;
+                HttpContext.Response.WriteAsync(ex.ToString()).Wait();
+            }
         }
     }
 }

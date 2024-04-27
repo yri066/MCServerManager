@@ -2,6 +2,7 @@
 using MCServerManager.Library.Data.Interface;
 using MCServerManager.Library.Data.Models;
 using static MCServerManager.Library.Actions.Application;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using MCBackgroundService = MCServerManager.Library.Actions.BackgroundService;
 using MCService = MCServerManager.Library.Data.Models.Service;
 
@@ -78,10 +79,12 @@ namespace MCServerManager.Service
 
                 if (count < minWaitTime || count > maxWaitTime)
                 {
-                    throw new ArgumentOutOfRangeException(_keyGetStartupWaitTime, $"Значение задано вне допустимого диапазона {minWaitTime} - {maxWaitTime} в Settings.json");
+                    Console.WriteLine($"Значение {_keyGetStartupWaitTime} задано вне допустимого диапазона {minWaitTime} - {maxWaitTime} в Settings.json, используется значение по умолчанию: {startupWaitTime}");
                 }
-
-                startupWaitTime = count;
+                else
+                {
+                    startupWaitTime = count;
+                }
             }
 
             var task = Task.Run(() =>
@@ -132,32 +135,50 @@ namespace MCServerManager.Service
         /// </summary>
         /// <param name="server">Информация о сервере.</param>
         /// <returns>Идентификатор сервера.</returns>
-        public async Task<Guid> CreateServer(Server server)
+        public async Task<Guid> CreateServerAsync(Server server)
         {
+            CheckData(server, server.Port, server.Address);
+
             var id = Guid.NewGuid();
             server.ServerId = id;
             server.Services = new List<MCService>();
 
-            AddServer(server);
-            await _context.CreateServerAsync(server);
+            try
+            {
+                await _context.CreateServerAsync(server);
+                _servers.Add(new GameServer(server, _configuration));
+            }
+            catch (Exception)
+            {
+                throw new Exception("Невозможно сохранить сервер. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
 
             return id;
 		}
 
         /// <summary>
-        /// Создает новый сервер.
+        /// Создает новый сервис.
         /// </summary>
         /// <param name="service">Информация о сервисе.</param>
         /// <returns>Идентификатор сервера.</returns>
         public async Task<Guid> CreateServiceAsync(MCService service)
         {
-            GetServer(service.ServerId);
+            CheckData(service, service.Port, service.Address);
 
             var serviceId = Guid.NewGuid();
             service.ServiceId = serviceId;
+            service.RatingNumber = GetMaxServiceRatingNumber(service.ServerId) + 1;
 
-            AddService(service);
-            await _context.CreateServiceAsync(service);
+            try
+            {
+                await _context.CreateServiceAsync(service);
+                GetServer(service.ServerId).AddService(new MCBackgroundService(service, _configuration));
+            }
+            catch (Exception)
+            {
+                throw new Exception("Невозможно сохранить сервис. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
+            
 
             return serviceId;
 		}
@@ -176,19 +197,6 @@ namespace MCServerManager.Service
         }
 
         /// <summary>
-        /// Добавить новый сервис.
-        /// </summary>
-        /// <param name="service">Информация о сервисе.</param>
-        /// <exception cref="Exception">Директория или порт используются другим сервером или сервисом.</exception>
-        private void AddService(MCService service)
-        {
-            CheckFreeDirectory(service.WorkDirectory);
-            CheckFreePort(service.Port, service.Address, service.Id);
-
-            GetServer(service.ServerId).AddService(new MCBackgroundService(service, _configuration));
-        }
-
-        /// <summary>
         /// Удалить указанный сервер.
         /// </summary>
         /// <param name="id">Идентификатор сервера.</param>
@@ -202,9 +210,16 @@ namespace MCServerManager.Service
 				exemplar.CloseAllServices();
 			}
 
-			_servers.Remove(exemplar);
-            await _context.DeleteServerAsync(id);
-		}
+            try
+            {
+                await _context.DeleteServerAsync(id);
+                _servers.Remove(exemplar);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Невозможно удалить. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
+        }
 
         /// <summary>
         /// Удалить указанный сервис.
@@ -212,11 +227,18 @@ namespace MCServerManager.Service
         /// <param name="serviceId">Идентификатор сервиса.</param>
         public async Task DeleteServiceAsync(Guid serviceId)
         {
-            var service = GetService(serviceId);
-            GetServer(service.GameServerId).DeleteService(serviceId);
+            var exemplar = GetService(serviceId);
 
-            await _context.DeleteServiceAsync(serviceId);
-		}
+            try
+            {
+                await _context.DeleteServiceAsync(serviceId);
+                GetServer(exemplar.GameServerId).DeleteService(serviceId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Невозможно удалить. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
+        }
 
         /// <summary>
         /// Обновить информацию указанного сервера.
@@ -227,9 +249,16 @@ namespace MCServerManager.Service
             CheckData(serverData, serverData.Port, serverData.Address);
 
             var exemplar = GetServer(serverData.ServerId);
-            exemplar.UpdateData(serverData);
-            await _context.UpdateServerAsync(serverData);
-		}
+            try
+            {
+                await _context.UpdateServerAsync(serverData);
+                exemplar.UpdateData(serverData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Невозможно сохранить изменения. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
+        }
 
         /// <summary>
         /// Обновить информацию указанного сервиса.
@@ -241,9 +270,77 @@ namespace MCServerManager.Service
             CheckData(serviceData, serviceData.Port, serviceData.Address);
 
             var exemplar = GetService(serviceData.ServiceId);
-            exemplar.UpdateData(serviceData);
-            await _context.UpdateServiceAsync(exemplar.Data);
-		}
+            try
+            {
+                await _context.UpdateServiceAsync(exemplar.Data);
+                exemplar.UpdateData(serviceData);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Невозможно сохранить изменения. Попробуйте еще раз, и если проблема не исчезнет, обратитесь к системному администратору.");
+            }
+        }
+
+        
+        public void UpdateRateServices(Guid serverId, Dictionary<string, int> serviceRate)
+        {
+            if(serviceRate == null || serviceRate.Count == 0)
+            {
+                return;
+            }
+
+            lock (GetServer(serverId).DataLock)
+            {
+                var serviceCollection = GetServer(serverId).Services;
+                var countItems = serviceCollection.Count() >= serviceRate.Count ? serviceCollection.Count : serviceRate.Count;
+                var serviceRateSorted = serviceRate.OrderBy(x => x.Value).ToList();
+                var serviceListSorted = new List<MCBackgroundService>(serviceCollection.OrderBy(x => x.RatingNumber));
+                var count = 0;
+
+                void Change(MCBackgroundService service, int raiting)
+                {
+                    serviceListSorted.Remove(service);
+                    try
+                    {
+                        _context.UpdateServiceAsync(service.Data).Wait();
+                        service.UpdateRateNumber(raiting);
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Не удалось обновить.");
+                    }
+                }
+
+                for (int i = 0; i < countItems; i++)
+                {
+                    if (serviceListSorted.Count() == 0)
+                    {
+                        break;
+                    }
+
+                    if (serviceRateSorted.Count() == 0)
+                    {
+                        var temp = serviceListSorted.First();
+                        Change(temp, count++);
+                        continue;
+                    }
+
+                    var item = serviceRateSorted.First();
+                    serviceRateSorted.Remove(item);
+
+                    var exemplar = (from service in serviceListSorted
+                                    where service.ServiceId == Guid.Parse(item.Key)
+                                    select service).FirstOrDefault();
+
+                    if (exemplar == null)
+                    {
+                        continue;
+                    }
+
+                    Change(exemplar, count++);
+                }
+            }
+        }
 
 		/// <summary>
 		/// Запустить указанный сервер.
@@ -357,6 +454,12 @@ namespace MCServerManager.Service
 		{
 			return GetService(serviceId).Data;
 		}
+
+        private int GetMaxServiceRatingNumber(Guid serverId)
+        {
+            var services = GetServer(serverId).Services;
+            return services.Count() > 0 ? services.Max(x => x.RatingNumber) : 0;
+        }
 
         /// <summary>
         /// Отправляет сообщение в серверное приложение

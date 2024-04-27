@@ -53,7 +53,9 @@ namespace MCServerManager.Pages.Server
 			{
 				if (ModelState.IsValid)
 				{
-                    await _service.UpdateServerAsync(Input.GetServerData(serverId));
+                    var server = _service.GetServerData(serverId);
+
+                    await _service.UpdateServerAsync(Input.GetServerData(server));
 					return RedirectToPage("Server", new { serverId });
 				}
 			}

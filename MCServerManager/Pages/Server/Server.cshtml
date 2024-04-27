@@ -7,6 +7,7 @@
 <script defer type="text/javascript" src="~/js/Application/ControlApp.js" asp-append-version="true"></script>
 <script defer type="text/javascript" src="~/js/Server/ControlGameServer.js" asp-append-version="true"></script>
 
+
 <div class="mb-3">
     <div class="row align-items-center">
         <div class="col">
@@ -74,32 +75,44 @@
                     <div class="col">
                         <p class="card-text">Сервисы</p>
                     </div>
-                    <div class="col-auto text-end">
-                        <a asp-page="/Service/Add" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-primary" role="button">Добавить</a>
+                    <div class="col-auto text-end add-service">
+                        <div class="btn-group dropdown">
+                            <a asp-page="/Service/Add" asp-route-serverId="@Model.Exemplar.ServerId" class="btn btn-primary add-service" role="button">Добавить</a>
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropend</span>
+                            </button>
+                            <ul class="dropdown-menu" style="">
+                                <li><button type="button" class="dropdown-item edit-button">Изменить список</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-auto text-end edit-service-group" style="display:none">
+                        <button type="button" class="btn btn-success save-button">Сохранить</button>
+                        <button type="button" class="btn btn-danger cancel-button">Отменить</button>
                     </div>
                 </div>
             </div>
         </div>
-        <br />
-        @foreach (var item in @Model.Exemplar.Services)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <p class="card-text ">@item.Name</p>
-                        </div>
-                        <div class="col">
-                            <div class="card-text" style="display:inline;">Состояние: </div><div class="card-text" style="display:inline;"> @item.State.ToString()</div>
-                        </div>
-                        <div class="col-auto text-end">
-                            <a asp-page="/Service/Service" asp-route-serviceId="@item.ServiceId" class="btn btn-info" role="button">Подробнее</a>
+        <div class="service-list" style="padding-top:10px;padding-bottom:30px;">
+            @foreach (var item in @Model.Exemplar.Services.OrderBy(x => x.RatingNumber))
+            {
+                <div class="card mb-3 service-item" id="@item.ServiceId">
+                    <div class="card-body">
+                        <div class="row align-items-center service-item-content">
+                            <div class="col" style="overflow: hidden;">
+                                <p class="card-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@item.Name</p>
+                            </div>
+                            <div class="col service-item-content-block">
+                                <div class="card-text" style="display:inline;">Состояние: </div><div class="card-text" style="display:inline;"> @item.State.ToString()</div>
+                            </div>
+                            <div class="col-auto text-end service-item-content-block">
+                                <a asp-page="/Service/Service" asp-route-serviceId="@item.ServiceId" class="btn btn-info" role="button">Подробнее</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-        }
+            }
+        </div>
 
     </div>
     <div class="col-sm-6">
@@ -147,3 +160,5 @@
         </div>
     </div>
 </div>
+
+<script defer type="text/javascript" src="~/js/Server/EditServiceList.js" asp-append-version="true"></script>

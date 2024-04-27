@@ -11,6 +11,7 @@ namespace MCServerManager.Library.Actions
 	/// </summary>
 	public abstract class Application
 	{
+        public readonly object DataLock;
 		/// <summary>
 		/// Состояния приложения.
 		/// </summary>
@@ -57,10 +58,15 @@ namespace MCServerManager.Library.Actions
 		/// </summary>
 		public string Arguments { get { return Data.Arguments; } }
 
-		/// <summary>
-		/// Процесс, управляющий серверным приложением.
-		/// </summary>
-		protected Process _process;
+        /// <summary>
+        /// Позиция в рейтинге.
+        /// </summary>
+        public int RatingNumber { get { return Data.RatingNumber; } }
+
+        /// <summary>
+        /// Процесс, управляющий серверным приложением.
+        /// </summary>
+        protected Process _process;
 
 		/// <summary>
 		/// Состояние сервера.
@@ -105,7 +111,8 @@ namespace MCServerManager.Library.Actions
 		{
 			CheckApplicationData(data);
 
-			_consoleBuffer = new(configuration);
+            DataLock = this;
+            _consoleBuffer = new(configuration);
 			Data = data;
 			State = Status.Off;
 		}
@@ -228,11 +235,20 @@ namespace MCServerManager.Library.Actions
 			_process.StandardInput.WriteLine(message);
 		}
 
-		/// <summary>
-		/// Проверяет данные серверного приложения.
-		/// </summary>
-		/// <param name="data">Информация о серверном приложении.</param>
-		public void CheckApplicationData(IApplication data)
+        /// <summary>
+        /// Изменение номера рейтинга.
+        /// </summary>
+        /// <param name="rating">Рейтинг.</param>
+        public void UpdateRateNumber(int rating)
+        {
+            Data.RatingNumber = rating;
+        }
+
+        /// <summary>
+        /// Проверяет данные серверного приложения.
+        /// </summary>
+        /// <param name="data">Информация о серверном приложении.</param>
+        public void CheckApplicationData(IApplication data)
 		{
 			if (string.IsNullOrEmpty(data.StartProgram))
 			{

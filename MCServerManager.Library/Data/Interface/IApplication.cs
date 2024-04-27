@@ -28,8 +28,13 @@
 		public string Arguments { get; }
 
         /// <summary>
-        /// Название приложения
+        /// Автозапуск приложения
         /// </summary>
-        public bool AutoStart { get; }
+        public bool AutoStart { get; set; }
+
+        /// <summary>
+        /// Позиция в рейтинге.
+        /// </summary>
+        public int RatingNumber { get; set; }
     }
 }

@@ -41,7 +41,7 @@ namespace MCServerManager.Library.Actions
         /// <summary>
         /// Список сервисов.
         /// </summary>
-        public IEnumerable<BackgroundService> Services { get { return _services; } }
+        public ICollection<BackgroundService> Services { get { return _services; } }
 
         /// <summary>
         /// Состояние сервера.
@@ -259,6 +259,7 @@ namespace MCServerManager.Library.Actions
                 State = Status.Off;
                 // Вызывается событие отключения серверного приложения
                 Closed?.Invoke(ServerId);
+                _userList.Clear();
             }
         }
 

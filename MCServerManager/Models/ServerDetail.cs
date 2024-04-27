@@ -35,11 +35,12 @@ namespace MCServerManager.Models
 			};
 		}
 
-        public Server GetServerData(Guid id)
+        public Server GetServerData(Server server)
         {
-            var server = GetServerData();
-            server.ServerId = id;
-            return server;
+            var exemplar = GetServerData();
+            exemplar.ServerId = server.ServerId;
+            exemplar.RatingNumber = server.RatingNumber;
+            return exemplar;
         }
 
         public void UpdateData(Server server)
