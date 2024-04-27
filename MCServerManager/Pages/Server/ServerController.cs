@@ -142,7 +142,9 @@ namespace MCServerManager.Pages.Server
         {
             try
             {
-                ViewData["Name"] = _serverService.GetServer(serverId).Name;
+                var server = _serverService.GetServer(serverId);
+
+                ViewData["Name"] = server.Name;
                 return View("/Pages/Application/Console.cshtml");
             }
             catch (Exception)

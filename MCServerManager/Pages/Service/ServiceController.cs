@@ -82,8 +82,10 @@ namespace MCServerManager.Pages.Service
         {
             try
             {
-                ViewData["Name"] = _serverService.GetService(serviceId).Name;
-                return View("/Pages/Application/Console.cshtml");
+                var service = _serverService.GetService(serviceId);
+
+                ViewData["Name"] = service.Name;
+                return View("/Pages/Application/Console.cshtml", service.ConsoleBuffer);
             }
             catch (Exception)
             {
