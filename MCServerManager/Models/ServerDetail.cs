@@ -40,7 +40,7 @@ namespace MCServerManager.Models
             var exemplar = GetServerData();
             exemplar.ServerId = server.ServerId;
             exemplar.RatingNumber = server.RatingNumber;
-            return server;
+            return exemplar;
         }
 
         public Server GetServerData(string userId)

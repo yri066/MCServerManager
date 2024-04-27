@@ -57,7 +57,7 @@ namespace MCServerManager.Models
             exemplar.ServiceId = service.ServiceId;
             exemplar.RatingNumber = service.RatingNumber;
 
-            return service;
+            return exemplar;
         }
 
         public MCService GetBackgroundServiceData(Guid serverId, string UserId)
