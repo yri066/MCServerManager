@@ -302,8 +302,8 @@ namespace MCServerManager.Service
                     serviceListSorted.Remove(service);
                     try
                     {
-                        _context.UpdateServiceAsync(service.Data).Wait();
                         service.UpdateRateNumber(raiting);
+                        _context.UpdateServiceAsync(service.Data).Wait();
                     }
                     catch(Exception ex)
                     {
