@@ -34,6 +34,7 @@ function initiateServiceEdit() {
 }
 
 function updateServiceRating() {
+    serviceList.removeEventListener("click", handleMoveItem);
     addService.style.display = 'inline';
     editServiceGroup.style.display = 'none';
 
@@ -67,6 +68,8 @@ function updateServiceRating() {
 }
 
 function cancelServiceEdit() {
+    serviceList.removeEventListener("click", handleMoveItem);
+
     addService.style.display = 'inline';
     editServiceGroup.style.display = 'none';
 
@@ -97,15 +100,17 @@ function enableMobileEdit() {
         </div>`;
     });
 
-    serviceList.addEventListener("click", function (e) {
-        const target = e.target;
+    serviceList.addEventListener("click", handleMoveItem);
+}
 
-        if (target.classList.contains("up-btn")) {
-            moveItem(target.closest(".service-item"), -1); // Поднять вверх
-        } else if (target.classList.contains("down-btn")) {
-            moveItem(target.closest(".service-item"), 1); // Переместитесь вниз
-        }
-    });
+function handleMoveItem(e) {
+    const target = e.target;
+
+    if (target.classList.contains("up-btn")) {
+        moveItem(target.closest(".service-item"), -1); // Поднять вверх
+    } else if (target.classList.contains("down-btn")) {
+        moveItem(target.closest(".service-item"), 1); // Переместитесь вниз
+    }
 }
 
 function moveItem(item, direction) {
@@ -113,7 +118,7 @@ function moveItem(item, direction) {
     const newIndex = index + direction;
 
     if (newIndex >= 0 && newIndex < serviceList.children.length) {
-        // Swap the items
+        // Поменяйте элементы местами
         const referenceNode = serviceList.children[newIndex];
         serviceList.insertBefore(item, direction === 1 ? referenceNode.nextSibling : referenceNode);
     }
@@ -164,7 +169,7 @@ function enableDragAndDrop() {
 
         // Нахождение дочернего элемента, после которого должен быть помещен перетаскиваемый элемент
         let nextSibling = siblings.find(sibling => {
-            return e.clientY <= sibling.offsetTop - sibling.offsetHeight;
+            return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 4;
         });
 
         // Вставка перетаскиваемого элемента перед найденным дочерним элементом
