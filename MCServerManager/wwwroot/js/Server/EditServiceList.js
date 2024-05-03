@@ -41,8 +41,6 @@ function updateServiceRating() {
     document.querySelectorAll(".service-item-content-block").forEach(item => { item.style.display = 'inline'; });
     document.querySelectorAll(".move-item").forEach(item => { item.remove(); });
 
-    console.log(changedServiceRatings);
-
     let updatedRatingsData = {};
     changedServiceRatings.forEach((value, key) => {
         updatedRatingsData[key] = value;
@@ -169,7 +167,7 @@ function enableDragAndDrop() {
 
         // Нахождение дочернего элемента, после которого должен быть помещен перетаскиваемый элемент
         let nextSibling = siblings.find(sibling => {
-            return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 4;
+            return e.clientY <= sibling.offsetTop - sibling.offsetHeight;
         });
 
         // Вставка перетаскиваемого элемента перед найденным дочерним элементом
