@@ -111,7 +111,7 @@ namespace MCServerManager.Library.Actions
 		{
 			CheckApplicationData(data);
 
-            DataLock = this;
+            DataLock = new object();
             _consoleBuffer = new(configuration);
 			Data = data;
 			State = Status.Off;
