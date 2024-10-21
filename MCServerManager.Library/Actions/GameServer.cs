@@ -203,17 +203,20 @@ namespace MCServerManager.Library.Actions
                 return;
             }
 
-            StartServer(new EventHandler((sender, e) =>
-            {
-                ProcessClosed();
-                ServerOff?.Invoke();
-            }),
-            new DataReceivedEventHandler((sender, e) =>
-            {
-                GetAppMessage(e.Data);
-                DetectingCompletionStartupServer(e.Data);
-                DetectingUser(e.Data);
-            })
+            StartServer(
+                new EventHandler((sender, e) =>
+                    {
+                        ProcessClosed();
+                        ServerOff?.Invoke();
+                    }
+                ),
+                new DataReceivedEventHandler((sender, e) =>
+                    {
+                        GetAppMessage(e.Data);
+                        DetectingCompletionStartupServer(e.Data);
+                        DetectingUser(e.Data);
+                    }
+                )
             );
 
             if (State != Status.Reboot)
@@ -303,7 +306,7 @@ namespace MCServerManager.Library.Actions
             }
 
             State = Status.Off;
-            _process.Kill();
+            _process.Kill(true);
         }
 
         /// <summary>

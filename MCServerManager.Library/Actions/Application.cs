@@ -208,7 +208,7 @@ namespace MCServerManager.Library.Actions
 				return;
 			}
 
-			_process.Kill();
+			_process.Kill(true);
 		}
 
 		/// <summary>
