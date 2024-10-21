@@ -41,8 +41,6 @@ function updateServiceRating() {
     document.querySelectorAll(".service-item-content-block").forEach(item => { item.style.display = 'inline'; });
     document.querySelectorAll(".move-item").forEach(item => { item.remove(); });
 
-    console.log(changedServiceRatings);
-
     let updatedRatingsData = {};
     changedServiceRatings.forEach((value, key) => {
         updatedRatingsData[key] = value;
