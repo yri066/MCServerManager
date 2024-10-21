@@ -169,7 +169,7 @@ function enableDragAndDrop() {
 
         // Нахождение дочернего элемента, после которого должен быть помещен перетаскиваемый элемент
         let nextSibling = siblings.find(sibling => {
-            return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 4;
+            return e.pageY <= sibling.offsetTop + sibling.offsetHeight / 2;
         });
 
         // Вставка перетаскиваемого элемента перед найденным дочерним элементом
