@@ -272,7 +272,7 @@ namespace MCServerManager.Service
             var exemplar = GetService(serviceData.ServiceId);
             try
             {
-                await _context.UpdateServiceAsync(exemplar.Data);
+                await _context.UpdateServiceAsync(serviceData);
                 exemplar.UpdateData(serviceData);
             }
             catch (Exception ex)
